@@ -1,12 +1,13 @@
 """
 Main.py
 """
-import uuid
 import json
 import time
+import uuid
+from threading import Thread
+
 import requests
 from websocket import WebSocket
-from threading import Thread
 
 
 def append_identifier(msg: dict) -> str:
@@ -21,6 +22,7 @@ class ChatHubRequest:
     """
     Request object for ChatHub
     """
+
     def __init__(
         self,
         conversation_signature: str,
@@ -36,8 +38,14 @@ class ChatHubRequest:
         self.invocation_id: int = invocation_id
         self.is_start_of_session: bool = True
 
-        self.update(prompt=None, conversation_signature=conversation_signature, client_id=client_id, conversation_id=conversation_id, invocation_id=invocation_id)
-    
+        self.update(
+            prompt=None,
+            conversation_signature=conversation_signature,
+            client_id=client_id,
+            conversation_id=conversation_id,
+            invocation_id=invocation_id,
+        )
+
     def update(
         self,
         prompt: str,
@@ -69,11 +77,12 @@ class ChatHubRequest:
                         "text": prompt,
                         "messageType": "Chat",
                     },
-                    "conversationSignature": conversation_signature or self.conversation_signature,
+                    "conversationSignature": conversation_signature
+                    or self.conversation_signature,
                     "participant": {"id": client_id or self.client_id},
                     "conversationId": conversation_id or self.conversation_id,
                     "previousMessages": [],
-                }
+                },
             ],
             "invocationId": str(invocation_id),
             "target": "chat",
@@ -81,13 +90,19 @@ class ChatHubRequest:
         }
         self.is_start_of_session = False
 
+
 class Conversation:
     """
     Conversation API
     """
 
     def __init__(self) -> None:
-        self.struct: dict = {'conversationId': None, 'clientId': None, 'conversationSignature': None, 'result': {'value': 'Success', 'message': None}}
+        self.struct: dict = {
+            "conversationId": None,
+            "clientId": None,
+            "conversationSignature": None,
+            "result": {"value": "Success", "message": None},
+        }
         self.__create()
 
     def __create(self):
@@ -115,7 +130,7 @@ class Conversation:
         }
         # Create cookies
         cookies = json.loads(
-            open("templates/cookies.json", "r", encoding="utf-8").read()
+            open("templates/cookies.json", encoding="utf-8").read(),
         )
         # Send GET request
         response = requests.get(
@@ -141,16 +156,15 @@ class ChatHub:
         self.thread = Thread(target=self.__ping)
         self.thread.start()
         self.stop_thread = False
-    
+
     def ask(self, prompt: str):
         pass
-
 
     def __initial_handshake(self):
         self.wss.send(append_identifier({"protocol": "json", "version": 1}))
         # Receive blank message
         self.wss.recv()
-    
+
     def __ping(self):
         timing = 10
         while True:
@@ -164,7 +178,7 @@ class ChatHub:
             time.sleep(1)
             if self.stop_thread:
                 break
-    
+
     def close(self):
         """
         Close all connections
@@ -172,6 +186,7 @@ class ChatHub:
         self.wss.close()
         self.stop_thread = True
         self.thread.join()
+
 
 async def main():
     """
