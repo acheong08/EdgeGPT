@@ -278,7 +278,7 @@ async def main():
             await bot.reset()
             continue
         print("Bot:")
-        print((await bot.ask(prompt=prompt))["item"]["messages"][1]["text"])
+        print((await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"])
     await bot.close()
 
 
