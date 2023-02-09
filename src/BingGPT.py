@@ -5,6 +5,7 @@ import asyncio
 import json
 import os
 import uuid
+import sys
 
 import requests
 import websockets.client as websockets
@@ -113,7 +114,7 @@ class Conversation:
         }
         # Create cookies
         cookies = {
-            "_U": os.environ.get("BING_U"),
+            "_U": os.environ.get("BING_U") or sys.argv[1],
         }
         # Send GET request
         response = requests.get(
@@ -201,7 +202,7 @@ class Chatbot:
         self.conversation: Conversation
         self.chat_hub: ChatHub
 
-    async def a_start(self) -> None:
+    async def start(self) -> None:
         """
         Separate initialization to allow async
         """
@@ -209,17 +210,25 @@ class Chatbot:
         self.chat_hub = ChatHub()
         await self.chat_hub.init(conversation=self.conversation)
 
-    async def a_ask(self, prompt: str) -> str:
+    async def ask(self, prompt: str) -> str:
         """
         Ask a question to the bot
         """
         return await self.chat_hub.ask(prompt=prompt)
 
-    async def a_close(self):
+    async def close(self):
         """
         Close the connection
         """
         await self.chat_hub.close()
+    
+    async def reset(self):
+        """
+        Reset the conversation
+        """
+        await self.close()
+        await self.start()
+    
 
 
 def get_input(prompt):
@@ -252,14 +261,24 @@ async def main():
     """
     print("Initializing...")
     bot = Chatbot()
-    await bot.a_start()
+    await bot.start()
     while True:
         prompt = get_input("\nYou:\n")
         if prompt == "!exit":
             break
+        elif prompt == "!help":
+            print("""
+            !help - Show this help message
+            !exit - Exit the program
+            !reset - Reset the conversation
+            """)
+            continue
+        elif prompt == "!reset":
+            await bot.reset()
+            continue
         print("Bot:")
-        print((await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"])
-    await bot.a_close()
+        print((await bot.ask(prompt=prompt))["item"]["messages"][1]["text"])
+    await bot.close()
 
 
 if __name__ == "__main__":
@@ -268,6 +287,8 @@ if __name__ == "__main__":
         BingGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/BingGPT
         By: Antonio Cheong
+
+        !help for help
 
         Type !exit to exit
         Enter twice to send message
