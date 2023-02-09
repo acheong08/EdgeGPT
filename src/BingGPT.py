@@ -219,15 +219,50 @@ class Chatbot:
         await self.chat_hub.close()
 
 
+def get_input(prompt):
+    """
+    Multi-line input function
+    """
+    # Display the prompt
+    print(prompt, end="")
+
+    # Initialize an empty list to store the input lines
+    lines = []
+
+    # Read lines of input until the user enters an empty line
+    while True:
+        line = input()
+        if line == "":
+            break
+        lines.append(line)
+
+    # Join the lines, separated by newlines, and store the result
+    user_input = "\n".join(lines)
+
+    # Return the input
+    return user_input
+
 async def main():
+    """
+    Main function
+    """
     print("Initializing...")
     bot = Chatbot()
     await bot.a_start()
     while True:
-        prompt = input("You: ")
+        prompt = get_input("\nYou:\n")
         if prompt == "!exit":
             break
-        print("Bot:", (await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"])
+        print(f'Bot:\n{(await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"]}\n')
     await bot.a_close()
+
 if __name__ == "__main__":
+    print("""
+        BingGPT - A demo of reverse engineering the Bing GPT chatbot
+        Repo: github.com/acheong08/BingGPT
+        By: Antonio Cheong
+
+        Type !exit to exit
+        Enter twice to send message
+    """)
     asyncio.run(main())
