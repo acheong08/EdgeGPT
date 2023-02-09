@@ -253,7 +253,8 @@ async def main():
         prompt = get_input("\nYou:\n")
         if prompt == "!exit":
             break
-        print(f'Bot:\n{(await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"]}\n')
+        print("Bot:")
+        print((await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"])
     await bot.a_close()
 
 if __name__ == "__main__":
