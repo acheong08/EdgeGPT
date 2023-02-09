@@ -22,18 +22,18 @@ ChatGPT with internet access
   - Use it as command line argument later
 
 ## Installation
-- `python3 -m pip install revBingGPT`
+- `python3 -m pip install EdgeGPT`
 
 ## Demo usage
-- If `BING_U` in environment variables: `python3 -m BingGPT`
-- Else: `python3 -m BingGPT "<COOKIE_VALUE>"`
+- If `BING_U` in environment variables: `python3 -m EdgeGPT`
+- Else: `python3 -m EdgeGPT "<COOKIE_VALUE>"`
 
 ## Developer
 Use Async for the best experience
 
 ```python
 import asyncio
-from BingGPT import Chatbot
+from EdgeGPT import Chatbot
 
 async def main():
     """
@@ -64,8 +64,8 @@ async def main():
 if __name__ == "__main__":
     print(
         """
-        BingGPT - A demo of reverse engineering the Bing GPT chatbot
-        Repo: github.com/acheong08/BingGPT
+        EdgeGPT - A demo of reverse engineering the Edge GPT chatbot
+        Repo: github.com/acheong08/EdgeGPT
         By: Antonio Cheong
 
         !help for help

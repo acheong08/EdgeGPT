@@ -285,8 +285,8 @@ async def main():
 if __name__ == "__main__":
     print(
         """
-        BingGPT - A demo of reverse engineering the Bing GPT chatbot
-        Repo: github.com/acheong08/BingGPT
+        EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
+        Repo: github.com/acheong08/EdgeGPT
         By: Antonio Cheong
 
         !help for help
