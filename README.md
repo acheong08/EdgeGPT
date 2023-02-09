@@ -22,7 +22,7 @@ ChatGPT with internet access
   - Use it as command line argument later
 
 ## Installation
-- `python3 -m pip install BingGPT`
+- `python3 -m pip install revBingGPT`
 
 ## Demo usage
 - If `BING_U` in environment variables: `python3 -m BingGPT`
