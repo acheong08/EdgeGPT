@@ -14,4 +14,5 @@ setup(
     install_requires=["asyncio", "requests", "websockets"],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
+    py_modules=["BingGPT"],
 )
