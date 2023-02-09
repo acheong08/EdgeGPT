@@ -1,13 +1,13 @@
 """
 Main.py
 """
+import os
 import json
-import time
 import uuid
-from threading import Thread
 
+import asyncio
 import requests
-from websocket import WebSocket
+import websockets.client as websockets
 
 
 def append_identifier(msg: dict) -> str:
@@ -28,7 +28,7 @@ class ChatHubRequest:
         conversation_signature: str,
         client_id: str,
         conversation_id: str,
-        invocation_id: int,
+        invocation_id: int = 0,
     ) -> None:
         self.struct: dict
 
@@ -36,23 +36,10 @@ class ChatHubRequest:
         self.conversation_id: str = conversation_id
         self.conversation_signature: str = conversation_signature
         self.invocation_id: int = invocation_id
-        self.is_start_of_session: bool = True
-
-        self.update(
-            prompt=None,
-            conversation_signature=conversation_signature,
-            client_id=client_id,
-            conversation_id=conversation_id,
-            invocation_id=invocation_id,
-        )
 
     def update(
         self,
         prompt: str,
-        conversation_signature: str = None,
-        client_id: str = None,
-        conversation_id: str = None,
-        invocation_id: int = None,
     ) -> None:
         """
         Updates request object
@@ -69,26 +56,25 @@ class ChatHubRequest:
                         "responsible_ai_policy_235",
                         "enablemm",
                     ],
-                    "isStartOfSession": self.is_start_of_session,
+                    "isStartOfSession": self.invocation_id == 0,
                     "message": {
-                        "timestamp": "2023-02-09T13:26:58+08:00",
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": "Chat",
                     },
-                    "conversationSignature": conversation_signature
-                    or self.conversation_signature,
-                    "participant": {"id": client_id or self.client_id},
-                    "conversationId": conversation_id or self.conversation_id,
-                    "previousMessages": [],
-                },
+                    "conversationSignature": self.conversation_signature,
+                    "participant": {
+                        "id": self.client_id,
+                    },
+                    "conversationId": self.conversation_id,
+                }
             ],
-            "invocationId": str(invocation_id),
+            "invocationId": str(self.invocation_id),
             "target": "chat",
             "type": 4,
         }
-        self.is_start_of_session = False
+        self.invocation_id += 1
 
 
 class Conversation:
@@ -103,9 +89,6 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.__create()
-
-    def __create(self):
         # Build request
         headers = {
             "accept": "application/json",
@@ -129,9 +112,9 @@ class Conversation:
             "x-ms-useragent": "azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Linuxx86_64",
         }
         # Create cookies
-        cookies = json.loads(
-            open("templates/cookies.json", encoding="utf-8").read(),
-        )
+        cookies = {
+            "_U": os.environ.get("BING_U")
+        }
         # Send GET request
         response = requests.get(
             "https://www.bing.com/turing/conversation/create",
@@ -139,9 +122,10 @@ class Conversation:
             cookies=cookies,
             timeout=30,
         )
+        if response.status_code != 200:
+            raise Exception("Authentication failed")
         # Return response
         self.struct = response.json()
-
 
 class ChatHub:
     """
@@ -149,55 +133,101 @@ class ChatHub:
     """
 
     def __init__(self) -> None:
-        self.wss = WebSocket()
-        self.wss.connect(url="wss://sydney.bing.com/sydney/ChatHub")
-        self.__initial_handshake()
-        # Ping in another thread
-        self.thread = Thread(target=self.__ping)
-        self.thread.start()
-        self.stop_thread = False
+        self.wss: websockets.WebSocketClientProtocol
+        self.request: ChatHubRequest
+        self.loop: bool
 
-    def ask(self, prompt: str):
-        pass
+    async def init(self, conversation: Conversation) -> None:
+        """
+        Separate initialization to allow async
+        """
+        self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
+        self.request = ChatHubRequest(
+            conversation_signature=conversation.struct["conversationSignature"],
+            client_id=conversation.struct["clientId"],
+            conversation_id=conversation.struct["conversationId"],
+        )
+        self.loop = True
+        await self.__initial_handshake()
 
-    def __initial_handshake(self):
-        self.wss.send(append_identifier({"protocol": "json", "version": 1}))
-        # Receive blank message
-        self.wss.recv()
+        # Make async ping loop (long running)
+        self.task = asyncio.create_task(self.__ping())
 
-    def __ping(self):
-        timing = 10
+
+    async def ask(self, prompt: str) -> str:
+        """
+        Ask a question to the bot
+        """
+        # Construct a ChatHub request
+        self.request.update(prompt=prompt)
+        # Send request
+        await self.wss.send(append_identifier(self.request.struct))
         while True:
-            if timing == 0:
-                self.wss.send(append_identifier({"type": 6}))
-                # Receive pong
-                self.wss.recv()
-                timing = 10
-            else:
-                timing -= 1
-            time.sleep(1)
-            if self.stop_thread:
-                break
+            objects = str(await self.wss.recv()).split("")
+            for obj in objects:
+                if obj is None or obj == "":
+                    continue
+                response = json.loads(obj)
+                if response.get("type") == 2:
+                    return response
 
-    def close(self):
+    async def __initial_handshake(self):
+        await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
+        await self.wss.send(append_identifier({"type": 6}))
+
+    async def __ping(self):
+        while self.loop:
+            try:
+                await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                break
+            await self.wss.send(append_identifier({"type": 6}))
+    
+    async def close(self):
         """
-        Close all connections
+        Close the connection
         """
-        self.wss.close()
-        self.stop_thread = True
-        self.thread.join()
+        self.loop = False
+        await self.wss.close()
+        self.task.cancel()
+
+
+class Chatbot:
+    """
+    Combines everything to make it seamless
+    """
+    def __init__(self) -> None:
+        self.conversation: Conversation
+        self.chat_hub: ChatHub
+    async def a_start(self) -> None:
+        """
+        Separate initialization to allow async
+        """
+        self.conversation = Conversation()
+        self.chat_hub = ChatHub()
+        await self.chat_hub.init(conversation=self.conversation)
+
+    async def a_ask(self, prompt: str) -> str:
+        """
+        Ask a question to the bot
+        """
+        return await self.chat_hub.ask(prompt=prompt)
+    async def a_close(self):
+        """
+        Close the connection
+        """
+        await self.chat_hub.close()
 
 
 async def main():
-    """
-    Main function
-    """
-    # Create conversation
-    conversation = Conversation()
-    print(conversation.struct)
-
-
+    print("Initializing...")
+    bot = Chatbot()
+    await bot.a_start()
+    while True:
+        prompt = input("You: ")
+        if prompt == "!exit":
+            break
+        print("Bot:", (await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"])
+    await bot.a_close()
 if __name__ == "__main__":
-    import asyncio
-
     asyncio.run(main())
