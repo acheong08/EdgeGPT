@@ -1,0 +1,55 @@
+{
+  "arguments": [
+    {
+      "source": "cib",
+      "optionsSets": [
+        "nlu_direct_response_filter",
+        "deepleo",
+        "enable_debug_commands",
+        "disable_emoji_spoken_text",
+        "responsible_ai_policy_235",
+        "enablemm"
+      ],
+      "allowedMessageTypes": [
+        "Chat",
+        "InternalSearchQuery",
+        "InternalSearchResult",
+        "InternalLoaderMessage",
+        "RenderCardRequest",
+        "AdsQuery",
+        "SemanticSerp"
+      ],
+      "sliceIds": [],
+      "traceId": "63e48421455345f0854475fe03c0c78a",
+      "isStartOfSession": true,
+      "message": {
+        "locale": "en-US",
+        "market": "en-US",
+        "region": "SG",
+        "location": "lat:0.000000;long:0.000000;re=0m;",
+        "locationHints": [
+          {
+            "country": "Singapore",
+            "timezoneoffset": 8,
+            "countryConfidence": 8,
+            "Center": { "Latitude": 0, "Longitude": 0 },
+            "RegionType": 2,
+            "SourceType": 1
+          }
+        ],
+        "timestamp": "2023-02-09T13:26:58+08:00",
+        "author": "user",
+        "inputMethod": "Keyboard",
+        "text": "Say this is a test",
+        "messageType": "Chat"
+      },
+      "conversationSignature": "<|CONVERSATION_SIGNATURE|>",
+      "participant": { "id": "<|CLIENT_ID|>" },
+      "conversationId": "<|CONVERSATION_ID|>",
+      "previousMessages": []
+    }
+  ],
+  "invocationId": "1",
+  "target": "chat",
+  "type": 4
+}
