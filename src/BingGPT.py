@@ -138,6 +138,7 @@ class ChatHub:
         self.wss: websockets.WebSocketClientProtocol
         self.request: ChatHubRequest
         self.loop: bool
+        self.task: asyncio.Task
 
     async def init(self, conversation: Conversation) -> None:
         """
