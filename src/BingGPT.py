@@ -1,11 +1,11 @@
 """
 Main.py
 """
-import os
+import asyncio
 import json
+import os
 import uuid
 
-import asyncio
 import requests
 import websockets.client as websockets
 
@@ -68,7 +68,7 @@ class ChatHubRequest:
                         "id": self.client_id,
                     },
                     "conversationId": self.conversation_id,
-                }
+                },
             ],
             "invocationId": str(self.invocation_id),
             "target": "chat",
@@ -113,7 +113,7 @@ class Conversation:
         }
         # Create cookies
         cookies = {
-            "_U": os.environ.get("BING_U")
+            "_U": os.environ.get("BING_U"),
         }
         # Send GET request
         response = requests.get(
@@ -126,6 +126,7 @@ class Conversation:
             raise Exception("Authentication failed")
         # Return response
         self.struct = response.json()
+
 
 class ChatHub:
     """
@@ -152,7 +153,6 @@ class ChatHub:
 
         # Make async ping loop (long running)
         self.task = asyncio.create_task(self.__ping())
-
 
     async def ask(self, prompt: str) -> str:
         """
@@ -182,7 +182,7 @@ class ChatHub:
             except asyncio.CancelledError:
                 break
             await self.wss.send(append_identifier({"type": 6}))
-    
+
     async def close(self):
         """
         Close the connection
@@ -196,9 +196,11 @@ class Chatbot:
     """
     Combines everything to make it seamless
     """
+
     def __init__(self) -> None:
         self.conversation: Conversation
         self.chat_hub: ChatHub
+
     async def a_start(self) -> None:
         """
         Separate initialization to allow async
@@ -212,6 +214,7 @@ class Chatbot:
         Ask a question to the bot
         """
         return await self.chat_hub.ask(prompt=prompt)
+
     async def a_close(self):
         """
         Close the connection
@@ -242,6 +245,7 @@ def get_input(prompt):
     # Return the input
     return user_input
 
+
 async def main():
     """
     Main function
@@ -257,13 +261,16 @@ async def main():
         print((await bot.a_ask(prompt=prompt))["item"]["messages"][1]["text"])
     await bot.a_close()
 
+
 if __name__ == "__main__":
-    print("""
+    print(
+        """
         BingGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/BingGPT
         By: Antonio Cheong
 
         Type !exit to exit
         Enter twice to send message
-    """)
+    """
+    )
     asyncio.run(main())
