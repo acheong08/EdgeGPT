@@ -1,4 +1,4 @@
-# Bing GPT
+# Edge GPT
 ChatGPT with internet access
 
 ## Requirements
