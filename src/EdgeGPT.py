@@ -126,7 +126,10 @@ class Conversation:
         if response.status_code != 200:
             raise Exception("Authentication failed")
         # Return response
-        self.struct = response.json()
+        try:
+            self.struct = response.json()
+        except json.decoder.JSONDecodeError:
+            raise Exception("Authentication failed. You have not been accepted into the beta.") from json.decoder.JSONDecodeError
 
 
 class ChatHub:
