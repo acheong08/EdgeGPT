@@ -39,10 +39,7 @@ class ChatHubRequest:
         self.conversation_signature: str = conversation_signature
         self.invocation_id: int = invocation_id
 
-    def update(
-        self,
-        prompt: str,
-    ) -> None:
+    def update(self, prompt: str) -> None:
         """
         Updates request object
         """
@@ -296,7 +293,10 @@ async def main():
     print("Initializing...")
     bot = Chatbot()
     while True:
-        prompt = get_input("\nYou:\n")
+        try:
+            prompt = get_input("\nYou:\n")
+        except EOFError or KeyboardInterrupt or RuntimeError:
+            break
         if prompt == "!exit":
             break
         elif prompt == "!help":
