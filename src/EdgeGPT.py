@@ -93,7 +93,7 @@ class Conversation:
         # Build request
         headers = {
             "accept": "application/json",
-            "accept-encoding": "gzip, deflate, br",
+            "accept-encoding": "gzip, deflate",
             "accept-language": "en-US,en;q=0.9",
             "content-type": "application/json",
             "sec-ch-ua": '"Microsoft Edge";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
@@ -134,9 +134,8 @@ class Conversation:
         try:
             self.struct = response.json()
         except json.decoder.JSONDecodeError:
-            raise Exception(
-                "Authentication failed. You have not been accepted into the beta."
-            ) from json.decoder.JSONDecodeError
+            print(response.text)
+            raise
 
 
 class ChatHub:
