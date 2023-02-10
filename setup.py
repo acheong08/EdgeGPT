@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="EdgeGPT",
-    version="0.0.20",
+    version="0.0.21",
     license="GNU General Public License v2.0",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
