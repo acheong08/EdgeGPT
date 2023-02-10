@@ -11,13 +11,15 @@ import argparse
 import requests
 import websockets.client as websockets
 
+DELIMITER = "\x1e"
+
 
 def append_identifier(msg: dict) -> str:
     """
     Appends special character to end of message to identify end of message
     """
     # Convert dict to json string
-    return json.dumps(msg) + ""
+    return json.dumps(msg) + DELIMITER
 
 
 class ChatHubRequest:
@@ -175,7 +177,7 @@ class ChatHub:
         # Send request
         await self.wss.send(append_identifier(self.request.struct))
         while True:
-            objects = str(await self.wss.recv()).split("")
+            objects = str(await self.wss.recv()).split(DELIMITER)
             for obj in objects:
                 if obj is None or obj == "":
                     continue
@@ -201,21 +203,18 @@ class ChatHub:
         self.request.update(prompt=prompt)
         # Send request
         await self.wss.send(append_identifier(self.request.struct))
-        stream_cache = ""
-        while True:
-            objects = str(await self.wss.recv()).split("")
+        final = False
+        while not final:
+            objects = str(await self.wss.recv()).split(DELIMITER)
             for obj in objects:
                 if obj is None or obj == "":
                     continue
                 response = json.loads(obj)
                 if response.get("type") == 1:
-                    cache_len = len(stream_cache)
-                    adaptive_card = response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
-                    stream_cache = adaptive_card
-                    adaptive_card = adaptive_card[cache_len:]
-                    yield adaptive_card
+                    yield False, response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
                 elif response.get("type") == 2:
-                    return
+                    final = True
+                    yield True, response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
@@ -319,11 +318,12 @@ async def main():
                 ][0]["text"],
         )
         else:
-            async for response in bot.ask_stream(prompt=prompt):
-                print(
-                    response, end=""
-                )
-                sys.stdout.flush()
+            wrote = 0
+            async for final, response in bot.ask_stream(prompt=prompt):
+                if not final:
+                    print(response[wrote:], end="")
+                    wrote = len(response)
+                    sys.stdout.flush()
             print()
         sys.stdout.flush()
     await bot.close()
