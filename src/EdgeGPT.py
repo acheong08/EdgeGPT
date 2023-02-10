@@ -175,7 +175,9 @@ class ChatHub:
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
+        await self.wss.recv()
         await self.wss.send(append_identifier({"type": 6}))
+        await self.wss.recv()
 
     async def __ping(self):
         while self.loop:
@@ -184,6 +186,7 @@ class ChatHub:
             except asyncio.CancelledError:
                 break
             await self.wss.send(append_identifier({"type": 6}))
+            await self.wss.recv()
 
     async def close(self):
         """
@@ -222,14 +225,13 @@ class Chatbot:
         Close the connection
         """
         await self.chat_hub.close()
-    
+
     async def reset(self):
         """
         Reset the conversation
         """
         await self.close()
         await self.start()
-    
 
 
 def get_input(prompt):
@@ -268,17 +270,23 @@ async def main():
         if prompt == "!exit":
             break
         elif prompt == "!help":
-            print("""
+            print(
+                """
             !help - Show this help message
             !exit - Exit the program
             !reset - Reset the conversation
-            """)
+            """
+            )
             continue
         elif prompt == "!reset":
             await bot.reset()
             continue
         print("Bot:")
-        print((await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"])
+        print(
+            (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0][
+                "body"
+            ][0]["text"]
+        )
     await bot.close()
 
 
