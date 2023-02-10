@@ -156,7 +156,7 @@ class ChatHub:
         # Make async ping loop (long running)
         self.task = asyncio.create_task(self.__ping())
 
-    async def ask(self, prompt: str) -> str:
+    async def ask(self, prompt: str) -> dict:
         """
         Ask a question to the bot
         """
@@ -211,7 +211,7 @@ class Chatbot:
         self.chat_hub = ChatHub()
         await self.chat_hub.init(conversation=self.conversation)
 
-    async def ask(self, prompt: str) -> str:
+    async def ask(self, prompt: str) -> dict:
         """
         Ask a question to the bot
         """
