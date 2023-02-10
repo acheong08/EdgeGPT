@@ -118,6 +118,9 @@ if __name__ == "__main__":
 
 ```
 
-## Work in progress
-- Response streaming (Easily achievable)
+## Work in progress. Help me
+- Response streaming
 - Error handling
+
+# Credits
+- pig#8932 (Discord) - Sharing account with beta access
