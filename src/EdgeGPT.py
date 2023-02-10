@@ -143,6 +143,9 @@ class ChatHub:
         self.loop: bool
         self.task: asyncio.Task
 
+        self.pause = False
+        self.pause_ping = False
+
     async def init(self, conversation: Conversation) -> None:
         """
         Separate initialization to allow async
@@ -166,15 +169,21 @@ class ChatHub:
         # Construct a ChatHub request
         self.request.update(prompt=prompt)
         # Send request
+        self.pause_ping = True
         await self.wss.send(append_identifier(self.request.struct))
         while True:
+            if self.pause:
+                await asyncio.sleep(0.2)
+                continue
             objects = str(await self.wss.recv()).split("")
             for obj in objects:
                 if obj is None or obj == "":
                     continue
                 response = json.loads(obj)
                 if response.get("type") == 2:
+                    self.pause_ping = False
                     return response
+            self.pause_ping = False
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
@@ -184,12 +193,13 @@ class ChatHub:
 
     async def __ping(self):
         while self.loop:
-            try:
-                await asyncio.sleep(5)
-            except asyncio.CancelledError:
-                break
+            await asyncio.sleep(5)
+            if self.pause_ping:
+                continue
+            self.pause = True
             await self.wss.send(append_identifier({"type": 6}))
             await self.wss.recv()
+            self.pause = False
 
     async def close(self):
         """
