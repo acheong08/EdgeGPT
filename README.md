@@ -29,7 +29,7 @@ Completely optional, but recommended if you have beta access to Bing Chat
 - `python3 -m pip install EdgeGPT`
 
 ## Demo usage
-```s
+```
  $ python3 -m EdgeGPT -h
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
@@ -112,18 +112,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    print(
-        """
-        EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
-        Repo: github.com/acheong08/EdgeGPT
-        By: Antonio Cheong
-
-        !help for help
-
-        Type !exit to exit
-        Enter twice to send message
-    """,
-    )
     asyncio.run(main())
 
 ```
