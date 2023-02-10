@@ -22,10 +22,6 @@ Completely optional, but recommended if you have beta access to Bing Chat
 - Go to the Application tab → Storage → Cookies
 - Find the cookie named "_U"
 - Copy the value of the cookie
-- Method 1
-  - `export BING_U="<COOKIE_VALUE>"`
-- Method 2
-  - Use it as command line argument later
 
 </details>
 
@@ -33,11 +29,25 @@ Completely optional, but recommended if you have beta access to Bing Chat
 - `python3 -m pip install EdgeGPT`
 
 ## Demo usage
-### With your own token (Optional)
-- If `BING_U` in environment variables: `python3 -m EdgeGPT`
-- Else: `python3 -m EdgeGPT "<COOKIE_VALUE>"`
-### Without a cookie
-- `python3 -m EdgeGPT`
+```s
+ $ python3 -m EdgeGPT -h
+
+        EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
+        Repo: github.com/acheong08/EdgeGPT
+        By: Antonio Cheong
+
+        !help for help
+
+        Type !exit to exit
+        Enter twice to send message
+    
+usage: EdgeGPT.py [-h] [--stream] [--bing-cookie BING_COOKIE]
+
+options:
+  -h, --help            show this help message and exit
+  --stream
+  --bing-cookie BING_COOKIE (Optional)
+```
 
 ## Developer
 Use Async for the best experience
@@ -119,7 +129,6 @@ if __name__ == "__main__":
 ```
 
 ## Work in progress. Help me
-- Response streaming
 - Error handling
 
 # Credits

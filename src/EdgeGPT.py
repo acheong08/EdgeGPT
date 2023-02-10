@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import uuid
+import argparse
 
 import requests
 import websockets.client as websockets
@@ -113,12 +114,12 @@ class Conversation:
             "x-ms-useragent": "azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Linuxx86_64",
         }
         # Create cookies
-        if os.environ.get("BING_U") is None and len(sys.argv) < 2:
+        if os.environ.get("BING_U") is None:
             url = "https://bing.kpham.workers.dev/"
             cookies = {}
         else:
             cookies = {
-                "_U": os.environ.get("BING_U") or sys.argv[1],
+                "_U": os.environ.get("BING_U"),
             }
             url = "https://www.bing.com/turing/conversation/create"
         # Send GET request
@@ -182,6 +183,40 @@ class ChatHub:
                 if response.get("type") == 2:
                     return response
 
+    async def ask_stream(self, prompt: str) -> str:
+        """
+        Ask a question to the bot
+        """
+        # Check if websocket is closed
+        if self.wss:
+            if self.wss.closed:
+                self.wss = await websockets.connect(
+                    "wss://sydney.bing.com/sydney/ChatHub"
+                )
+                await self.__initial_handshake()
+        else:
+            self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
+            await self.__initial_handshake()
+        # Construct a ChatHub request
+        self.request.update(prompt=prompt)
+        # Send request
+        await self.wss.send(append_identifier(self.request.struct))
+        stream_cache = ""
+        while True:
+            objects = str(await self.wss.recv()).split("")
+            for obj in objects:
+                if obj is None or obj == "":
+                    continue
+                response = json.loads(obj)
+                if response.get("type") == 1:
+                    cache_len = len(stream_cache)
+                    adaptive_card = response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
+                    stream_cache = adaptive_card
+                    adaptive_card = adaptive_card[cache_len:]
+                    yield adaptive_card
+                elif response.get("type") == 2:
+                    return
+
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
         await self.wss.recv()
@@ -208,6 +243,13 @@ class Chatbot:
         Ask a question to the bot
         """
         return await self.chat_hub.ask(prompt=prompt)
+    
+    async def ask_stream(self, prompt: str) -> str:
+        """
+        Ask a question to the bot
+        """
+        async for response in self.chat_hub.ask_stream(prompt=prompt):
+            yield response
 
     async def close(self):
         """
@@ -270,11 +312,20 @@ async def main():
             await bot.reset()
             continue
         print("Bot:")
-        print(
-            (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0][
-                "body"
-            ][0]["text"],
+        if not args.stream:
+            print(
+                (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0][
+                    "body"
+                ][0]["text"],
         )
+        else:
+            async for response in bot.ask_stream(prompt=prompt):
+                print(
+                    response, end=""
+                )
+                sys.stdout.flush()
+            print()
+        sys.stdout.flush()
     await bot.close()
 
 
@@ -291,4 +342,10 @@ if __name__ == "__main__":
         Enter twice to send message
     """,
     )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--stream", action="store_true")
+    parser.add_argument("--bing-cookie", type=str, default="")
+    args = parser.parse_args()
+    if args.bing_cookie:
+        os.environ["BING_U"] = args.bing_cookie
     asyncio.run(main())
