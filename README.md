@@ -124,3 +124,4 @@ if __name__ == "__main__":
 
 # Credits
 - pig#8932 (Discord) - Sharing account with beta access
+- [Jimmy-Z](https://github.com/Jimmy-Z) - Bugfixes
