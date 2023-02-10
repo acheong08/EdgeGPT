@@ -187,7 +187,7 @@ class ChatHub:
         """
         if self.wss:
             if not self.wss.closed:
-                 await self.wss.close()
+                await self.wss.close()
 
 class Chatbot:
     """
