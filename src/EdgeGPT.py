@@ -137,75 +137,50 @@ class ChatHub:
     Chat API
     """
 
-    def __init__(self) -> None:
-        self.wss: websockets.WebSocketClientProtocol
+    def __init__(self, conversation: Conversation) -> None:
+        self.wss: websockets.WebSocketClientProtocol = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
-
-        self.pause = False
-        self.pause_ping = False
-
-    async def init(self, conversation: Conversation) -> None:
-        """
-        Separate initialization to allow async
-        """
-        self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
         self.request = ChatHubRequest(
             conversation_signature=conversation.struct["conversationSignature"],
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
-        self.loop = True
-        await self.__initial_handshake()
-
-        # Make async ping loop (long running)
-        self.task = asyncio.create_task(self.__ping())
 
     async def ask(self, prompt: str) -> dict:
         """
         Ask a question to the bot
         """
+        # Check if websocket is closed
+        if self.wss:
+            if self.wss.closed:
+                self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
+                await self.__initial_handshake()
+        else:
+            self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
+            await self.__initial_handshake()
         # Construct a ChatHub request
         self.request.update(prompt=prompt)
         # Send request
-        self.pause_ping = True
         await self.wss.send(append_identifier(self.request.struct))
         while True:
-            if self.pause:
-                await asyncio.sleep(0.2)
-                continue
             objects = str(await self.wss.recv()).split("")
             for obj in objects:
                 if obj is None or obj == "":
                     continue
                 response = json.loads(obj)
                 if response.get("type") == 2:
-                    self.pause_ping = False
                     return response
-            self.pause_ping = False
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
         await self.wss.recv()
-        await self.wss.send(append_identifier({"type": 6}))
-        await self.wss.recv()
-
-    async def __ping(self):
-        while self.loop:
-            await asyncio.sleep(5)
-            if self.pause_ping:
-                continue
-            self.pause = True
-            await self.wss.send(append_identifier({"type": 6}))
-            await self.wss.recv()
-            self.pause = False
 
     async def close(self):
         """
         Close the connection
         """
-        self.loop = False
         await self.wss.close()
         self.task.cancel()
 
@@ -216,16 +191,7 @@ class Chatbot:
     """
 
     def __init__(self) -> None:
-        self.conversation: Conversation
-        self.chat_hub: ChatHub
-
-    async def start(self) -> None:
-        """
-        Separate initialization to allow async
-        """
-        self.conversation = Conversation()
-        self.chat_hub = ChatHub()
-        await self.chat_hub.init(conversation=self.conversation)
+        self.chat_hub: ChatHub = ChatHub(Conversation())
 
     async def ask(self, prompt: str) -> dict:
         """
@@ -244,7 +210,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        await self.start()
+        self.chat_hub = ChatHub(Conversation())
 
 
 def get_input(prompt):
@@ -277,7 +243,6 @@ async def main():
     """
     print("Initializing...")
     bot = Chatbot()
-    await bot.start()
     while True:
         prompt = get_input("\nYou:\n")
         if prompt == "!exit":
