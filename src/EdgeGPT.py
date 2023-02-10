@@ -187,7 +187,7 @@ class ChatHub:
                     yield False, response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
                 elif response.get("type") == 2:
                     final = True
-                    yield True, response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+                    yield True, response
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
@@ -287,7 +287,7 @@ async def main():
             continue
         print("Bot:")
         if not args.stream:
-            print(await bot.ask(prompt=prompt))
+            print((await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"])
         else:
             wrote = 0
             async for final, response in bot.ask_stream(prompt=prompt):
