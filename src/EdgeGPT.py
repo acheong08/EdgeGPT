@@ -158,33 +158,6 @@ class ChatHub:
             conversation_id=conversation.struct["conversationId"],
         )
 
-    async def ask(self, prompt: str) -> dict:
-        """
-        Ask a question to the bot
-        """
-        # Check if websocket is closed
-        if self.wss:
-            if self.wss.closed:
-                self.wss = await websockets.connect(
-                    "wss://sydney.bing.com/sydney/ChatHub"
-                )
-                await self.__initial_handshake()
-        else:
-            self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
-            await self.__initial_handshake()
-        # Construct a ChatHub request
-        self.request.update(prompt=prompt)
-        # Send request
-        await self.wss.send(append_identifier(self.request.struct))
-        while True:
-            objects = str(await self.wss.recv()).split(DELIMITER)
-            for obj in objects:
-                if obj is None or obj == "":
-                    continue
-                response = json.loads(obj)
-                if response.get("type") == 2:
-                    return response
-
     async def ask_stream(self, prompt: str) -> str:
         """
         Ask a question to the bot
@@ -241,7 +214,9 @@ class Chatbot:
         """
         Ask a question to the bot
         """
-        return await self.chat_hub.ask(prompt=prompt)
+        async for final, response in self.chat_hub.ask_stream(prompt=prompt):
+            if final:
+                return response
     
     async def ask_stream(self, prompt: str) -> str:
         """
@@ -312,11 +287,7 @@ async def main():
             continue
         print("Bot:")
         if not args.stream:
-            print(
-                (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0][
-                    "body"
-                ][0]["text"],
-        )
+            print(await bot.ask(prompt=prompt))
         else:
             wrote = 0
             async for final, response in bot.ask_stream(prompt=prompt):
