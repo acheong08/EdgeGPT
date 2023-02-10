@@ -93,28 +93,6 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        # Build request
-        headers = {
-            "accept": "application/json",
-            "accept-encoding": "gzip, deflate",
-            "accept-language": "en-US,en;q=0.9",
-            "content-type": "application/json",
-            "sec-ch-ua": '"Microsoft Edge";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
-            "sec-ch-ua-arch": '"x86"',
-            "sec-ch-ua-bitness": '"64"',
-            "sec-ch-ua-full-version": '"111.0.1652.0"',
-            "sec-ch-ua-full-version-list": '"Microsoft Edge";v="111.0.1652.0", "Not(A:Brand";v="8.0.0.0", "Chromium";v="111.0.5551.0"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-model": "",
-            "sec-ch-ua-platform": '"Linux"',
-            "sec-ch-ua-platform-version": '"5.19.0"',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-            "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.0.0",
-            "x-ms-client-request-id": str(uuid.uuid4()),
-            "x-ms-useragent": "azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Linuxx86_64",
-        }
         # Create cookies
         if os.environ.get("BING_U") is None:
             url = "https://bing.kpham.workers.dev/"
@@ -127,7 +105,6 @@ class Conversation:
         # Send GET request
         response = requests.get(
             url,
-            headers=headers,
             cookies=cookies,
             timeout=30,
         )
