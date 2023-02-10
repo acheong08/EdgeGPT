@@ -292,7 +292,7 @@ async def main():
             print(
                 (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][
                     0
-                ]["body"][0]["text"]
+                ]["body"][0]["text"],
             )
         else:
             wrote = 0
