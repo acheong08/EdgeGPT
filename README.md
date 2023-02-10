@@ -45,7 +45,7 @@ usage: EdgeGPT.py [-h] [--stream] [--bing-cookie BING_COOKIE]
 
 options:
   -h, --help            show this help message and exit
-  --stream
+  --no-stream
   --bing-cookie BING_COOKIE (Optional)
 ```
 
@@ -60,7 +60,7 @@ from EdgeGPT import Chatbot
 
 async def main():
     bot = Chatbot()
-    print((await bot.ask(prompt="Hello world"))
+    print(await bot.ask(prompt="Hello world"))
     await bot.close()
 
 
