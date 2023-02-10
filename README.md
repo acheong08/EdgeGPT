@@ -4,15 +4,14 @@ ChatGPT with internet access
 <details>
 <summary>
 
-## Setup (optional)
-Completely optional, but recommended if you have beta access to Bing Chat
+## Setup (Required)
 </summary>
 
-### Requirements (Optional)
+### Requirements (Required)
 - A Microsoft Account with early access to http://bing.com/chat
 - Microsoft Edge
 
-### Checking access (Optional)
+### Checking access (Required)
 - Install the latest version of Microsoft Edge
 - Open http://bing.com/chat
 - If you see a chat feature, you are good to go
@@ -46,7 +45,7 @@ usage: EdgeGPT.py [-h] [--stream] [--bing-cookie BING_COOKIE]
 options:
   -h, --help            show this help message and exit
   --no-stream
-  --bing-cookie BING_COOKIE (Optional)
+  --bing-cookie BING_COOKIE (Required)
 ```
 
 ## Developer
