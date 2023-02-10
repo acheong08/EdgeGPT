@@ -113,12 +113,17 @@ class Conversation:
             "x-ms-useragent": "azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Linuxx86_64",
         }
         # Create cookies
-        cookies = {
-            "_U": os.environ.get("BING_U") or sys.argv[1],
-        }
+        if os.environ.get("BING_U") is None and len(sys.argv) < 2:
+            url = "https://bing.kpham.workers.dev/"
+            cookies = {}
+        else:
+            cookies = {
+                "_U": os.environ.get("BING_U") or sys.argv[1],
+            }
+            url = "https://www.bing.com/turing/conversation/create"
         # Send GET request
         response = requests.get(
-            "https://www.bing.com/turing/conversation/create",
+            url,
             headers=headers,
             cookies=cookies,
             timeout=30,
