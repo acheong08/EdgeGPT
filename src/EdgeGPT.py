@@ -1,12 +1,12 @@
 """
 Main.py
 """
+import argparse
 import asyncio
 import json
 import os
 import sys
 import uuid
-import argparse
 
 import requests
 import websockets.client as websockets
@@ -138,7 +138,7 @@ class Conversation:
             self.struct = response.json()
         except json.decoder.JSONDecodeError as exc:
             raise Exception(
-                "Authentication failed. You have not been accepted into the beta."
+                "Authentication failed. You have not been accepted into the beta.",
             ) from exc
 
 
@@ -166,7 +166,7 @@ class ChatHub:
         if self.wss:
             if self.wss.closed:
                 self.wss = await websockets.connect(
-                    "wss://sydney.bing.com/sydney/ChatHub"
+                    "wss://sydney.bing.com/sydney/ChatHub",
                 )
                 await self.__initial_handshake()
         else:
@@ -184,7 +184,9 @@ class ChatHub:
                     continue
                 response = json.loads(obj)
                 if response.get("type") == 1:
-                    yield False, response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]["text"]
+                    yield False, response["arguments"][0]["messages"][0][
+                        "adaptiveCards"
+                    ][0]["body"][0]["text"]
                 elif response.get("type") == 2:
                     final = True
                     yield True, response
@@ -217,7 +219,7 @@ class Chatbot:
         async for final, response in self.chat_hub.ask_stream(prompt=prompt):
             if final:
                 return response
-    
+
     async def ask_stream(self, prompt: str) -> str:
         """
         Ask a question to the bot
@@ -287,7 +289,11 @@ async def main():
             continue
         print("Bot:")
         if not args.stream:
-            print((await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"])
+            print(
+                (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][
+                    0
+                ]["body"][0]["text"]
+            )
         else:
             wrote = 0
             async for final, response in bot.ask_stream(prompt=prompt):

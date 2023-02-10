@@ -40,7 +40,7 @@ Completely optional, but recommended if you have beta access to Bing Chat
 
         Type !exit to exit
         Enter twice to send message
-    
+
 usage: EdgeGPT.py [-h] [--stream] [--bing-cookie BING_COOKIE]
 
 options:
