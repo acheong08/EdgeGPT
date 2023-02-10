@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
 ```
 
-## Work in progress. Help me
+## Work in progress
 - Error handling
 
 # Credits
