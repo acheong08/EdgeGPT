@@ -133,10 +133,10 @@ class Conversation:
         # Return response
         try:
             self.struct = response.json()
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError as exc:
             raise Exception(
                 "Authentication failed. You have not been accepted into the beta."
-            ) from json.decoder.JSONDecodeError
+            ) from exc
 
 
 class ChatHub:
