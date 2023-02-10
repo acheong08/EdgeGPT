@@ -93,7 +93,7 @@ class Conversation:
         # Build request
         headers = {
             "accept": "application/json",
-            "accept-encoding": "gzip, deflate, br",
+            "accept-encoding": "gzip, deflate",
             "accept-language": "en-US,en;q=0.9",
             "content-type": "application/json",
             "sec-ch-ua": '"Microsoft Edge";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
@@ -193,6 +193,7 @@ class ChatHub:
         if self.wss:
             if not self.wss.closed:
                 await self.wss.close()
+
 
 class Chatbot:
     """
