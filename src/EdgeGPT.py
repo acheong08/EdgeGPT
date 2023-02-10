@@ -4,8 +4,8 @@ Main.py
 import asyncio
 import json
 import os
-import uuid
 import sys
+import uuid
 
 import requests
 import websockets.client as websockets
@@ -129,7 +129,9 @@ class Conversation:
         try:
             self.struct = response.json()
         except json.decoder.JSONDecodeError:
-            raise Exception("Authentication failed. You have not been accepted into the beta.") from json.decoder.JSONDecodeError
+            raise Exception(
+                "Authentication failed. You have not been accepted into the beta."
+            ) from json.decoder.JSONDecodeError
 
 
 class ChatHub:
@@ -155,7 +157,9 @@ class ChatHub:
         # Check if websocket is closed
         if self.wss:
             if self.wss.closed:
-                self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
+                self.wss = await websockets.connect(
+                    "wss://sydney.bing.com/sydney/ChatHub"
+                )
                 await self.__initial_handshake()
         else:
             self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
@@ -252,7 +256,7 @@ async def main():
             !help - Show this help message
             !exit - Exit the program
             !reset - Reset the conversation
-            """
+            """,
             )
             continue
         elif prompt == "!reset":
@@ -262,7 +266,7 @@ async def main():
         print(
             (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][0][
                 "body"
-            ][0]["text"]
+            ][0]["text"],
         )
     await bot.close()
 
@@ -278,6 +282,6 @@ if __name__ == "__main__":
 
         Type !exit to exit
         Enter twice to send message
-    """
+    """,
     )
     asyncio.run(main())

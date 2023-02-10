@@ -1,4 +1,5 @@
 import json
+
 from EdgeGPT import Chatbot
 
 
@@ -7,7 +8,8 @@ async def main():
     await bot.start()
 
     result = json.dumps(
-        await bot.ask("Check GitHub for a repository names 'EdgeGPT'"), indent=4
+        await bot.ask("Check GitHub for a repository names 'EdgeGPT'"),
+        indent=4,
     )
     print(result)
 
