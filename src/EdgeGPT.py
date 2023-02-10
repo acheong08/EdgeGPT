@@ -182,7 +182,6 @@ class ChatHub:
         Close the connection
         """
         await self.wss.close()
-        self.task.cancel()
 
 
 class Chatbot:
