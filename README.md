@@ -1,17 +1,23 @@
 # Edge GPT
 ChatGPT with internet access
 
-## Requirements
+<details>
+<summary>
+
+## Setup (optional)
+Completely optional, but recommended if you have beta access to Bing Chat
+</summary>
+
+### Requirements (Optional)
 - A Microsoft Account with early access to http://bing.com/chat
 - Microsoft Edge
 
-## Setup
-### Checking access
+### Checking access (Optional)
 - Install the latest version of Microsoft Edge
 - Open http://bing.com/chat
 - If you see a chat feature, you are good to go
 
-### Getting authentication
+### Getting authentication (Optional)
 - Open the developer tools (F12)
 - Go to the Application tab → Storage → Cookies
 - Find the cookie named "_U"
@@ -21,12 +27,17 @@ ChatGPT with internet access
 - Method 2
   - Use it as command line argument later
 
+</details>
+
 ## Installation
 - `python3 -m pip install EdgeGPT`
 
 ## Demo usage
+### With your own token (Optional)
 - If `BING_U` in environment variables: `python3 -m EdgeGPT`
 - Else: `python3 -m EdgeGPT "<COOKIE_VALUE>"`
+### Without a cookie
+- `python3 -m EdgeGPT`
 
 ## Developer
 Use Async for the best experience
