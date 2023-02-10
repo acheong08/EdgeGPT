@@ -288,7 +288,7 @@ async def main():
             await bot.reset()
             continue
         print("Bot:")
-        if not args.stream:
+        if args.no_stream:
             print(
                 (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][
                     0
@@ -320,7 +320,7 @@ if __name__ == "__main__":
     """,
     )
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stream", action="store_true")
+    parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--bing-cookie", type=str, default="")
     args = parser.parse_args()
     if args.bing_cookie:
