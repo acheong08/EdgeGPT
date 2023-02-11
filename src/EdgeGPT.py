@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 import sys
-import uuid
 
 import requests
 import websockets.client as websockets
@@ -95,22 +94,51 @@ class Conversation:
         }
         # Create cookies
         if os.environ.get("BING_U") is None:
-            url = "https://bing.kpham.workers.dev/"
-            cookies = {}
+            home = os.path.expanduser("~")
+            # Check if token exists
+            token_path = f"{home}/.config/bing_token"
+            # Make .config directory if it doesn't exist
+            if not os.path.exists(f"{home}/.config"):
+                os.mkdir(f"{home}/.config")
+            if os.path.exists(token_path):
+                with open(token_path, "r", encoding="utf-8") as file:
+                    token = file.read()
+            else:
+                # POST request to get token
+                url = "https://images.duti.tech/allow"
+                response = requests.post(url, timeout=10)
+                if response.status_code != 200:
+                    raise Exception("Authentication failed")
+                token = response.json()["token"]
+                # Save token
+                with open(token_path, "w", encoding="utf-8") as file:
+                    file.write(token)
+            headers = {
+                "Authorization": token,
+            }
+            url = "https://images.duti.tech/auth"
+            # Send GET request
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=10,
+            )
+            if response.status_code != 200:
+                raise Exception("Authentication failed")
+
         else:
             cookies = {
                 "_U": os.environ.get("BING_U"),
             }
             url = "https://www.bing.com/turing/conversation/create"
-        # Send GET request
-        response = requests.get(
-            url,
-            cookies=cookies,
-            timeout=30,
-        )
-        if response.status_code != 200:
-            raise Exception("Authentication failed")
-        # Return response
+            # Send GET request
+            response = requests.get(
+                url,
+                cookies=cookies,
+                timeout=30,
+            )
+            if response.status_code != 200:
+                raise Exception("Authentication failed")
         try:
             self.struct = response.json()
         except json.decoder.JSONDecodeError as exc:
