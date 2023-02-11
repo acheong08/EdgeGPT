@@ -1,35 +1,93 @@
+<div align="center">
+
 # Edge GPT
-ChatGPT with internet access
+
+_The reverse engineering the chat feature of the new version of Bing_
+
+</div>
+
+<p align="center">
+  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/acheong08/EdgeGPT">
+  <img src="https://img.shields.io/badge/python-3.7+-blue.svg" alt="python">
+</p>
+
+#  
 
 > ## UPDATE 2023/02/11 - Public access has been revoked by Microsoft. It still works if you have access to the waitlist. Please check out https://github.com/acheong08/SydneyAuth if you do have access and contact me. You can securely share access with the community if you don't mind.
 
+## Table of Contents
+- [Steup](#steup)
+- [Usage](#usage)
+- [Work in progress](#work-in-progress)
+- [Contributing](#contributing)
+
+## Steup
+
+### Install package
+```bash
+python3 -m pip install EdgeGPT
+```
+
 <details>
 <summary>
-
-## Setup (Required)
-</summary>
-
+ 
 ### Requirements (Required)
+ 
+</summary>
+ 
 - A Microsoft Account with early access to http://bing.com/chat
 - Microsoft Edge
+- python 3.7+
+ 
+</details>
 
-### Checking access (Required)
+
+<details>
+<summary>
+ 
+ ### Checking access (Required)
+ 
+</summary>
+ 
 - Install the latest version of Microsoft Edge
 - Open http://bing.com/chat
 - If you see a chat feature, you are good to go
+ 
+</details>
 
-### Getting authentication (Optional)
+
+<details>
+<summary>
+ 
+ ### Getting authentication (Optional)
+ 
+</summary>
+
 - Open the developer tools (F12)
 - Go to the Application tab → Storage → Cookies
 - Find the cookie named "_U"
 - Copy the value of the cookie
-
+ 
 </details>
 
-## Installation
-- `python3 -m pip install EdgeGPT`
 
-## Demo usage
+
+## Usage
+
+This is only a documentation package. You can print out [spec.md](spec.md) to your console:
+
+```sh
+$ standard-readme-spec
+# Prints out the standard-readme spec
+```
+
+<details>
+<summary>
+
+### Demo usage
+ 
+</summary>
+ 
 ```
  $ python3 -m EdgeGPT -h
 
@@ -49,6 +107,9 @@ options:
   --no-stream
   --bing-cookie BING_COOKIE (Required)
 ```
+ 
+</details>
+
 
 ## Developer
 Use Async for the best experience
@@ -73,6 +134,15 @@ if __name__ == "__main__":
 ## Work in progress
 - Error handling
 
-# Credits
+
+## Contributing
 - pig#8932 (Discord) - Sharing account with beta access
 - [Jimmy-Z](https://github.com/Jimmy-Z) - Bugfixes
+
+### Contributors
+
+This project exists thanks to all the people who contribute. 
+
+ <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
+ </a>
