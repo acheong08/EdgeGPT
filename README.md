@@ -16,17 +16,24 @@
 
 #  
 
-> ## UPDATE 2023/02/11 - Public access has been revoked by Microsoft. It still works if you have access to the waitlist. Please check out https://github.com/acheong08/SydneyAuth if you do have access and contact me. You can securely share access with the community if you don't mind.
+> ## UPDATE 2023/02/12 - Public access available again
 
 ## Table of Contents
-- [Steup](#steup)
-- [Usage](#usage)
-  - [Quick start](#quick-start)
-  - [Developer demo](#developer-demo)
-- [Work in progress](#work-in-progress)
-- [Contributors](#contributors)
+- [Edge GPT](#edge-gpt)
+- [](#)
+  - [Table of Contents](#table-of-contents)
+  - [Setup](#setup)
+    - [Install package](#install-package)
+    - [Requirements](#requirements)
+    - [Checking access (Optional)](#checking-access-optional)
+    - [Getting authentication (Optional)](#getting-authentication-optional)
+  - [Usage](#usage)
+    - [Quick start](#quick-start)
+    - [Developer demo](#developer-demo)
+  - [Work in progress](#work-in-progress)
+  - [Contributors](#contributors)
 
-## Steup
+## Setup
 
 ### Install package
 ```bash
@@ -34,16 +41,17 @@ python3 -m pip install EdgeGPT
 ```
  
 ### Requirements 
+We have a shared token for public use. If you have your own account with access, you can use that instead.
  
 - python 3.7+
-- Microsoft Edge
-- A Microsoft Account with early access to http://bing.com/chat
+- Microsoft Edge (Optional)
+- A Microsoft Account with early access to http://bing.com/chat (Optional)
 
 
 <details>
   <summary>
  
-  ### Checking access
+  ### Checking access (Optional)
  
   </summary>
  
@@ -57,7 +65,7 @@ python3 -m pip install EdgeGPT
 <details>
   <summary>
  
-  ### Getting authentication
+  ### Getting authentication (Optional)
  
   </summary>
 
@@ -91,7 +99,7 @@ usage: EdgeGPT.py [-h] [--no-stream] [--bing-cookie BING_COOKIE]
 options:
   -h, --help            show this help message and exit
   --no-stream
-  --bing-cookie BING_COOKIE (Required)
+  --bing-cookie BING_COOKIE (Optional)
 ```
 
 -----
