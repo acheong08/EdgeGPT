@@ -137,14 +137,10 @@ if __name__ == "__main__":
 - Error handling
 
 
-## Contributing
+## Contributors
+This project exists thanks to all the people who contribute. 
 - pig#8932 (Discord) - Sharing account with beta access
 - [Jimmy-Z](https://github.com/Jimmy-Z) - Bugfixes
-
-### Contributors
-
-This project exists thanks to all the people who contribute. 
-
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
  </a>
