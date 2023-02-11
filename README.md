@@ -131,6 +131,7 @@ if __name__ == "__main__":
 ## Contributors
 This project exists thanks to all the people who contribute. 
 - pig#8932 (Discord) - Sharing account with beta access
+- ulysses115#7373 (Discord) - Sharing account with beta access
 - [Jimmy-Z](https://github.com/Jimmy-Z) - Bugfixes
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
