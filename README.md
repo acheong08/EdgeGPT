@@ -1,8 +1,7 @@
 # Edge GPT
 ChatGPT with internet access
 
-> ## UPDATE 2023/02/11 - Microsoft has suspended our shared account. If you have access to the new Bing, I have written a tool to securly share access (and also a token system which you can possibly charge people for access to your API). Contact me at acheong@student.dalat.org if you're interested. The API system is open source: https://github.com/acheong08/SydneyAuth
-> ### If you're alturistic and a fan of open source, please host it for free.
+> ## UPDATE 2023/02/11 - Public access has been revoked by Microsoft. It still works if you have access to the waitlist. Please check out https://github.com/acheong08/SydneyAuth if you do have access and contact me. You can securely share access with the community if you don't mind.
 
 <details>
 <summary>
