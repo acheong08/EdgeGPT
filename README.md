@@ -61,7 +61,7 @@ python3 -m pip install EdgeGPT
 <details>
 <summary>
  
- ### Getting authentication (Optional)
+ ### Getting authentication (Required)
  
 </summary>
 
@@ -76,19 +76,8 @@ python3 -m pip install EdgeGPT
 
 ## Usage
 
-This is only a documentation package. You can print out [spec.md](spec.md) to your console:
-
-```sh
-$ standard-readme-spec
-# Prints out the standard-readme spec
-```
-
-<details>
-<summary>
-
 ### Demo usage
- 
-</summary>
+
  
 ```
  $ python3 -m EdgeGPT -h
@@ -109,8 +98,6 @@ options:
   --no-stream
   --bing-cookie BING_COOKIE (Required)
 ```
- 
-</details>
 
 
 ## Developer
