@@ -1,8 +1,9 @@
 <div align="center">
+  <img src="https://socialify.git.ci/acheong08/EdgeGPT/image?font=Inter&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FHarry-Jing%2FEdgeGPT%2Fmaster%2F.readme%2FBing_favicon.png&owner=1&pattern=Floating%20Cogs&theme=Auto" alt="EdgeGPT" width="640" height="320" />
 
-# Edge GPT
+  # Edge GPT
 
-*The reverse engineering the chat feature of the new version of Bing
+  *The reverse engineering the chat feature of the new version of Bing*
 
 </div>
 
@@ -20,8 +21,10 @@
 ## Table of Contents
 - [Steup](#steup)
 - [Usage](#usage)
+  - [Quick start](#quick-start)
+  - [Developer demo](#developer-demo)
 - [Work in progress](#work-in-progress)
-- [Contributing](#contributing)
+- [Contributors](#contributors)
 
 ## Steup
 
@@ -29,27 +32,20 @@
 ```bash
 python3 -m pip install EdgeGPT
 ```
-
-<details>
-<summary>
  
-### Requirements (Required)
+### Requirements 
  
-</summary>
- 
-- A Microsoft Account with early access to http://bing.com/chat
-- Microsoft Edge
 - python 3.7+
- 
-</details>
+- Microsoft Edge
+- A Microsoft Account with early access to http://bing.com/chat
 
 
 <details>
-<summary>
+  <summary>
  
- ### Checking access (Required)
+  ### Checking access
  
-</summary>
+  </summary>
  
 - Install the latest version of Microsoft Edge
 - Open http://bing.com/chat
@@ -59,11 +55,11 @@ python3 -m pip install EdgeGPT
 
 
 <details>
-<summary>
+  <summary>
  
- ### Getting authentication (Required)
+  ### Getting authentication
  
-</summary>
+  </summary>
 
 - Open the developer tools (F12)
 - Go to the Application tab → Storage → Cookies
@@ -76,8 +72,7 @@ python3 -m pip install EdgeGPT
 
 ## Usage
 
-### Demo usage
-
+### Quick start
  
 ```
  $ python3 -m EdgeGPT -h
@@ -91,7 +86,7 @@ python3 -m pip install EdgeGPT
         Type !exit to exit
         Enter twice to send message
 
-usage: EdgeGPT.py [-h] [--stream] [--bing-cookie BING_COOKIE]
+usage: EdgeGPT.py [-h] [--no-stream] [--bing-cookie BING_COOKIE]
 
 options:
   -h, --help            show this help message and exit
@@ -99,8 +94,9 @@ options:
   --bing-cookie BING_COOKIE (Required)
 ```
 
+-----
 
-## Developer
+### Developer demo
 Use Async for the best experience
 
 [Reference code](https://github.com/acheong08/EdgeGPT/blob/master/src/EdgeGPT.py#L268-L328) for more advanced example of usage
