@@ -2,13 +2,15 @@
 
 # Edge GPT
 
-_The reverse engineering the chat feature of the new version of Bing_
+*The reverse engineering the chat feature of the new version of Bing
 
 </div>
 
 <p align="center">
-  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/acheong08/EdgeGPT">
-  <img src="https://img.shields.io/badge/python-3.7+-blue.svg" alt="python">
+  <a href="https://github.com/acheong08/EdgeGPT">
+    <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
+  </a>
+  <img alt="Python version" src="https://img.shields.io/badge/python-3.7+-blue.svg">
 </p>
 
 #  
