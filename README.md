@@ -16,7 +16,7 @@
 
 #  
 
-> ## UPDATE 2023/02/12 - Public access available again
+> ## UPDATE 2023/02/13 - Public access shut down by Microsoft
 
 ## Table of Contents
 - [Edge GPT](#edge-gpt)
