@@ -25,8 +25,8 @@
   - [Setup](#setup)
     - [Install package](#install-package)
     - [Requirements](#requirements)
-    - [Checking access (Optional)](#checking-access-optional)
-    - [Getting authentication (Optional)](#getting-authentication-optional)
+    - [Checking access (Required)](#checking-access-required)
+    - [Getting authentication (Required)](#getting-authentication-required)
   - [Usage](#usage)
     - [Quick start](#quick-start)
     - [Developer demo](#developer-demo)
@@ -44,14 +44,14 @@ python3 -m pip install EdgeGPT --upgrade
 We have a shared token for public use. If you have your own account with access, you can use that instead.
  
 - python 3.7+
-- Microsoft Edge (Optional)
-- A Microsoft Account with early access to http://bing.com/chat (Optional)
+- Microsoft Edge (Required)
+- A Microsoft Account with early access to http://bing.com/chat (Required)
 
 
 <details>
   <summary>
  
-  ### Checking access (Optional)
+  ### Checking access (Required)
  
   </summary>
  
@@ -65,7 +65,7 @@ We have a shared token for public use. If you have your own account with access,
 <details>
   <summary>
  
-  ### Getting authentication (Optional)
+  ### Getting authentication (Required)
  
   </summary>
 
@@ -99,7 +99,7 @@ usage: EdgeGPT.py [-h] [--no-stream] [--bing-cookie BING_COOKIE]
 options:
   -h, --help            show this help message and exit
   --no-stream
-  --bing-cookie BING_COOKIE (Optional)
+  --bing-cookie BING_COOKIE (Required)
 ```
 
 -----

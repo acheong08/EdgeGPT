@@ -20,6 +20,7 @@ headers = {
     "sec-ch-ua-platform": "Windows",
 }
 
+
 class NotAllowedToAccess(Exception):
     pass
 
@@ -117,7 +118,11 @@ class Conversation:
                     token = file.read()
             else:
                 url = "https://images.duti.tech/allow"
-                response = requests.post(url, timeout=10, headers=headers,)
+                response = requests.post(
+                    url,
+                    timeout=10,
+                    headers=headers,
+                )
                 if response.status_code != 200:
                     raise Exception("Authentication failed")
                 token = response.json()["token"]
@@ -188,7 +193,11 @@ class ChatHub:
                 )
                 await self.__initial_handshake()
         else:
-            self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub", extra_headers=headers, max_size=None)
+            self.wss = await websockets.connect(
+                "wss://sydney.bing.com/sydney/ChatHub",
+                extra_headers=headers,
+                max_size=None,
+            )
             await self.__initial_handshake()
         # Construct a ChatHub request
         self.request.update(prompt=prompt)
@@ -339,7 +348,7 @@ if __name__ == "__main__":
     )
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-stream", action="store_true")
-    parser.add_argument("--bing-cookie", type=str, default="")
+    parser.add_argument("--bing-cookie", type=str, default="", required=True)
     args = parser.parse_args()
     if args.bing_cookie:
         os.environ["BING_U"] = args.bing_cookie
