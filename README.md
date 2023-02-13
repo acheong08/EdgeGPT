@@ -127,6 +127,9 @@ if __name__ == "__main__":
 ## Work in progress
 - Error handling
 
+## Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
+
 
 ## Contributors
 This project exists thanks to all the people who contribute. 
