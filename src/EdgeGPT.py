@@ -13,6 +13,10 @@ import websockets.client as websockets
 DELIMITER = "\x1e"
 
 
+class NotAllowedToAccess(Exception):
+    pass
+
+
 def append_identifier(msg: dict) -> str:
     """
     Appends special character to end of message to identify end of message
@@ -141,7 +145,9 @@ class Conversation:
                 raise Exception("Authentication failed")
         try:
             self.struct = response.json()
-        except json.decoder.JSONDecodeError as exc:
+            if self.struct["result"]["value"] == "UnauthorizedRequest":
+                raise NotAllowedToAccess(self.struct["result"]["message"])
+        except (json.decoder.JSONDecodeError, NotAllowedToAccess) as exc:
             raise Exception(
                 "Authentication failed. You have not been accepted into the beta.",
             ) from exc
