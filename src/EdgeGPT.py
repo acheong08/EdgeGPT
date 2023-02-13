@@ -12,6 +12,13 @@ import websockets.client as websockets
 
 DELIMITER = "\x1e"
 
+headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.41",
+    "origin": "https://www.bing.com",
+    "referer": "https://www.bing.com/",
+    "sec-ch-ua": '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
+    "sec-ch-ua-platform": "Windows",
+}
 
 class NotAllowedToAccess(Exception):
     pass
@@ -96,6 +103,7 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
+        # POST request to get token
         # Create cookies
         if os.environ.get("BING_U") is None:
             home = os.path.expanduser("~")
@@ -108,18 +116,14 @@ class Conversation:
                 with open(token_path, "r", encoding="utf-8") as file:
                     token = file.read()
             else:
-                # POST request to get token
                 url = "https://images.duti.tech/allow"
-                response = requests.post(url, timeout=10)
+                response = requests.post(url, timeout=10, headers=headers,)
                 if response.status_code != 200:
                     raise Exception("Authentication failed")
                 token = response.json()["token"]
                 # Save token
                 with open(token_path, "w", encoding="utf-8") as file:
                     file.write(token)
-            headers = {
-                "Authorization": token,
-            }
             url = "https://images.duti.tech/auth"
             # Send GET request
             response = requests.get(
@@ -140,6 +144,7 @@ class Conversation:
                 url,
                 cookies=cookies,
                 timeout=30,
+                headers=headers,
             )
             if response.status_code != 200:
                 raise Exception("Authentication failed")
@@ -178,10 +183,12 @@ class ChatHub:
             if self.wss.closed:
                 self.wss = await websockets.connect(
                     "wss://sydney.bing.com/sydney/ChatHub",
+                    extra_headers=headers,
+                    max_size=None,
                 )
                 await self.__initial_handshake()
         else:
-            self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub")
+            self.wss = await websockets.connect("wss://sydney.bing.com/sydney/ChatHub", extra_headers=headers, max_size=None)
             await self.__initial_handshake()
         # Construct a ChatHub request
         self.request.update(prompt=prompt)
