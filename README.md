@@ -17,6 +17,7 @@
 #  
 
 > ## UPDATE 2023/02/13 - Public access shut down by Microsoft
+> ## UPDATE 2023/02/14 - Do not use for now while I verify its safety
 
 ## Table of Contents
 - [Edge GPT](#edge-gpt)
