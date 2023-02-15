@@ -109,7 +109,11 @@ options:
 -----
 
 ### Developer demo
-Remember to set cookie file path: `export COOKIE_FILE=/path/to/cookies.json`
+Remember to set cookie file path: `export COOKIE_FILE=/path/to/cookies.json`. You can also specify the path to `cookies.json` in the argument `cookiePath` like this:
+
+```python
+bot = Chatbot(cookiePath='./cookie.json')
+```
 
 Use Async for the best experience
 
