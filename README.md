@@ -108,6 +108,8 @@ options:
 -----
 
 ### Developer demo
+Remember to set cookie file path: `export COOKIE_FILE=/path/to/cookies.json`
+
 Use Async for the best experience
 
 [Reference code](https://github.com/acheong08/EdgeGPT/blob/master/src/EdgeGPT.py#L268-L328) for more advanced example of usage
