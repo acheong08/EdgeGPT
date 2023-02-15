@@ -123,6 +123,8 @@ class Conversation:
             allow_redirects=True,
         )
         if response.status_code != 200:
+            print(f"Status code: {response.status_code}")
+            print(response.text)
             raise Exception("Authentication failed")
         try:
             self.struct = response.json()
