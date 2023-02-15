@@ -142,6 +142,7 @@ class Conversation:
         else:
             cookies = {
                 "_U": os.environ.get("BING_U"),
+                "KievRPSSecAuth": os.environ.get("KIEV_U"),
             }
             url = "https://www.bing.com/turing/conversation/create"
             # Send GET request
@@ -349,7 +350,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--bing-cookie", type=str, default="", required=True)
+    parser.add_argument("--kiev-cookie", type=str, default="", required=True)
     args = parser.parse_args()
     if args.bing_cookie:
         os.environ["BING_U"] = args.bing_cookie
+    if args.kiev_cookie:
+        os.environ["KIEV_U"] = args.kiev_cookie
     asyncio.run(main())
