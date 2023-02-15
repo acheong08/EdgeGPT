@@ -136,6 +136,7 @@ if __name__ == "__main__":
 
 ## Contributors
 This project exists thanks to all the people who contribute. 
+
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
  </a>
