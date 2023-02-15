@@ -8,6 +8,7 @@ import os
 import sys
 
 import requests
+import tls_client
 import websockets.client as websockets
 
 DELIMITER = "\x1e"
@@ -104,56 +105,57 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
+        self.session = tls_client.Session(client_identifier="chrome_108")
         # POST request to get token
         # Create cookies
-        if os.environ.get("BING_U") is None:
-            home = os.path.expanduser("~")
-            # Check if token exists
-            token_path = f"{home}/.config/bing_token"
-            # Make .config directory if it doesn't exist
-            if not os.path.exists(f"{home}/.config"):
-                os.mkdir(f"{home}/.config")
-            if os.path.exists(token_path):
-                with open(token_path, "r", encoding="utf-8") as file:
-                    token = file.read()
-            else:
-                url = "https://images.duti.tech/allow"
-                response = requests.post(
-                    url,
-                    timeout=10,
-                    headers=headers,
-                )
-                if response.status_code != 200:
-                    raise Exception("Authentication failed")
-                token = response.json()["token"]
-                # Save token
-                with open(token_path, "w", encoding="utf-8") as file:
-                    file.write(token)
-            url = "https://images.duti.tech/auth"
-            # Send GET request
-            response = requests.get(
-                url,
-                headers=headers,
-                timeout=10,
-            )
-            if response.status_code != 200:
-                raise Exception("Authentication failed")
+        # if os.environ.get("BING_U") is None:
+        #     home = os.path.expanduser("~")
+        #     # Check if token exists
+        #     token_path = f"{home}/.config/bing_token"
+        #     # Make .config directory if it doesn't exist
+        #     if not os.path.exists(f"{home}/.config"):
+        #         os.mkdir(f"{home}/.config")
+        #     if os.path.exists(token_path):
+        #         with open(token_path, "r", encoding="utf-8") as file:
+        #             token = file.read()
+        #     else:
+        #         url = "https://images.duti.tech/allow"
+        #         response = requests.post(
+        #             url,
+        #             timeout=10,
+        #             headers=headers,
+        #         )
+        #         if response.status_code != 200:
+        #             raise Exception("Authentication failed")
+        #         token = response.json()["token"]
+        #         # Save token
+        #         with open(token_path, "w", encoding="utf-8") as file:
+        #             file.write(token)
+        #     url = "https://images.duti.tech/auth"
+        #     # Send GET request
+        #     response = requests.get(
+        #         url,
+        #         headers=headers,
+        #         timeout=10,
+        #     )
+        #     if response.status_code != 200:
+        #         raise Exception("Authentication failed")
 
-        else:
-            cookies = {
-                "_U": os.environ.get("BING_U"),
-                "KievRPSSecAuth": os.environ.get("KIEV_U"),
-            }
-            url = "https://www.bing.com/turing/conversation/create"
-            # Send GET request
-            response = requests.get(
-                url,
-                cookies=cookies,
-                timeout=30,
-                headers=headers,
-            )
-            if response.status_code != 200:
-                raise Exception("Authentication failed")
+        # else:
+        cookies = {
+            "_U": os.environ.get("BING_U"),
+            "KievRPSSecAuth": os.environ.get("KIEV_U"),
+        }
+        url = "https://www.bing.com/turing/conversation/create"
+        # Send GET request
+        response = self.session.get(
+            url,
+            cookies=cookies,
+            timeout_seconds=30,
+            headers=headers,
+        )
+        if response.status_code != 200:
+            raise Exception("Authentication failed")
         try:
             self.struct = response.json()
             if self.struct["result"]["value"] == "UnauthorizedRequest":
@@ -350,7 +352,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--bing-cookie", type=str, default="", required=True)
-    parser.add_argument("--kiev-cookie", type=str, default="", required=True)
+    parser.add_argument("--kiev-cookie", type=str, default="", required=False)
     args = parser.parse_args()
     if args.bing_cookie:
         os.environ["BING_U"] = args.bing_cookie
