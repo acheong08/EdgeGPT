@@ -32,6 +32,7 @@
     - [Quick start](#quick-start)
     - [Developer demo](#developer-demo)
   - [Work in progress](#work-in-progress)
+  - [Star History](#star-history)
   - [Contributors](#contributors)
 
 ## Setup
@@ -70,10 +71,11 @@ We have a shared token for public use. If you have your own account with access,
  
   </summary>
 
-- Open the developer tools (F12)
-- Go to the Application tab → Storage → Cookies
-- Find the cookie named "_U"
-- Copy the value of the cookie
+- Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
+- Go to `bing.com`
+- Open the extension
+- Click "Export" on the bottom right (This saves your cookies to clipboard)
+- Paste your cookies into a file `cookies.json`
  
 </details>
 
@@ -84,7 +86,7 @@ We have a shared token for public use. If you have your own account with access,
 ### Quick start
  
 ```
- $ python3 -m EdgeGPT -h
+ $ python3 -m EdgeGPT -h                          
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/EdgeGPT
@@ -94,13 +96,13 @@ We have a shared token for public use. If you have your own account with access,
 
         Type !exit to exit
         Enter twice to send message
-
-usage: EdgeGPT.py [-h] [--no-stream] [--bing-cookie BING_COOKIE]
+    
+usage: EdgeGPT.py [-h] [--no-stream] --cookie-file COOKIE_FILE
 
 options:
   -h, --help            show this help message and exit
   --no-stream
-  --bing-cookie BING_COOKIE (Required)
+  --cookie-file COOKIE_FILE
 ```
 
 -----
