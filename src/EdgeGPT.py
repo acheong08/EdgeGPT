@@ -4,10 +4,9 @@ Main.py
 import argparse
 import asyncio
 import json
-import os
 import sys
+import os
 
-import requests
 import tls_client
 import websockets.client as websockets
 
@@ -106,51 +105,15 @@ class Conversation:
             "result": {"value": "Success", "message": None},
         }
         self.session = tls_client.Session(client_identifier="chrome_108")
-        # POST request to get token
-        # Create cookies
-        # if os.environ.get("BING_U") is None:
-        #     home = os.path.expanduser("~")
-        #     # Check if token exists
-        #     token_path = f"{home}/.config/bing_token"
-        #     # Make .config directory if it doesn't exist
-        #     if not os.path.exists(f"{home}/.config"):
-        #         os.mkdir(f"{home}/.config")
-        #     if os.path.exists(token_path):
-        #         with open(token_path, "r", encoding="utf-8") as file:
-        #             token = file.read()
-        #     else:
-        #         url = "https://images.duti.tech/allow"
-        #         response = requests.post(
-        #             url,
-        #             timeout=10,
-        #             headers=headers,
-        #         )
-        #         if response.status_code != 200:
-        #             raise Exception("Authentication failed")
-        #         token = response.json()["token"]
-        #         # Save token
-        #         with open(token_path, "w", encoding="utf-8") as file:
-        #             file.write(token)
-        #     url = "https://images.duti.tech/auth"
-        #     # Send GET request
-        #     response = requests.get(
-        #         url,
-        #         headers=headers,
-        #         timeout=10,
-        #     )
-        #     if response.status_code != 200:
-        #         raise Exception("Authentication failed")
-
-        # else:
-        cookies = {
-            "_U": os.environ.get("BING_U"),
-            "KievRPSSecAuth": os.environ.get("KIEV_U"),
-        }
+        cookie_file = json.loads(
+            open(os.environ.get("COOKIE_FILE"), "r", encoding="utf-8").read()
+        )
+        for cookie in cookie_file:
+            self.session.cookies.set(cookie["name"], cookie["value"])
         url = "https://www.bing.com/turing/conversation/create"
         # Send GET request
         response = self.session.get(
             url,
-            cookies=cookies,
             timeout_seconds=30,
             headers=headers,
         )
@@ -351,11 +314,10 @@ if __name__ == "__main__":
     )
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-stream", action="store_true")
-    parser.add_argument("--bing-cookie", type=str, default="", required=True)
-    parser.add_argument("--kiev-cookie", type=str, default="", required=False)
+    parser.add_argument(
+        "--cookie-file", type=str, default="cookies.json", required=True
+    )
     args = parser.parse_args()
-    if args.bing_cookie:
-        os.environ["BING_U"] = args.bing_cookie
-    if args.kiev_cookie:
-        os.environ["KIEV_U"] = args.kiev_cookie
+    os.environ["COOKIE_FILE"] = args.cookie_file
+    args = parser.parse_args()
     asyncio.run(main())
