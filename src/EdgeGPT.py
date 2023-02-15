@@ -4,16 +4,20 @@ Main.py
 import argparse
 import asyncio
 import json
-import sys
 import os
+import sys
+from typing import Generator, Optional
 
 import tls_client
 import websockets.client as websockets
 
 DELIMITER = "\x1e"
 
-headers = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.41",
+HEADERS = {
+    "user-agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.41"
+    ),
     "origin": "https://www.bing.com",
     "referer": "https://www.bing.com/",
     "sec-ch-ua": '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
@@ -45,7 +49,7 @@ class ChatHubRequest:
         conversation_id: str,
         invocation_id: int = 0,
     ) -> None:
-        self.struct: dict
+        self.struct: dict = {}
 
         self.client_id: str = client_id
         self.conversation_id: str = conversation_id
@@ -115,7 +119,7 @@ class Conversation:
         response = self.session.get(
             url,
             timeout_seconds=30,
-            headers=headers,
+            headers=HEADERS,
         )
         if response.status_code != 200:
             raise Exception("Authentication failed")
@@ -135,7 +139,7 @@ class ChatHub:
     """
 
     def __init__(self, conversation: Conversation) -> None:
-        self.wss: websockets.WebSocketClientProtocol = None
+        self.wss: Optional[websockets.WebSocketClientProtocol] = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -145,7 +149,7 @@ class ChatHub:
             conversation_id=conversation.struct["conversationId"],
         )
 
-    async def ask_stream(self, prompt: str) -> str:
+    async def ask_stream(self, prompt: str) -> Generator[str]:
         """
         Ask a question to the bot
         """
@@ -154,14 +158,14 @@ class ChatHub:
             if self.wss.closed:
                 self.wss = await websockets.connect(
                     "wss://sydney.bing.com/sydney/ChatHub",
-                    extra_headers=headers,
+                    extra_headers=HEADERS,
                     max_size=None,
                 )
                 await self.__initial_handshake()
         else:
             self.wss = await websockets.connect(
                 "wss://sydney.bing.com/sydney/ChatHub",
-                extra_headers=headers,
+                extra_headers=HEADERS,
                 max_size=None,
             )
             await self.__initial_handshake()
@@ -213,7 +217,7 @@ class Chatbot:
             if final:
                 return response
 
-    async def ask_stream(self, prompt: str) -> str:
+    async def ask_stream(self, prompt: str) -> Generator[str]:
         """
         Ask a question to the bot
         """
