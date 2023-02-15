@@ -152,7 +152,7 @@ class ChatHub:
             conversation_id=conversation.struct["conversationId"],
         )
 
-    async def ask_stream(self, prompt: str) -> Generator[str]:
+    async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
@@ -220,7 +220,7 @@ class Chatbot:
             if final:
                 return response
 
-    async def ask_stream(self, prompt: str) -> Generator[str]:
+    async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
