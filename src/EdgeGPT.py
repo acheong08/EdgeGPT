@@ -103,7 +103,7 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self) -> None:
+    def __init__(self, cookiePath: str = '') -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -111,9 +111,11 @@ class Conversation:
             "result": {"value": "Success", "message": None},
         }
         self.session = tls_client.Session(client_identifier="chrome_108")
-        cookie_file = json.loads(
-            open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read(),
-        )
+        if cookiePath == '':
+            f = open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read()
+        else:
+            f = open(cookiePath, encoding='utf8').read()
+        cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
         url = "https://www.bing.com/turing/conversation/create"
@@ -211,8 +213,8 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self) -> None:
-        self.chat_hub: ChatHub = ChatHub(Conversation())
+    def __init__(self, cookiePath: str = '') -> None:
+        self.chat_hub: ChatHub = ChatHub(Conversation(cookiePath))
 
     async def ask(self, prompt: str) -> dict:
         """
