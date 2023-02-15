@@ -14,7 +14,7 @@
   <img alt="Python version" src="https://img.shields.io/badge/python-3.7+-blue.svg">
 </p>
 
-#  
+#
 
 > ### UPDATE 2023/02/13 - Public access shut down by Microsoft
 > ### UPDATE 2023/02/14 - Do not use for now while I verify its safety
@@ -42,10 +42,10 @@
 ```bash
 python3 -m pip install EdgeGPT --upgrade
 ```
- 
-### Requirements 
+
+### Requirements
 We have a shared token for public use. If you have your own account with access, you can use that instead.
- 
+
 - python 3.7+
 - Microsoft Edge (Required)
 - A Microsoft Account with early access to http://bing.com/chat (Required)
@@ -53,23 +53,23 @@ We have a shared token for public use. If you have your own account with access,
 
 <details>
   <summary>
- 
+
   ### Checking access (Required)
- 
+
   </summary>
- 
+
 - Install the latest version of Microsoft Edge
 - Open http://bing.com/chat
 - If you see a chat feature, you are good to go
- 
+
 </details>
 
 
 <details>
   <summary>
- 
+
   ### Getting authentication (Required)
- 
+
   </summary>
 
 - Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
@@ -77,7 +77,7 @@ We have a shared token for public use. If you have your own account with access,
 - Open the extension
 - Click "Export" on the bottom right (This saves your cookies to clipboard)
 - Paste your cookies into a file `cookies.json`
- 
+
 </details>
 
 
@@ -85,9 +85,9 @@ We have a shared token for public use. If you have your own account with access,
 ## Usage
 
 ### Quick start
- 
+
 ```
- $ python3 -m EdgeGPT -h                          
+ $ python3 -m EdgeGPT -h
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/EdgeGPT
@@ -97,7 +97,7 @@ We have a shared token for public use. If you have your own account with access,
 
         Type !exit to exit
         Enter twice to send message
-    
+
 usage: EdgeGPT.py [-h] [--no-stream] --cookie-file COOKIE_FILE
 
 options:
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
 
 ## Contributors
-This project exists thanks to all the people who contribute. 
+This project exists thanks to all the people who contribute.
 
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />

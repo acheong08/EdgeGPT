@@ -6,7 +6,8 @@ import asyncio
 import json
 import os
 import sys
-from typing import Generator, Optional
+from typing import Generator
+from typing import Optional
 
 import tls_client
 import websockets.client as websockets
@@ -22,6 +23,7 @@ HEADERS = {
     "referer": "https://www.bing.com/",
     "sec-ch-ua": '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
     "sec-ch-ua-platform": "Windows",
+    "x-forwarded-for": "8.8.8.8",
 }
 
 
@@ -110,7 +112,7 @@ class Conversation:
         }
         self.session = tls_client.Session(client_identifier="chrome_108")
         cookie_file = json.loads(
-            open(os.environ.get("COOKIE_FILE"), "r", encoding="utf-8").read()
+            open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read(),
         )
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
@@ -322,7 +324,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument(
-        "--cookie-file", type=str, default="cookies.json", required=True
+        "--cookie-file",
+        type=str,
+        default="cookies.json",
+        required=True,
     )
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
