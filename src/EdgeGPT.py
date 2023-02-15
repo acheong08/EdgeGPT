@@ -120,6 +120,7 @@ class Conversation:
             url,
             timeout_seconds=30,
             headers=HEADERS,
+            allow_redirects=True,
         )
         if response.status_code != 200:
             raise Exception("Authentication failed")
