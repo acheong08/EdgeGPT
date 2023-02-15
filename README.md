@@ -16,8 +16,9 @@
 
 #  
 
-> ## UPDATE 2023/02/13 - Public access shut down by Microsoft
-> ## UPDATE 2023/02/14 - Do not use for now while I verify its safety
+> ### UPDATE 2023/02/13 - Public access shut down by Microsoft
+> ### UPDATE 2023/02/14 - Do not use for now while I verify its safety
+> ## UPDATE 2023/02/15 - I have added spoofing and safety features. You should not get suspended unless you abuse the service.
 
 ## Table of Contents
 - [Edge GPT](#edge-gpt)
