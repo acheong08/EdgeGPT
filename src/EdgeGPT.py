@@ -9,6 +9,7 @@ import random
 import sys
 from typing import Generator
 from typing import Optional
+import uuid
 
 import tls_client
 import websockets.client as websockets
@@ -20,16 +21,26 @@ FORWARDED_IP = (
     f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}"
 )
 
-
 HEADERS = {
-    "user-agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.41"
-    ),
-    "origin": "https://www.bing.com",
-    "referer": "https://www.bing.com/",
-    "sec-ch-ua": '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
-    "sec-ch-ua-platform": "Windows",
+    "accept": "application/json",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/json",
+    "sec-ch-ua": '"Not_A Brand";v="99", "Microsoft Edge";v="109", "Chromium";v="109"',
+    "sec-ch-ua-arch": '"x86"',
+    "sec-ch-ua-bitness": '"64"',
+    "sec-ch-ua-full-version": '"109.0.1518.78"',
+    "sec-ch-ua-full-version-list": '"Not_A Brand";v="99.0.0.0", "Microsoft Edge";v="109.0.1518.78", "Chromium";v="109.0.5414.120"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-model": "",
+    "sec-ch-ua-platform": '"Windows"',
+    "sec-ch-ua-platform-version": '"15.0.0"',
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "x-ms-client-request-id": str(uuid.uuid4()),
+    "x-ms-useragent": "azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Win32",
+    "Referer": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx",
+    "Referrer-Policy": "origin-when-cross-origin",
     "x-forwarded-for": FORWARDED_IP,
 }
 
