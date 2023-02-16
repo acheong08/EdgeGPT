@@ -118,7 +118,7 @@ class Conversation:
         cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
-        url = "https://www.bing.com/turing/conversation/create"
+        url = "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
         # Send GET request
         response = self.session.get(
             url,
