@@ -11,7 +11,7 @@
   <a href="https://github.com/acheong08/EdgeGPT">
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
-  <img alt="Python version" src="https://img.shields.io/badge/python-3.7+-blue.svg">
+  <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
 </p>
 
 #
@@ -46,7 +46,7 @@ python3 -m pip install EdgeGPT --upgrade
 ### Requirements
 We have a shared token for public use. If you have your own account with access, you can use that instead.
 
-- python 3.7+
+- python 3.8+
 - Microsoft Edge (Required)
 - A Microsoft Account with early access to http://bing.com/chat (Required)
 
