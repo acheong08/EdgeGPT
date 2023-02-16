@@ -5,6 +5,7 @@ import argparse
 import asyncio
 import json
 import os
+import random
 import sys
 from typing import Generator
 from typing import Optional
@@ -13,6 +14,12 @@ import tls_client
 import websockets.client as websockets
 
 DELIMITER = "\x1e"
+
+# Generate random IP between range 13.104.0.0/14
+FORWARDED_IP = (
+    f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}"
+)
+
 
 HEADERS = {
     "user-agent": (
@@ -23,7 +30,7 @@ HEADERS = {
     "referer": "https://www.bing.com/",
     "sec-ch-ua": '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
     "sec-ch-ua-platform": "Windows",
-    "x-forwarded-for": "8.8.8.8",
+    "x-forwarded-for": FORWARDED_IP,
 }
 
 
@@ -103,7 +110,7 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = '') -> None:
+    def __init__(self, cookiePath: str = "") -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -111,10 +118,10 @@ class Conversation:
             "result": {"value": "Success", "message": None},
         }
         self.session = tls_client.Session(client_identifier="chrome_108")
-        if cookiePath == '':
+        if cookiePath == "":
             f = open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read()
         else:
-            f = open(cookiePath, encoding='utf8').read()
+            f = open(cookiePath, encoding="utf8").read()
         cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
@@ -213,7 +220,7 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = '') -> None:
+    def __init__(self, cookiePath: str = "") -> None:
         self.chat_hub: ChatHub = ChatHub(Conversation(cookiePath))
 
     async def ask(self, prompt: str) -> dict:
