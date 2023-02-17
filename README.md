@@ -14,13 +14,12 @@
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
 </p>
 
-#
+---
 
 > ### By using this library, you are breaking Microsoft TOS. Be careful of account suspension. I have tried my best to spoof headers and tls fingerprint
 
 ## Table of Contents
 - [Edge GPT](#edge-gpt)
-- [](#)
   - [Table of Contents](#table-of-contents)
   - [Setup](#setup)
     - [Install package](#install-package)
