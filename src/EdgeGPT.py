@@ -241,6 +241,7 @@ class Chatbot:
         async for final, response in self.chat_hub.ask_stream(prompt=prompt):
             if final:
                 return response
+        self.chat_hub.wss.close()
 
     async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
         """
