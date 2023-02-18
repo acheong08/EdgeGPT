@@ -16,8 +16,6 @@
 
 ---
 
-> ### By using this library, you are breaking Microsoft TOS. Be careful of account suspension. I have tried my best to spoof headers and tls fingerprint
-
 ## Table of Contents
 - [Edge GPT](#edge-gpt)
   - [Table of Contents](#table-of-contents)
