@@ -12,19 +12,24 @@ authors = [
 maintainers = [
   {name = "Antonio Cheong", email = "acheong@student.dalat.org"}
 ]
-
 dependencies = [
   "asyncio",
   "tls-client>=0.1.8",
   "websockets>=10.4",
 ]
 
+
 [project.urls]
 homepage = "https://github.com/acheong08/EdgeGPT"
 releases = "https://github.com/acheong08/EdgeGPT/releases"
+
 
 [build-system]
 requires = [
   "setuptools >= 65.5.0",
 ]
 build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+py-modules = ["EdgeGPT"]
