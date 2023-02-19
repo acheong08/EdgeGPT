@@ -1,0 +1,30 @@
+[project]
+name = "EdgeGPT"
+version = "0.0.48"
+description = "Reverse engineered Edge Chat API"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "GNU General Public License v2.0"}
+keywords = ["Bing", "ChatGPT"]
+authors = [
+  {name = "Antonio Cheong", email = "acheong@student.dalat.org"},
+]
+maintainers = [
+  {name = "Antonio Cheong", email = "acheong@student.dalat.org"}
+]
+
+dependencies = [
+  "asyncio",
+  "tls-client>=0.1.8",
+  "websockets>=10.4",
+]
+
+[project.urls]
+homepage = "https://github.com/acheong08/EdgeGPT"
+releases = "https://github.com/acheong08/EdgeGPT/releases"
+
+[build-system]
+requires = [
+  "setuptools >= 65.5.0",
+]
+build-backend = "setuptools.build_meta"
