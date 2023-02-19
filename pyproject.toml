@@ -4,7 +4,7 @@ version = "0.0.48"
 description = "Reverse engineered Edge Chat API"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "GNU General Public License v2.0"}
+license = {file = "LICENSE"}
 keywords = ["Bing", "ChatGPT"]
 authors = [
   {name = "Antonio Cheong", email = "acheong@student.dalat.org"},
