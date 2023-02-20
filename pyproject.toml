@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 keywords = ["Bing", "ChatGPT"]
+py_modules = ["EdgeGPT"]
 authors = [
   {name = "Antonio Cheong", email = "acheong@student.dalat.org"},
 ]
