@@ -271,6 +271,11 @@ def get_input(prompt):
     # Display the prompt
     print(prompt, end="")
 
+    if args.enter_once:
+        user_input = input()
+        print()
+        return user_input
+
     # Initialize an empty list to store the input lines
     lines = []
 
@@ -339,10 +344,11 @@ if __name__ == "__main__":
         !help for help
 
         Type !exit to exit
-        Enter twice to send message
+        Enter twice to send message or set --enter-once to send one line message
     """,
     )
     parser = argparse.ArgumentParser()
+    parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument(
         "--cookie-file",
