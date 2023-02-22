@@ -6,6 +6,7 @@ import asyncio
 import json
 import os
 import random
+import readline
 import sys
 from typing import Generator
 from typing import Optional
