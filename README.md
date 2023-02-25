@@ -102,11 +102,24 @@ options:
 -----
 
 ### Developer demo
-Remember to set cookie file path: `export COOKIE_FILE=/path/to/cookies.json`. You can also specify the path to `cookies.json` in the argument `cookiePath` like this:
 
-```python
-bot = Chatbot(cookiePath='./cookie.json')
-```
+Three ways to pass in cookies:
+
+- Environment variable: `export COOKIE_FILE=/path/to/cookies.json`.
+- Specify the path to `cookies.json` in the argument `cookiePath` like this:
+
+  ```python
+  bot = Chatbot(cookiePath='./cookie.json')
+  ```
+
+- Pass in the cookies directly by the argument `cookies`, like this:
+
+  ```python
+  with open('./cookie.json', 'r') as f:
+      cookies = json.load(f)
+  bot = Chatbot(cookies=cookies)
+  ```
+
 
 Use Async for the best experience
 
