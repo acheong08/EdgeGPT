@@ -121,7 +121,7 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "") -> None:
+    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -129,11 +129,15 @@ class Conversation:
             "result": {"value": "Success", "message": None},
         }
         self.session = tls_client.Session(client_identifier="chrome_108")
-        if cookiePath == "":
-            f = open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read()
+        if cookies is not None:
+            cookie_file = cookies
         else:
-            f = open(cookiePath, encoding="utf8").read()
-        cookie_file = json.loads(f)
+            if cookiePath == "":
+                f = open(os.environ.get("COOKIE_FILE"),
+                         encoding="utf-8").read()
+            else:
+                f = open(cookiePath, encoding="utf8").read()
+            cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
         url = "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
@@ -231,9 +235,11 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "") -> None:
+    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
         self.cookiePath: str = cookiePath
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath))
+        self.cookies: dict | None = cookies
+        self.chat_hub: ChatHub = ChatHub(
+            Conversation(self.cookiePath, self.cookies))
 
     async def ask(self, prompt: str) -> dict:
         """
@@ -262,7 +268,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = ChatHub(Conversation(self.cookiePath))
+        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
 
 def get_input(prompt):
