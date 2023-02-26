@@ -14,6 +14,8 @@
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
 </p>
 
+<a href="https://www.buymeacoffee.com/acheong08"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%F0%9F%92%B8&slug=acheong08&button_colour=000000&font_colour=ffffff&font_family=Cookie&outline_colour=ffffff&coffee_colour=FFDD00" /></a>
+
 ---
 
 ## Table of Contents
