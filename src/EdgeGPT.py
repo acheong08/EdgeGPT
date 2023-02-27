@@ -77,19 +77,17 @@ class ChatHubRequest:
         self.conversation_signature: str = conversation_signature
         self.invocation_id: int = invocation_id
 
-    def update(
-        self,
-        prompt: str,
-        options: list = [
-            "deepleo",
-            "enable_debug_commands",
-            "disable_emoji_spoken_text",
-            "enablemm",
-        ],
-    ) -> None:
+    def update(self, prompt: str, options: list = None) -> None:
         """
         Updates request object
         """
+        if options is None:
+            options = [
+                "deepleo",
+                "enable_debug_commands",
+                "disable_emoji_spoken_text",
+                "enablemm",
+            ]
         self.struct = {
             "arguments": [
                 {
@@ -132,11 +130,11 @@ class Conversation:
         if cookies is not None:
             cookie_file = cookies
         else:
-            if cookiePath == "":
-                f = open(os.environ.get("COOKIE_FILE"),
-                         encoding="utf-8").read()
-            else:
-                f = open(cookiePath, encoding="utf8").read()
+            f = (
+                open(cookiePath, encoding="utf8").read()
+                if cookiePath
+                else open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read()
+            )
             cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
@@ -183,15 +181,7 @@ class ChatHub:
         Ask a question to the bot
         """
         # Check if websocket is closed
-        if self.wss:
-            if self.wss.closed:
-                self.wss = await websockets.connect(
-                    "wss://sydney.bing.com/sydney/ChatHub",
-                    extra_headers=HEADERS,
-                    max_size=None,
-                )
-                await self.__initial_handshake()
-        else:
+        if self.wss and self.wss.closed or not self.wss:
             self.wss = await websockets.connect(
                 "wss://sydney.bing.com/sydney/ChatHub",
                 extra_headers=HEADERS,
@@ -225,9 +215,8 @@ class ChatHub:
         """
         Close the connection
         """
-        if self.wss:
-            if not self.wss.closed:
-                await self.wss.close()
+        if self.wss and not self.wss.closed:
+            await self.wss.close()
 
 
 class Chatbot:
