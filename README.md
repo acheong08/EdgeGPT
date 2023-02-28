@@ -40,7 +40,6 @@ python3 -m pip install EdgeGPT --upgrade
 
 ### Requirements
 - python 3.8+
-- Microsoft Edge (Required)
 - A Microsoft Account with early access to http://bing.com/chat (Required)
 
 
