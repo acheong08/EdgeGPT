@@ -1,16 +1,15 @@
 """
 Main.py
 """
-import argparse
-import asyncio
-import json
 import os
-import random
-import readline
 import sys
-from typing import Generator
-from typing import Optional
+import json
 import uuid
+import random
+import asyncio
+import argparse
+from enum import Enum
+from typing import Generator, Optional
 
 import tls_client
 import websockets.client as websockets
@@ -48,6 +47,12 @@ HEADERS = {
 
 class NotAllowedToAccess(Exception):
     pass
+
+
+class ConversationStyle(Enum):
+    creative = "h3imaginative"
+    balanced = "harmonyv3"
+    precise = "h3precise"
 
 
 def append_identifier(msg: dict) -> str:
@@ -176,7 +181,9 @@ class ChatHub:
             conversation_id=conversation.struct["conversationId"],
         )
 
-    async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
+    async def ask_stream(
+        self, prompt: str, option: list = None
+    ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
@@ -227,23 +234,22 @@ class Chatbot:
     def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: dict | None = cookies
-        self.chat_hub: ChatHub = ChatHub(
-            Conversation(self.cookiePath, self.cookies))
+        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
-    async def ask(self, prompt: str) -> dict:
+    async def ask(self, prompt: str, option: list = None) -> dict:
         """
         Ask a question to the bot
         """
-        async for final, response in self.chat_hub.ask_stream(prompt=prompt):
+        async for final, response in self.chat_hub.ask_stream(prompt=prompt, option=option):
             if final:
                 return response
         self.chat_hub.wss.close()
 
-    async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
+    async def ask_stream(self, prompt: str, option: list = None) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
-        async for response in self.chat_hub.ask_stream(prompt=prompt):
+        async for response in self.chat_hub.ask_stream(prompt=prompt, option=option):
             yield response
 
     async def close(self):
