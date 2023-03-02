@@ -82,7 +82,7 @@ class ChatHubRequest:
         self.conversation_signature: str = conversation_signature
         self.invocation_id: int = invocation_id
 
-    def update(self, prompt: str, options: list = None) -> None:
+    def update(self, prompt: str, conversation_style: Optional[ConversationStyle], options: Optional[list] = None) -> None:
         """
         Updates request object
         """
@@ -92,6 +92,14 @@ class ChatHubRequest:
                 "enable_debug_commands",
                 "disable_emoji_spoken_text",
                 "enablemm",
+            ]
+        if conversation_style:
+            options = [
+                "deepleo",
+                "enable_debug_commands",
+                "disable_emoji_spoken_text",
+                "enablemm",
+                conversation_style.value,
             ]
         self.struct = {
             "arguments": [
@@ -182,7 +190,7 @@ class ChatHub:
         )
 
     async def ask_stream(
-        self, prompt: str, option: list = None
+        self, prompt: str, conversation_style: Optional[ConversationStyle] = None
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -196,7 +204,7 @@ class ChatHub:
             )
             await self.__initial_handshake()
         # Construct a ChatHub request
-        self.request.update(prompt=prompt)
+        self.request.update(prompt=prompt, conversation_style=conversation_style)
         # Send request
         await self.wss.send(append_identifier(self.request.struct))
         final = False
@@ -236,20 +244,20 @@ class Chatbot:
         self.cookies: dict | None = cookies
         self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
-    async def ask(self, prompt: str, option: list = None) -> dict:
+    async def ask(self, prompt: str, conversation_style: ConversationStyle = None) -> dict:
         """
         Ask a question to the bot
         """
-        async for final, response in self.chat_hub.ask_stream(prompt=prompt, option=option):
+        async for final, response in self.chat_hub.ask_stream(prompt=prompt, conversation_style=conversation_style):
             if final:
                 return response
         self.chat_hub.wss.close()
 
-    async def ask_stream(self, prompt: str, option: list = None) -> Generator[str, None, None]:
+    async def ask_stream(self, prompt: str, conversation_style: ConversationStyle = None) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
-        async for response in self.chat_hub.ask_stream(prompt=prompt, option=option):
+        async for response in self.chat_hub.ask_stream(prompt=prompt, conversation_style=conversation_style):
             yield response
 
     async def close(self):
