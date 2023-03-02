@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 import random
-import readline
 import sys
 from typing import Generator
 from typing import Optional
@@ -143,7 +142,7 @@ class Conversation:
         # Send GET request
         response = self.session.get(
             url,
-            timeout_seconds=30,
+            timeout=30,
             headers=HEADERS,
             allow_redirects=True,
         )
