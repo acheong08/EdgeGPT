@@ -35,7 +35,7 @@
 
 ### Install package
 ```bash
-python3 -m pip install EdgeGPT --upgrade
+python3 -m pip install git+https://github.com/BlueSchnabeltier/EdgeGPT.git
 ```
 
 ### Requirements
