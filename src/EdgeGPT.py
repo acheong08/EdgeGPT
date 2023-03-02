@@ -12,7 +12,7 @@ from typing import Generator
 from typing import Optional
 import uuid
 
-import tls_client
+import requests
 import websockets.client as websockets
 
 DELIMITER = "\x1e"
@@ -126,7 +126,8 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.session = tls_client.Session(client_identifier="chrome_108")
+        self.session = requests.Session()
+        self.session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"})
         if cookies is not None:
             cookie_file = cookies
         else:
