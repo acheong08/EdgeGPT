@@ -11,7 +11,7 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     url="https://github.com/acheong08/EdgeGPT",
-    install_requires=["asyncio", "tls-client", "websockets"],
+    install_requires=["asyncio", "requests", "websockets"],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     py_modules=["EdgeGPT"],
