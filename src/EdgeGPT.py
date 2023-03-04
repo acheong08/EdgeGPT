@@ -40,6 +40,7 @@ HEADERS = {
     "x-ms-client-request-id": str(uuid.uuid4()),
     "x-ms-useragent": "azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Win32",
     "Referer": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx",
+    "Revere": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx",
     "Referrer-Policy": "origin-when-cross-origin",
     "x-forwarded-for": FORWARDED_IP,
 }
