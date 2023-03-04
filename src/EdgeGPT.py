@@ -1,15 +1,15 @@
 """
 Main.py
 """
-import argparse
-import asyncio
-import json
 import os
-import random
 import sys
-from typing import Generator
-from typing import Optional
+import json
 import uuid
+import random
+import asyncio
+import argparse
+from enum import Enum
+from typing import Generator, Optional
 
 import requests
 import websockets.client as websockets
@@ -49,6 +49,12 @@ class NotAllowedToAccess(Exception):
     pass
 
 
+class ConversationStyle(Enum):
+    creative = "h3imaginative"
+    balanced = "harmonyv3"
+    precise = "h3precise"
+
+
 def append_identifier(msg: dict) -> str:
     """
     Appends special character to end of message to identify end of message
@@ -76,7 +82,7 @@ class ChatHubRequest:
         self.conversation_signature: str = conversation_signature
         self.invocation_id: int = invocation_id
 
-    def update(self, prompt: str, options: list = None) -> None:
+    def update(self, prompt: str, conversation_style: Optional[ConversationStyle], options: Optional[list] = None) -> None:
         """
         Updates request object
         """
@@ -86,6 +92,14 @@ class ChatHubRequest:
                 "enable_debug_commands",
                 "disable_emoji_spoken_text",
                 "enablemm",
+            ]
+        if conversation_style:
+            options = [
+                "deepleo",
+                "enable_debug_commands",
+                "disable_emoji_spoken_text",
+                "enablemm",
+                conversation_style.value,
             ]
         self.struct = {
             "arguments": [
@@ -126,7 +140,8 @@ class Conversation:
             "result": {"value": "Success", "message": None},
         }
         self.session = requests.Session()
-        self.session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"})
+        self.session.headers.update(
+            {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"})
         if cookies is not None:
             cookie_file = cookies
         else:
@@ -176,7 +191,9 @@ class ChatHub:
             conversation_id=conversation.struct["conversationId"],
         )
 
-    async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
+    async def ask_stream(
+        self, prompt: str, conversation_style: Optional[ConversationStyle] = None
+    ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
@@ -189,7 +206,8 @@ class ChatHub:
             )
             await self.__initial_handshake()
         # Construct a ChatHub request
-        self.request.update(prompt=prompt)
+        self.request.update(
+            prompt=prompt, conversation_style=conversation_style)
         # Send request
         await self.wss.send(append_identifier(self.request.struct))
         final = False
@@ -230,20 +248,20 @@ class Chatbot:
         self.chat_hub: ChatHub = ChatHub(
             Conversation(self.cookiePath, self.cookies))
 
-    async def ask(self, prompt: str) -> dict:
+    async def ask(self, prompt: str, conversation_style: ConversationStyle = None) -> dict:
         """
         Ask a question to the bot
         """
-        async for final, response in self.chat_hub.ask_stream(prompt=prompt):
+        async for final, response in self.chat_hub.ask_stream(prompt=prompt, conversation_style=conversation_style):
             if final:
                 return response
         self.chat_hub.wss.close()
 
-    async def ask_stream(self, prompt: str) -> Generator[str, None, None]:
+    async def ask_stream(self, prompt: str, conversation_style: ConversationStyle = None) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
-        async for response in self.chat_hub.ask_stream(prompt=prompt):
+        async for response in self.chat_hub.ask_stream(prompt=prompt, conversation_style=conversation_style):
             yield response
 
     async def close(self):
@@ -314,13 +332,13 @@ async def main():
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][
+                (await bot.ask(prompt=prompt, conversation_style=args.style))["item"]["messages"][1]["adaptiveCards"][
                     0
                 ]["body"][0]["text"],
             )
         else:
             wrote = 0
-            async for final, response in bot.ask_stream(prompt=prompt):
+            async for final, response in bot.ask_stream(prompt=prompt, conversation_style=args.style):
                 if not final:
                     print(response[wrote:], end="")
                     wrote = len(response)
@@ -346,6 +364,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
+    parser.add_argument("--style",
+                        choices=["creative", "balanced", "precise"], default="balanced")
     parser.add_argument(
         "--cookie-file",
         type=str,
@@ -355,4 +375,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
     args = parser.parse_args()
+    args.style = ConversationStyle[args.style]
     asyncio.run(main())
