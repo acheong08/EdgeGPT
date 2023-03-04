@@ -132,7 +132,7 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -242,7 +242,7 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: dict | None = cookies
         self.chat_hub: ChatHub = ChatHub(
