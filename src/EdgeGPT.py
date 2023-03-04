@@ -9,12 +9,13 @@ import random
 import asyncio
 import argparse
 from enum import Enum
-from typing import Generator, Optional
+from typing import Generator, Optional, Union, Literal
 
 import requests
 import websockets.client as websockets
 
 DELIMITER = "\x1e"
+
 
 # Generate random IP between range 13.104.0.0/14
 FORWARDED_IP = (
@@ -55,6 +56,11 @@ class ConversationStyle(Enum):
     precise = "h3precise"
 
 
+CONVERSATION_STYLE_TYPE = Optional[
+    Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
+]
+
+
 def append_identifier(msg: dict) -> str:
     """
     Appends special character to end of message to identify end of message
@@ -82,7 +88,12 @@ class ChatHubRequest:
         self.conversation_signature: str = conversation_signature
         self.invocation_id: int = invocation_id
 
-    def update(self, prompt: str, conversation_style: Optional[ConversationStyle], options: Optional[list] = None) -> None:
+    def update(
+        self,
+        prompt: str,
+        conversation_style: CONVERSATION_STYLE_TYPE,
+        options: Optional[list] = None,
+    ) -> None:
         """
         Updates request object
         """
@@ -94,6 +105,8 @@ class ChatHubRequest:
                 "enablemm",
             ]
         if conversation_style:
+            if not isinstance(conversation_style, ConversationStyle):
+                conversation_style = getattr(ConversationStyle, conversation_style)
             options = [
                 "deepleo",
                 "enable_debug_commands",
@@ -141,7 +154,10 @@ class Conversation:
         }
         self.session = requests.Session()
         self.session.headers.update(
-            {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"})
+            {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+            }
+        )
         if cookies is not None:
             cookie_file = cookies
         else:
@@ -192,7 +208,7 @@ class ChatHub:
         )
 
     async def ask_stream(
-        self, prompt: str, conversation_style: Optional[ConversationStyle] = None
+        self, prompt: str, conversation_style: CONVERSATION_STYLE_TYPE = None
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -206,8 +222,7 @@ class ChatHub:
             )
             await self.__initial_handshake()
         # Construct a ChatHub request
-        self.request.update(
-            prompt=prompt, conversation_style=conversation_style)
+        self.request.update(prompt=prompt, conversation_style=conversation_style)
         # Send request
         await self.wss.send(append_identifier(self.request.struct))
         final = False
@@ -245,23 +260,30 @@ class Chatbot:
     def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: dict | None = cookies
-        self.chat_hub: ChatHub = ChatHub(
-            Conversation(self.cookiePath, self.cookies))
+        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
-    async def ask(self, prompt: str, conversation_style: ConversationStyle = None) -> dict:
+    async def ask(
+        self, prompt: str, conversation_style: CONVERSATION_STYLE_TYPE = None
+    ) -> dict:
         """
         Ask a question to the bot
         """
-        async for final, response in self.chat_hub.ask_stream(prompt=prompt, conversation_style=conversation_style):
+        async for final, response in self.chat_hub.ask_stream(
+            prompt=prompt, conversation_style=conversation_style
+        ):
             if final:
                 return response
         self.chat_hub.wss.close()
 
-    async def ask_stream(self, prompt: str, conversation_style: ConversationStyle = None) -> Generator[str, None, None]:
+    async def ask_stream(
+        self, prompt: str, conversation_style: CONVERSATION_STYLE_TYPE = None
+    ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
-        async for response in self.chat_hub.ask_stream(prompt=prompt, conversation_style=conversation_style):
+        async for response in self.chat_hub.ask_stream(
+            prompt=prompt, conversation_style=conversation_style
+        ):
             yield response
 
     async def close(self):
@@ -332,13 +354,15 @@ async def main():
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=prompt, conversation_style=args.style))["item"]["messages"][1]["adaptiveCards"][
-                    0
-                ]["body"][0]["text"],
+                (await bot.ask(prompt=prompt, conversation_style=args.style))["item"][
+                    "messages"
+                ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
         else:
             wrote = 0
-            async for final, response in bot.ask_stream(prompt=prompt, conversation_style=args.style):
+            async for final, response in bot.ask_stream(
+                prompt=prompt, conversation_style=args.style
+            ):
                 if not final:
                     print(response[wrote:], end="")
                     wrote = len(response)
@@ -364,8 +388,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
-    parser.add_argument("--style",
-                        choices=["creative", "balanced", "precise"], default="balanced")
+    parser.add_argument(
+        "--style", choices=["creative", "balanced", "precise"], default="balanced"
+    )
     parser.add_argument(
         "--cookie-file",
         type=str,
@@ -375,5 +400,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
     args = parser.parse_args()
-    args.style = ConversationStyle[args.style]
     asyncio.run(main())
