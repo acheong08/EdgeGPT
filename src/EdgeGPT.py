@@ -332,13 +332,13 @@ async def main():
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=prompt))["item"]["messages"][1]["adaptiveCards"][
+                (await bot.ask(prompt=prompt, conversation_style=args.style))["item"]["messages"][1]["adaptiveCards"][
                     0
                 ]["body"][0]["text"],
             )
         else:
             wrote = 0
-            async for final, response in bot.ask_stream(prompt=prompt):
+            async for final, response in bot.ask_stream(prompt=prompt, conversation_style=args.style):
                 if not final:
                     print(response[wrote:], end="")
                     wrote = len(response)
@@ -364,6 +364,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
+    parser.add_argument("--style",
+                        choices=["creative", "balanced", "precise"], default="balanced")
     parser.add_argument(
         "--cookie-file",
         type=str,
@@ -373,4 +375,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
     args = parser.parse_args()
+    args.style = ConversationStyle[args.style]
     asyncio.run(main())

@@ -88,13 +88,15 @@ python3 -m pip install EdgeGPT --upgrade
         !help for help
 
         Type !exit to exit
-        Enter twice to send message
-
-usage: EdgeGPT.py [-h] [--no-stream] --cookie-file COOKIE_FILE
+        Enter twice to send message or set --enter-once to send one line message
+    
+usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--style {creative,balanced,precise}] --cookie-file COOKIE_FILE
 
 options:
   -h, --help            show this help message and exit
+  --enter-once
   --no-stream
+  --style {creative,balanced,precise}
   --cookie-file COOKIE_FILE
 ```
 
@@ -130,7 +132,7 @@ from EdgeGPT import Chatbot
 
 async def main():
     bot = Chatbot()
-    print(await bot.ask(prompt="Hello world"))
+    print(await bot.ask(prompt="Hello world", conversation_style="creative"))
     await bot.close()
 
 
