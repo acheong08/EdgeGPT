@@ -99,7 +99,7 @@ class ChatHubRequest:
                 "enable_debug_commands",
                 "disable_emoji_spoken_text",
                 "enablemm",
-                conversation_style.value,
+                conversation_style,
             ]
         self.struct = {
             "arguments": [
