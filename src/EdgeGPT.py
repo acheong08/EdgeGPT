@@ -265,7 +265,7 @@ class Chatbot:
 
     def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
         self.cookiePath: str = cookiePath
-        self.cookies: dict | None = cookies
+        self.cookies: Optional[dict] = cookies
         self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
     async def ask(
