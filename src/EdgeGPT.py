@@ -1,15 +1,18 @@
 """
 Main.py
 """
-import os
-import sys
-import json
-import uuid
-import random
-import asyncio
 import argparse
+import asyncio
+import json
+import os
+import random
+import sys
+import uuid
 from enum import Enum
-from typing import Generator, Optional, Union, Literal
+from typing import Generator
+from typing import Literal
+from typing import Optional
+from typing import Union
 
 import requests
 import websockets.client as websockets
@@ -155,8 +158,8 @@ class Conversation:
         self.session = requests.Session()
         self.session.headers.update(
             {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
-            }
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+            },
         )
         if cookies is not None:
             cookie_file = cookies
@@ -208,7 +211,9 @@ class ChatHub:
         )
 
     async def ask_stream(
-        self, prompt: str, conversation_style: CONVERSATION_STYLE_TYPE = None
+        self,
+        prompt: str,
+        conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -263,26 +268,32 @@ class Chatbot:
         self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
     async def ask(
-        self, prompt: str, conversation_style: CONVERSATION_STYLE_TYPE = None
+        self,
+        prompt: str,
+        conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> dict:
         """
         Ask a question to the bot
         """
         async for final, response in self.chat_hub.ask_stream(
-            prompt=prompt, conversation_style=conversation_style
+            prompt=prompt,
+            conversation_style=conversation_style,
         ):
             if final:
                 return response
         self.chat_hub.wss.close()
 
     async def ask_stream(
-        self, prompt: str, conversation_style: CONVERSATION_STYLE_TYPE = None
+        self,
+        prompt: str,
+        conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
         async for response in self.chat_hub.ask_stream(
-            prompt=prompt, conversation_style=conversation_style
+            prompt=prompt,
+            conversation_style=conversation_style,
         ):
             yield response
 
@@ -361,7 +372,8 @@ async def main():
         else:
             wrote = 0
             async for final, response in bot.ask_stream(
-                prompt=prompt, conversation_style=args.style
+                prompt=prompt,
+                conversation_style=args.style,
             ):
                 if not final:
                     print(response[wrote:], end="")
@@ -389,7 +401,9 @@ if __name__ == "__main__":
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument(
-        "--style", choices=["creative", "balanced", "precise"], default="balanced"
+        "--style",
+        choices=["creative", "balanced", "precise"],
+        default="balanced",
     )
     parser.add_argument(
         "--cookie-file",

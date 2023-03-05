@@ -89,7 +89,7 @@ python3 -m pip install EdgeGPT --upgrade
 
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
-    
+
 usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--style {creative,balanced,precise}] --cookie-file COOKIE_FILE
 
 options:
