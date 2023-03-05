@@ -124,15 +124,15 @@ Three ways to pass in cookies:
 
 Use Async for the best experience
 
-[Reference code](https://github.com/acheong08/EdgeGPT/blob/master/src/EdgeGPT.py#L268-L328) for more advanced example of usage
+Reference code for more advanced example of usage:
 
 ```python
 import asyncio
-from EdgeGPT import Chatbot
+from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = Chatbot()
-    print(await bot.ask(prompt="Hello world", conversation_style="creative"))
+    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative))
     await bot.close()
 
 
