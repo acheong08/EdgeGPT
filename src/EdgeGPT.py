@@ -15,7 +15,7 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
-import requests
+import httpx
 import websockets.client as websockets
 
 DELIMITER = "\x1e"
@@ -156,7 +156,7 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.session = requests.Session()
+        self.session = httpx.Client()
         self.session.headers.update(
             {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
@@ -179,7 +179,6 @@ class Conversation:
             url,
             timeout=30,
             headers=HEADERS,
-            allow_redirects=True,
         )
         if response.status_code != 200:
             print(f"Status code: {response.status_code}")
