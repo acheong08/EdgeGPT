@@ -9,6 +9,7 @@ import os
 import random
 import sys
 import uuid
+import urllib.parse
 from enum import Enum
 from typing import Generator
 from typing import Literal
@@ -16,7 +17,7 @@ from typing import Optional
 from typing import Union
 
 import httpx
-import websockets.client as websockets
+import websocket
 
 DELIMITER = "\x1e"
 
@@ -171,14 +172,18 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None, proxy: Optional[str] = None) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.session = httpx.Client()
+        self.proxy = proxy
+        proxies = {
+            "all://": proxy,
+        }
+        self.session = httpx.Client(proxies=proxies)
         self.session.headers.update(
             {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
@@ -222,7 +227,7 @@ class ChatHub:
     """
 
     def __init__(self, conversation: Conversation) -> None:
-        self.wss: Optional[websockets.WebSocketClientProtocol] = None
+        self.wss: Optional[websocket.WebSocket] = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -231,6 +236,7 @@ class ChatHub:
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
+        self.proxy = conversation.proxy
 
     async def ask_stream(
         self,
@@ -241,20 +247,32 @@ class ChatHub:
         Ask a question to the bot
         """
         # Check if websocket is closed
-        if self.wss and self.wss.closed or not self.wss:
-            self.wss = await websockets.connect(
-                "wss://sydney.bing.com/sydney/ChatHub",
-                extra_headers=HEADERS,
-                max_size=None,
+        if self.wss and not self.wss.connected or not self.wss:
+            proxy_type = None
+            proxy_host = None
+            proxy_port = None
+            if self.proxy:
+                proxy_addr = urllib.parse.urlparse(self.proxy)
+                proxy_type = proxy_addr.scheme
+                proxy_host = proxy_addr.hostname
+                proxy_port = proxy_addr.port
+
+            self.wss = websocket.WebSocket()
+            self.wss.connect(
+                url="wss://sydney.bing.com/sydney/ChatHub",
+                proxy_type=proxy_type,
+                http_proxy_host=proxy_host,
+                http_proxy_port=proxy_port
             )
             await self.__initial_handshake()
+
         # Construct a ChatHub request
         self.request.update(prompt=prompt, conversation_style=conversation_style)
         # Send request
-        await self.wss.send(append_identifier(self.request.struct))
+        await asyncio.get_event_loop().run_in_executor(None, self.wss.send, append_identifier(self.request.struct))
         final = False
         while not final:
-            objects = str(await self.wss.recv()).split(DELIMITER)
+            objects = str(await asyncio.get_event_loop().run_in_executor(None, self.wss.recv)).split(DELIMITER)
             for obj in objects:
                 if obj is None or obj == "":
                     continue
@@ -268,14 +286,14 @@ class ChatHub:
                     yield True, response
 
     async def __initial_handshake(self):
-        await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.recv()
+        await asyncio.get_event_loop().run_in_executor(None, self.wss.send, append_identifier({"protocol": "json", "version": 1}))
+        await asyncio.get_event_loop().run_in_executor(None, self.wss.recv)
 
     async def close(self):
         """
         Close the connection
         """
-        if self.wss and not self.wss.closed:
+        if self.wss and self.wss.connected:
             await self.wss.close()
 
 
@@ -284,10 +302,11 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None, proxy: Optional[str] = None) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: Optional[dict] = cookies
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies, proxy))
+        self.proxy = proxy
 
     async def ask(
         self,
@@ -330,7 +349,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies, self.proxy))
 
 
 def get_input(prompt):
@@ -362,12 +381,12 @@ def get_input(prompt):
     return user_input
 
 
-async def main():
+async def main(args: argparse.Namespace):
     """
     Main function
     """
     print("Initializing...")
-    bot = Chatbot()
+    bot = Chatbot(proxy=args.proxy)
     while True:
         prompt = get_input("\nYou:\n")
         if prompt == "!exit":
@@ -428,6 +447,11 @@ if __name__ == "__main__":
         default="balanced",
     )
     parser.add_argument(
+        "--proxy",
+        type=str,
+        required=False
+    )
+    parser.add_argument(
         "--cookie-file",
         type=str,
         default="cookies.json",
@@ -435,5 +459,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
-    args = parser.parse_args()
-    asyncio.run(main())
+    asyncio.run(main(args))
