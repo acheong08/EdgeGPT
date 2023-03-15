@@ -17,7 +17,8 @@ from typing import Optional
 from typing import Union
 
 import httpx
-import websocket
+import aiohttp
+from aiohttp import ClientWebSocketResponse
 
 DELIMITER = "\x1e"
 
@@ -227,7 +228,8 @@ class ChatHub:
     """
 
     def __init__(self, conversation: Conversation) -> None:
-        self.wss: Optional[websocket.WebSocket] = None
+        self.session: Optional[aiohttp.ClientSession] = None
+        self.wss: Optional[ClientWebSocketResponse] = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -247,32 +249,23 @@ class ChatHub:
         Ask a question to the bot
         """
         # Check if websocket is closed
-        if self.wss and not self.wss.connected or not self.wss:
-            proxy_type = None
-            proxy_host = None
-            proxy_port = None
-            if self.proxy:
-                proxy_addr = urllib.parse.urlparse(self.proxy)
-                proxy_type = proxy_addr.scheme
-                proxy_host = proxy_addr.hostname
-                proxy_port = proxy_addr.port
-
-            self.wss = websocket.WebSocket()
-            self.wss.connect(
+        if not self.session:
+            self.session = aiohttp.ClientSession()
+        if not self.wss:
+            self.wss = await self.session.ws_connect(
                 url="wss://sydney.bing.com/sydney/ChatHub",
-                proxy_type=proxy_type,
-                http_proxy_host=proxy_host,
-                http_proxy_port=proxy_port
+                proxy=self.proxy
             )
             await self.__initial_handshake()
 
         # Construct a ChatHub request
         self.request.update(prompt=prompt, conversation_style=conversation_style)
         # Send request
-        await asyncio.get_event_loop().run_in_executor(None, self.wss.send, append_identifier(self.request.struct))
+        await self.wss.send_str(append_identifier(self.request.struct))
         final = False
         while not final:
-            objects = str(await asyncio.get_event_loop().run_in_executor(None, self.wss.recv)).split(DELIMITER)
+            msg = await self.wss.receive()
+            objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or obj == "":
                     continue
@@ -286,15 +279,17 @@ class ChatHub:
                     yield True, response
 
     async def __initial_handshake(self):
-        await asyncio.get_event_loop().run_in_executor(None, self.wss.send, append_identifier({"protocol": "json", "version": 1}))
-        await asyncio.get_event_loop().run_in_executor(None, self.wss.recv)
+        await self.wss.send_str(append_identifier({"protocol": "json", "version": 1}))
+        await self.wss.receive()
 
     async def close(self):
         """
         Close the connection
         """
-        if self.wss and self.wss.connected:
+        if self.wss and not self.wss.closed:
             await self.wss.close()
+        if self.session and not self.session:
+            await self.session.close()
 
 
 class Chatbot:
@@ -322,7 +317,7 @@ class Chatbot:
         ):
             if final:
                 return response
-        self.chat_hub.wss.close()
+        await self.chat_hub.wss.close()
 
     async def ask_stream(
         self,
