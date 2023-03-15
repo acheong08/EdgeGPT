@@ -259,7 +259,7 @@ class ChatHub:
                 if obj is None or obj == "":
                     continue
                 response = json.loads(obj)
-                if response.get("type") == 1:
+                if response.get("type") == 1 and response["arguments"][0].get("messages"):
                     yield False, response["arguments"][0]["messages"][0][
                         "adaptiveCards"
                     ][0]["body"][0]["text"]
