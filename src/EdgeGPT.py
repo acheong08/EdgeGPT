@@ -7,13 +7,14 @@ import asyncio
 import json
 import os
 import random
-import sys
 import uuid
 from enum import Enum
 from typing import Generator
 from typing import Literal
 from typing import Optional
 from typing import Union
+from rich.live import Live
+from rich.markdown import Markdown
 
 import httpx
 import websockets.client as websockets
@@ -392,17 +393,16 @@ async def main():
                 ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
         else:
-            wrote = 0
-            async for final, response in bot.ask_stream(
-                prompt=prompt,
-                conversation_style=args.style,
-            ):
-                if not final:
-                    print(response[wrote:], end="")
-                    wrote = len(response)
-                    sys.stdout.flush()
-            print()
-        sys.stdout.flush()
+            md = Markdown("")
+            with Live(md, auto_refresh=False) as live:
+                async for final, response in bot.ask_stream(
+                    prompt=prompt,
+                    conversation_style=args.style,
+                ):
+                    if not final:
+                        md = Markdown(response)
+                        live.update(md, refresh=True)
+                print()
     await bot.close()
 
 
