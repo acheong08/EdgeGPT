@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="EdgeGPT",
-    version="0.0.56.2",
+    version="0.0.57",
     license="GNU General Public License v2.0",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
@@ -12,7 +12,7 @@ setup(
     package_dir={"": "src"},
     url="https://github.com/acheong08/EdgeGPT",
     project_urls={"Bug Report": "https://github.com/acheong08/EdgeGPT/issues/new"},
-    install_requires=["asyncio", "httpx", "websockets", "rich"],
+    install_requires=["asyncio", "httpx", "aiohttp"],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     py_modules=["EdgeGPT"],
