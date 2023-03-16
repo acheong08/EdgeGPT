@@ -258,7 +258,9 @@ class ChatHub:
             self.session = aiohttp.ClientSession()
         if not self.wss:
             self.wss = await self.session.ws_connect(
-                url="wss://sydney.bing.com/sydney/ChatHub", proxy=self.proxy
+                url="wss://sydney.bing.com/sydney/ChatHub",
+                headers=HEADERS,
+                proxy=self.proxy
             )
             await self.__initial_handshake()
 
