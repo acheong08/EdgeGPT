@@ -406,6 +406,7 @@ async def main(args: argparse.Namespace):
             )
         else:
             if args.rich:
+                wrote = 0
                 md = Markdown("")
                 with Live(md, auto_refresh=False) as live:
                     async for final, response in bot.ask_stream(
@@ -413,6 +414,10 @@ async def main(args: argparse.Namespace):
                         conversation_style=args.style,
                     ):
                         if not final:
+                            if wrote > len(response):
+                                print(md)
+                                print(Markdown('***Bing revoked the response.***'))
+                            wrote = len(response)
                             md = Markdown(response)
                             live.update(md, refresh=True)
             else:
@@ -467,6 +472,7 @@ if __name__ == "__main__":
     os.environ["COOKIE_FILE"] = args.cookie_file
     if args.rich:
         try:
+            from rich import print
             from rich.live import Live
             from rich.markdown import Markdown
         except ModuleNotFoundError:
