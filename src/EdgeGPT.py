@@ -8,7 +8,6 @@ import json
 import os
 import random
 import uuid
-import urllib.parse
 from enum import Enum
 from typing import Generator
 from typing import Literal
@@ -18,8 +17,7 @@ from rich.live import Live
 from rich.markdown import Markdown
 
 import httpx
-import aiohttp
-from aiohttp import ClientWebSocketResponse
+import websockets.client as websockets
 
 DELIMITER = "\x1e"
 
@@ -174,18 +172,14 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None, proxy: Optional[str] = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.proxy = proxy
-        proxies = {
-            "all://": proxy,
-        }
-        self.session = httpx.Client(proxies=proxies)
+        self.session = httpx.Client()
         self.session.headers.update(
             {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
@@ -229,8 +223,7 @@ class ChatHub:
     """
 
     def __init__(self, conversation: Conversation) -> None:
-        self.session: Optional[aiohttp.ClientSession] = None
-        self.wss: Optional[ClientWebSocketResponse] = None
+        self.wss: Optional[websockets.WebSocketClientProtocol] = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -239,7 +232,6 @@ class ChatHub:
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
-        self.proxy = conversation.proxy
 
     async def ask_stream(
         self,
@@ -250,23 +242,20 @@ class ChatHub:
         Ask a question to the bot
         """
         # Check if websocket is closed
-        if not self.session:
-            self.session = aiohttp.ClientSession()
-        if not self.wss:
-            self.wss = await self.session.ws_connect(
-                url="wss://sydney.bing.com/sydney/ChatHub",
-                proxy=self.proxy
+        if self.wss and self.wss.closed or not self.wss:
+            self.wss = await websockets.connect(
+                "wss://sydney.bing.com/sydney/ChatHub",
+                extra_headers=HEADERS,
+                max_size=None,
             )
             await self.__initial_handshake()
-
         # Construct a ChatHub request
         self.request.update(prompt=prompt, conversation_style=conversation_style)
         # Send request
-        await self.wss.send_str(append_identifier(self.request.struct))
+        await self.wss.send(append_identifier(self.request.struct))
         final = False
         while not final:
-            msg = await self.wss.receive()
-            objects = msg.data.split(DELIMITER)
+            objects = str(await self.wss.recv()).split(DELIMITER)
             for obj in objects:
                 if obj is None or obj == "":
                     continue
@@ -280,8 +269,8 @@ class ChatHub:
                     yield True, response
 
     async def __initial_handshake(self):
-        await self.wss.send_str(append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.receive()
+        await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
+        await self.wss.recv()
 
     async def close(self):
         """
@@ -289,8 +278,6 @@ class ChatHub:
         """
         if self.wss and not self.wss.closed:
             await self.wss.close()
-        if self.session and not self.session:
-            await self.session.close()
 
 
 class Chatbot:
@@ -298,11 +285,10 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None, proxy: Optional[str] = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: Optional[dict] = cookies
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies, proxy))
-        self.proxy = proxy
+        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
     async def ask(
         self,
@@ -318,7 +304,7 @@ class Chatbot:
         ):
             if final:
                 return response
-        await self.chat_hub.wss.close()
+        self.chat_hub.wss.close()
 
     async def ask_stream(
         self,
@@ -345,7 +331,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies, self.proxy))
+        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
 
 def get_input(prompt):
@@ -377,12 +363,12 @@ def get_input(prompt):
     return user_input
 
 
-async def main(args: argparse.Namespace):
+async def main():
     """
     Main function
     """
     print("Initializing...")
-    bot = Chatbot(proxy=args.proxy)
+    bot = Chatbot()
     while True:
         prompt = get_input("\nYou:\n")
         if prompt == "!exit":
@@ -407,16 +393,28 @@ async def main(args: argparse.Namespace):
                 ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
         else:
-            md = Markdown("")
-            with Live(md, auto_refresh=False) as live:
+            if args.rich:
+                md = Markdown("")
+                with Live(md, auto_refresh=False) as live:
+                    async for final, response in bot.ask_stream(
+                        prompt=prompt,
+                        conversation_style=args.style,
+                    ):
+                        if not final:
+                            md = Markdown(response)
+                            live.update(md, refresh=True)
+            else:
+                wrote = 0
                 async for final, response in bot.ask_stream(
                     prompt=prompt,
                     conversation_style=args.style,
                 ):
                     if not final:
-                        md = Markdown(response)
-                        live.update(md, refresh=True)
-                print()
+                        print(response[wrote:], end="")
+                        wrote = len(response)
+                        sys.stdout.flush()
+                sys.stdout.flush()
+            print()
     await bot.close()
 
 
@@ -436,15 +434,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
+    parser.add_argument("--rich", action="store_true")
     parser.add_argument(
         "--style",
         choices=["creative", "balanced", "precise"],
         default="balanced",
-    )
-    parser.add_argument(
-        "--proxy",
-        type=str,
-        required=False
     )
     parser.add_argument(
         "--cookie-file",
@@ -454,4 +448,14 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
-    asyncio.run(main(args))
+    args = parser.parse_args()
+    if args.rich:
+        try:
+            from rich.live import Live
+            from rich.markdown import Markdown
+        except ModuleNotFoundError:
+            print("You'll need to install `rich` for this feature: `pip install rich`")
+            exit(1)
+    else:
+        import sys
+    asyncio.run(main())
