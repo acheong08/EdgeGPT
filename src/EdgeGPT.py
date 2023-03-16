@@ -35,7 +35,7 @@ HEADERS = {
     "sec-ch-ua-arch": '"x86"',
     "sec-ch-ua-bitness": '"64"',
     "sec-ch-ua-full-version": '"109.0.1518.78"',
-    'sec-ch-ua-full-version-list': '"Chromium";v="110.0.5481.192", "Not A(Brand";v="24.0.0.0", "Microsoft Edge";v="110.0.1587.69"',
+    "sec-ch-ua-full-version-list": '"Chromium";v="110.0.5481.192", "Not A(Brand";v="24.0.0.0", "Microsoft Edge";v="110.0.1587.69"',
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-model": "",
     "sec-ch-ua-platform": '"Windows"',
@@ -51,27 +51,28 @@ HEADERS = {
 }
 
 HEADERS_INIT_CONVER = {
-    'authority': 'edgeservices.bing.com',
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    "authority": "edgeservices.bing.com",
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "accept-language": "en-US,en;q=0.9",
-    'cache-control': 'max-age=0',
-    'sec-ch-ua': '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
-    'sec-ch-ua-arch': '"x86"',
-    'sec-ch-ua-bitness': '"64"',
-    'sec-ch-ua-full-version': '"110.0.1587.69"',
-    'sec-ch-ua-full-version-list': '"Chromium";v="110.0.5481.192", "Not A(Brand";v="24.0.0.0", "Microsoft Edge";v="110.0.1587.69"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-model': '""',
-    'sec-ch-ua-platform': '"Windows"',
-    'sec-ch-ua-platform-version': '"15.0.0"',
-    'sec-fetch-dest': 'document',
-    'sec-fetch-mode': 'navigate',
-    'sec-fetch-site': 'none',
-    'sec-fetch-user': '?1',
-    'upgrade-insecure-requests': '1',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69',
-    'x-edge-shopping-flag': '1',
-}   
+    "cache-control": "max-age=0",
+    "sec-ch-ua": '"Chromium";v="110", "Not A(Brand";v="24", "Microsoft Edge";v="110"',
+    "sec-ch-ua-arch": '"x86"',
+    "sec-ch-ua-bitness": '"64"',
+    "sec-ch-ua-full-version": '"110.0.1587.69"',
+    "sec-ch-ua-full-version-list": '"Chromium";v="110.0.5481.192", "Not A(Brand";v="24.0.0.0", "Microsoft Edge";v="110.0.1587.69"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-model": '""',
+    "sec-ch-ua-platform": '"Windows"',
+    "sec-ch-ua-platform-version": '"15.0.0"',
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69",
+    "x-edge-shopping-flag": "1",
+}
+
 
 class NotAllowedToAccess(Exception):
     pass
@@ -172,7 +173,12 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None, proxy: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        cookiePath: str = "",
+        cookies: Optional[dict] = None,
+        proxy: Optional[str] = None,
+    ) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -252,8 +258,7 @@ class ChatHub:
             self.session = aiohttp.ClientSession()
         if not self.wss:
             self.wss = await self.session.ws_connect(
-                url="wss://sydney.bing.com/sydney/ChatHub",
-                proxy=self.proxy
+                url="wss://sydney.bing.com/sydney/ChatHub", proxy=self.proxy
             )
             await self.__initial_handshake()
 
@@ -269,7 +274,9 @@ class ChatHub:
                 if obj is None or obj == "":
                     continue
                 response = json.loads(obj)
-                if response.get("type") == 1 and response["arguments"][0].get("messages"):
+                if response.get("type") == 1 and response["arguments"][0].get(
+                    "messages"
+                ):
                     yield False, response["arguments"][0]["messages"][0][
                         "adaptiveCards"
                     ][0]["body"][0]["text"]
@@ -296,10 +303,17 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None, proxy: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        cookiePath: str = "",
+        cookies: Optional[dict] = None,
+        proxy: Optional[str] = None,
+    ) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: Optional[dict] = cookies
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies, proxy))
+        self.chat_hub: ChatHub = ChatHub(
+            Conversation(self.cookiePath, self.cookies, proxy)
+        )
         self.proxy = proxy
 
     async def ask(
@@ -384,6 +398,7 @@ async def main(args: argparse.Namespace):
     while True:
         prompt = get_input("\nYou:\n")
         if prompt == "!exit":
+            await bot.close()
             break
         elif prompt == "!help":
             print(
@@ -400,9 +415,11 @@ async def main(args: argparse.Namespace):
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=prompt, conversation_style=args.style))["item"][
-                    "messages"
-                ][1]["adaptiveCards"][0]["body"][0]["text"],
+                Markdown(
+                    (await bot.ask(prompt=prompt, conversation_style=args.style))[
+                        "item"
+                    ]["messages"][1]["adaptiveCards"][0]["body"][0]["text"],
+                )
             )
         else:
             if args.rich:
@@ -416,7 +433,7 @@ async def main(args: argparse.Namespace):
                         if not final:
                             if wrote > len(response):
                                 print(md)
-                                print(Markdown('***Bing revoked the response.***'))
+                                print(Markdown("***Bing revoked the response.***"))
                             wrote = len(response)
                             md = Markdown(response)
                             live.update(md, refresh=True)
@@ -427,10 +444,8 @@ async def main(args: argparse.Namespace):
                     conversation_style=args.style,
                 ):
                     if not final:
-                        print(response[wrote:], end="")
+                        print(response[wrote:], end="", flush=True)
                         wrote = len(response)
-                        sys.stdout.flush()
-                sys.stdout.flush()
             print()
     await bot.close()
 
@@ -457,11 +472,7 @@ if __name__ == "__main__":
         choices=["creative", "balanced", "precise"],
         default="balanced",
     )
-    parser.add_argument(
-        "--proxy",
-        type=str,
-        required=False
-    )
+    parser.add_argument("--proxy", type=str, required=False)
     parser.add_argument(
         "--cookie-file",
         type=str,
