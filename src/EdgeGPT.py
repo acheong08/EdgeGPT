@@ -7,7 +7,6 @@ import asyncio
 import json
 import os
 import random
-import sys
 import uuid
 import urllib.parse
 from enum import Enum
@@ -406,17 +405,33 @@ async def main(args: argparse.Namespace):
                 ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
         else:
-            wrote = 0
-            async for final, response in bot.ask_stream(
-                prompt=prompt,
-                conversation_style=args.style,
-            ):
-                if not final:
-                    print(response[wrote:], end="")
-                    wrote = len(response)
-                    sys.stdout.flush()
+            if args.rich:
+                wrote = 0
+                md = Markdown("")
+                with Live(md, auto_refresh=False) as live:
+                    async for final, response in bot.ask_stream(
+                        prompt=prompt,
+                        conversation_style=args.style,
+                    ):
+                        if not final:
+                            if wrote > len(response):
+                                print(md)
+                                print(Markdown('***Bing revoked the response.***'))
+                            wrote = len(response)
+                            md = Markdown(response)
+                            live.update(md, refresh=True)
+            else:
+                wrote = 0
+                async for final, response in bot.ask_stream(
+                    prompt=prompt,
+                    conversation_style=args.style,
+                ):
+                    if not final:
+                        print(response[wrote:], end="")
+                        wrote = len(response)
+                        sys.stdout.flush()
+                sys.stdout.flush()
             print()
-        sys.stdout.flush()
     await bot.close()
 
 
@@ -436,6 +451,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
+    parser.add_argument("--rich", action="store_true")
     parser.add_argument(
         "--style",
         choices=["creative", "balanced", "precise"],
@@ -454,4 +470,14 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     os.environ["COOKIE_FILE"] = args.cookie_file
+    if args.rich:
+        try:
+            from rich import print
+            from rich.live import Live
+            from rich.markdown import Markdown
+        except ModuleNotFoundError:
+            print("You'll need to install `rich` for this feature: `pip install rich`")
+            exit(1)
+    else:
+        import sys
     asyncio.run(main(args))
