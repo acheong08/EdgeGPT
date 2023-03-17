@@ -15,6 +15,8 @@ from typing import Optional
 from typing import Union
 from rich.markdown import Markdown
 from rich.live import Live
+import ssl
+import certifi
 
 import httpx
 import websockets.client as websockets
@@ -72,6 +74,9 @@ HEADERS_INIT_CONVER = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69",
     "x-edge-shopping-flag": "1",
 }
+
+ssl_context = ssl.create_default_context()
+ssl_context.load_verify_locations(certifi.where())
 
 
 class NotAllowedToAccess(Exception):

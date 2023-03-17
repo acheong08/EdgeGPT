@@ -12,7 +12,7 @@ setup(
     package_dir={"": "src"},
     url="https://github.com/acheong08/EdgeGPT",
     project_urls={"Bug Report": "https://github.com/acheong08/EdgeGPT/issues/new"},
-    install_requires=["asyncio", "httpx", "websockets", "rich"],
+    install_requires=["asyncio", "httpx", "websockets", "rich", "certifi"],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     py_modules=["EdgeGPT"],
