@@ -255,6 +255,7 @@ class ChatHub:
             "wss://sydney.bing.com/sydney/ChatHub",
             extra_headers=HEADERS,
             max_size=None,
+            ssl=ssl_context,
         )
         await self.__initial_handshake()
         # Construct a ChatHub request
