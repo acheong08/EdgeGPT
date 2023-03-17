@@ -373,6 +373,7 @@ async def main():
     Main function
     """
     print("Initializing...")
+    print("Enter `alt+enter` or `escape+enter` to send a message")
     bot = Chatbot()
     session = create_session()
     while True:
