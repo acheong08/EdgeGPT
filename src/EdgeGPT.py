@@ -14,6 +14,8 @@ from typing import Generator
 from typing import Literal
 from typing import Optional
 from typing import Union
+from rich.markdown import Markdown
+from rich.live import Live
 
 import httpx
 import websockets.client as websockets
@@ -395,17 +397,31 @@ async def main():
                 ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
         else:
-            wrote = 0
-            async for final, response in bot.ask_stream(
-                prompt=prompt,
-                conversation_style=args.style,
-            ):
-                if not final:
-                    print(response[wrote:], end="")
-                    wrote = len(response)
-                    sys.stdout.flush()
-            print()
-        sys.stdout.flush()
+            if args.rich:
+                wrote = 0
+                md = Markdown("")
+                with Live(md, auto_refresh=False) as live:
+                    async for final, response in bot.ask_stream(
+                        prompt=prompt,
+                        conversation_style=args.style,
+                    ):
+                        if not final:
+                            if wrote > len(response):
+                                print(md)
+                                print(Markdown("***Bing revoked the response.***"))
+                            wrote = len(response)
+                            md = Markdown(response)
+                            live.update(md, refresh=True)
+            else:
+                wrote = 0
+                async for final, response in bot.ask_stream(
+                    prompt=prompt,
+                    conversation_style=args.style,
+                ):
+                    if not final:
+                        print(response[wrote:], end="", flush=True)
+                        wrote = len(response)
+                print()
     await bot.close()
 
 

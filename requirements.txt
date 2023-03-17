@@ -1,3 +1,4 @@
 asyncio
 requests
 websockets
+rich
