@@ -19,10 +19,10 @@ from typing import Union
 import certifi
 import httpx
 import websockets.client as websockets
-from prompt_toolkit import prompt
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.history import InMemoryHistory
 from rich.live import Live
 from rich.markdown import Markdown
 
@@ -350,22 +350,22 @@ class Chatbot:
         self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
 
-async def get_input(
+async def get_input_async(
     session: PromptSession = None,
     completer: WordCompleter = None,
 ) -> str:
     """
     Multiline input function.
     """
-    return (
-        await session.prompt_async(
-            completer=completer,
-            multiline=True,
-            auto_suggest=AutoSuggestFromHistory(),
-        )
-        if session
-        else prompt(multiline=True)
+    return await session.prompt_async(
+        completer=completer,
+        multiline=True,
+        auto_suggest=AutoSuggestFromHistory(),
     )
+
+
+def create_session() -> PromptSession:
+    return PromptSession(history=InMemoryHistory())
 
 
 async def main():
@@ -374,11 +374,13 @@ async def main():
     """
     print("Initializing...")
     bot = Chatbot()
+    session = create_session()
     while True:
-        prompt = get_input("\nYou:\n")
-        if prompt == "!exit":
+        print("\nYou:\n")
+        question = await get_input_async(session=session)
+        if question == "!exit":
             break
-        elif prompt == "!help":
+        elif question == "!help":
             print(
                 """
             !help - Show this help message
@@ -387,13 +389,13 @@ async def main():
             """,
             )
             continue
-        elif prompt == "!reset":
+        elif question == "!reset":
             await bot.reset()
             continue
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=prompt, conversation_style=args.style))["item"][
+                (await bot.ask(prompt=question, conversation_style=args.style))["item"][
                     "messages"
                 ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
@@ -403,7 +405,7 @@ async def main():
                 md = Markdown("")
                 with Live(md, auto_refresh=False) as live:
                     async for final, response in bot.ask_stream(
-                        prompt=prompt,
+                        prompt=question,
                         conversation_style=args.style,
                     ):
                         if not final:
@@ -416,7 +418,7 @@ async def main():
             else:
                 wrote = 0
                 async for final, response in bot.ask_stream(
-                    prompt=prompt,
+                    prompt=question,
                     conversation_style=args.style,
                 ):
                     if not final:
