@@ -441,6 +441,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
+    parser.add_argument("--rich", action="store_true")
     parser.add_argument(
         "--style",
         choices=["creative", "balanced", "precise"],
