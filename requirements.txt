@@ -1,4 +1,4 @@
 asyncio
 requests
-websockets
 rich
+websockets

@@ -2,24 +2,29 @@
 Main.py
 """
 from __future__ import annotations
+
 import argparse
 import asyncio
 import json
 import os
 import random
+import ssl
 import uuid
 from enum import Enum
 from typing import Generator
 from typing import Literal
 from typing import Optional
 from typing import Union
-from rich.markdown import Markdown
-from rich.live import Live
-import ssl
-import certifi
 
+import certifi
 import httpx
 import websockets.client as websockets
+from prompt_toolkit import prompt
+from prompt_toolkit import PromptSession
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import WordCompleter
+from rich.live import Live
+from rich.markdown import Markdown
 
 DELIMITER = "\x1e"
 
@@ -125,7 +130,7 @@ class ChatHubRequest:
         self,
         prompt: str,
         conversation_style: CONVERSATION_STYLE_TYPE,
-        options: Optional[list] = None,
+        options: list | None = None,
     ) -> None:
         """
         Updates request object
@@ -178,7 +183,7 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -229,7 +234,7 @@ class ChatHub:
     """
 
     def __init__(self, conversation: Conversation) -> None:
-        self.wss: Optional[websockets.WebSocketClientProtocol] = None
+        self.wss: websockets.WebSocketClientProtocol | None = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -270,7 +275,7 @@ class ChatHub:
                     continue
                 response = json.loads(obj)
                 if response.get("type") == 1 and response["arguments"][0].get(
-                    "messages"
+                    "messages",
                 ):
                     yield False, response["arguments"][0]["messages"][0][
                         "adaptiveCards"
@@ -296,9 +301,9 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: Optional[dict] = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
         self.cookiePath: str = cookiePath
-        self.cookies: Optional[dict] = cookies
+        self.cookies: dict | None = cookies
         self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
     async def ask(
@@ -345,33 +350,22 @@ class Chatbot:
         self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
 
 
-def get_input(prompt):
+async def get_input(
+    session: PromptSession = None,
+    completer: WordCompleter = None,
+) -> str:
     """
-    Multi-line input function
+    Multiline input function.
     """
-    # Display the prompt
-    print(prompt, end="")
-
-    if args.enter_once:
-        user_input = input()
-        print()
-        return user_input
-
-    # Initialize an empty list to store the input lines
-    lines = []
-
-    # Read lines of input until the user enters an empty line
-    while True:
-        line = input()
-        if line == "":
-            break
-        lines.append(line)
-
-    # Join the lines, separated by newlines, and store the result
-    user_input = "\n".join(lines)
-
-    # Return the input
-    return user_input
+    return (
+        await session.prompt_async(
+            completer=completer,
+            multiline=True,
+            auto_suggest=AutoSuggestFromHistory(),
+        )
+        if session
+        else prompt(multiline=True)
+    )
 
 
 async def main():
