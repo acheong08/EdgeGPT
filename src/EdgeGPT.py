@@ -7,7 +7,6 @@ import asyncio
 import json
 import os
 import random
-import sys
 import uuid
 from enum import Enum
 from typing import Generator
@@ -243,14 +242,16 @@ class ChatHub:
         """
         Ask a question to the bot
         """
+        if self.wss:
+            if not self.wss.closed:
+                await self.wss.close()
         # Check if websocket is closed
-        if self.wss and self.wss.closed or not self.wss:
-            self.wss = await websockets.connect(
-                "wss://sydney.bing.com/sydney/ChatHub",
-                extra_headers=HEADERS,
-                max_size=None,
-            )
-            await self.__initial_handshake()
+        self.wss = await websockets.connect(
+            "wss://sydney.bing.com/sydney/ChatHub",
+            extra_headers=HEADERS,
+            max_size=None,
+        )
+        await self.__initial_handshake()
         # Construct a ChatHub request
         self.request.update(prompt=prompt, conversation_style=conversation_style)
         # Send request
