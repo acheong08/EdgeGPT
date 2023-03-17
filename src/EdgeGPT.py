@@ -376,8 +376,9 @@ async def main():
     bot = Chatbot()
     session = create_session()
     while True:
-        print("\nYou:\n")
+        print("\nYou:")
         question = await get_input_async(session=session)
+        print()
         if question == "!exit":
             break
         elif question == "!help":
