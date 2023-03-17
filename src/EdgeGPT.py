@@ -380,6 +380,7 @@ async def main():
         print("\nYou:")
         question = await get_input_async(session=session)
         print()
+        print()
         if question == "!exit":
             break
         elif question == "!help":
