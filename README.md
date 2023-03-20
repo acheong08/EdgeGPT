@@ -4,6 +4,7 @@
   # EdgeGPT
 
   *The reverse engineering the chat feature of the new version of Bing
+  
   Disclaimer: _This is unofficial and can lead to the removing of your account from the Bing beta._*
 
 </div>
