@@ -380,7 +380,6 @@ async def main():
         print("\nYou:")
         question = await get_input_async(session=session)
         print()
-        print()
         if question == "!exit":
             break
         elif question == "!help":
@@ -441,7 +440,6 @@ if __name__ == "__main__":
         !help for help
 
         Type !exit to exit
-        Enter twice to send message or set --enter-once to send one line message
     """,
     )
     parser = argparse.ArgumentParser()
