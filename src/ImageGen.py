@@ -73,7 +73,7 @@ class ImageGen:
         """
         print("\nDownloading images...")
         try:
-            os.mkdir(args.output_dir)
+            os.mkdir(output_dir)
         except FileExistsError:
             pass
         image_num = 0
