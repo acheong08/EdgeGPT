@@ -1,4 +1,3 @@
-asyncio
 requests
 rich
 websockets
