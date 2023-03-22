@@ -24,7 +24,7 @@ setup(
     ],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    py_modules=["EdgeGPT"],
+    py_modules=["EdgeGPT", "ImageGen"],
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Intended Audience :: Developers",

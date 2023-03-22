@@ -37,9 +37,10 @@ class ImageGen:
         # https://www.bing.com/images/create?q=<PROMPT>&rt=4&FORM=GENCRE
         url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
         response = self.session.post(url, allow_redirects=False)
+        if response.status_code != 302:
+            raise Exception("Redirect failed")
         # Get redirect URL
         redirect_url = response.headers["Location"]
-        print(redirect_url)
         request_id = redirect_url.split("id=")[-1]
         self.session.get(f"{BING_URL}{redirect_url}")
         # https://www.bing.com/images/create/async/results/{ID}?q={PROMPT}
@@ -47,6 +48,8 @@ class ImageGen:
         # Poll for results
         while True:
             response = self.session.get(polling_url)
+            if response.status_code != 200:
+                raise Exception("Could not get results")
             if response.text == "":
                 time.sleep(1)
                 continue
