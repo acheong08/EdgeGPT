@@ -287,7 +287,7 @@ class ChatHub:
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
-        # await self.wss.recv()
+        await self.wss.recv()
 
     async def close(self):
         """
@@ -379,7 +379,10 @@ async def main():
     session = create_session()
     while True:
         print("\nYou:")
-        question = await get_input_async(session=session)
+        if not args.enter_once:
+            question = await get_input_async(session=session)
+        else:
+            question = input()
         print()
         if question == "!exit":
             break
