@@ -33,6 +33,7 @@ class ImageGen:
         Parameters:
             prompt: str
         """
+        print("Sending request...")
         url_encoded_prompt = urllib.parse.quote(prompt)
         # https://www.bing.com/images/create?q=<PROMPT>&rt=4&FORM=GENCRE
         url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
@@ -46,7 +47,9 @@ class ImageGen:
         # https://www.bing.com/images/create/async/results/{ID}?q={PROMPT}
         polling_url = f"{BING_URL}/images/create/async/results/{request_id}?q={url_encoded_prompt}"
         # Poll for results
+        print("Waiting for results...")
         while True:
+            print(".", end="", flush=True)
             response = self.session.get(polling_url)
             if response.status_code != 200:
                 raise Exception("Could not get results")
@@ -65,15 +68,14 @@ class ImageGen:
         """
         Saves images to output directory
         """
+        print("Downloading images...")
         os.mkdir(args.output_dir)
         image_num = 0
         for link in links:
             with self.session.get(link, stream=True) as response:
                 # save response to file
                 response.raise_for_status()
-                with open(
-                    f"{output_dir}/{image_num}.jpeg", "wb", encoding="utf-8"
-                ) as file:
+                with open(f"{output_dir}/{image_num}.jpeg", "wb") as file:
                     for chunk in response.iter_content(chunk_size=8192):
                         file.write(chunk)
 
