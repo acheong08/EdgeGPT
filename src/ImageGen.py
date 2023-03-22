@@ -39,6 +39,7 @@ class ImageGen:
         url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
         response = self.session.post(url, allow_redirects=False)
         if response.status_code != 302:
+            print(f"ERROR: {response.text}")
             raise Exception("Redirect failed")
         # Get redirect URL
         redirect_url = response.headers["Location"]
