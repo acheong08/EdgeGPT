@@ -1,9 +1,10 @@
-import os
-import urllib
-import time
-import requests
-import regex
 import json
+import os
+import time
+import urllib
+
+import regex
+import requests
 
 BING_URL = "https://www.bing.com"
 
@@ -94,14 +95,20 @@ if __name__ == "__main__":
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
     parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
     parser.add_argument(
-        "--prompt", help="Prompt to generate images for", type=str, required=True
+        "--prompt",
+        help="Prompt to generate images for",
+        type=str,
+        required=True,
     )
     parser.add_argument(
-        "--output-dir", help="Output directory", type=str, default="./output"
+        "--output-dir",
+        help="Output directory",
+        type=str,
+        default="./output",
     )
     args = parser.parse_args()
     # Load auth cookie
-    with open(args.cookie_file, "r", encoding="utf-8") as file:
+    with open(args.cookie_file, encoding="utf-8") as file:
         cookie_json = json.load(file)
         for cookie in cookie_json:
             if cookie.get("name") == "_U":
@@ -114,5 +121,6 @@ if __name__ == "__main__":
     # Create image generator
     image_generator = ImageGen(args.U)
     image_generator.save_images(
-        image_generator.get_images(args.prompt), output_dir=args.output_dir
+        image_generator.get_images(args.prompt),
+        output_dir=args.output_dir,
     )
