@@ -1,9 +1,9 @@
 <div align="center">
   <img src="https://socialify.git.ci/acheong08/EdgeGPT/image?font=Inter&language=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9c%2FBing_Fluent_Logo.svg&owner=1&pattern=Floating%20Cogs&theme=Auto" alt="EdgeGPT" width="640" height="320" />
 
-  # Edge GPT
+# Edge GPT
 
-  *The reverse engineering the chat feature of the new version of Bing*
+_The reverse engineering the chat feature of the new version of Bing_
 
 </div>
 
@@ -19,19 +19,20 @@
 ## Setup
 
 ### Install package
+
 ```bash
 python3 -m pip install EdgeGPT --upgrade
 ```
 
 ### Requirements
+
 - python 3.8+
 - A Microsoft Account with early access to <https://bing.com/chat> (Required)
-
 
 <details>
   <summary>
 
-  ### Checking access (Required)
+### Checking access (Required)
 
   </summary>
 
@@ -42,11 +43,10 @@ python3 -m pip install EdgeGPT --upgrade
 
 </details>
 
-
 <details>
   <summary>
 
-  ### Getting authentication (Required)
+### Getting authentication (Required)
 
   </summary>
 
@@ -63,6 +63,7 @@ python3 -m pip install EdgeGPT --upgrade
 <summary>
 
 ## Chatbot
+
 </summary>
 
 ## Usage
@@ -91,7 +92,7 @@ options:
   --cookie-file COOKIE_FILE
 ```
 
------
+---
 
 ### Developer demo
 
@@ -112,7 +113,6 @@ Three ways to pass in cookies:
   bot = Chatbot(cookies=cookies)
   ```
 
-
 Use Async for the best experience
 
 Reference code for more advanced example of usage:
@@ -131,6 +131,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 ```
+
 </details>
 
 <details>
@@ -138,15 +139,18 @@ if __name__ == "__main__":
 <summary>
 
 ## Image generator
+
 </summary>
 
 ```bash
- $ python3 -m ImageGen -h
-usage: ImageGen.py [-h] --U U --prompt PROMPT [--output-dir OUTPUT_DIR]
+$ python3 -m ImageGen -h
+usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR]
 
 options:
   -h, --help            show this help message and exit
-  --U U                 Auth cookie from browser
+  -U U                  Auth cookie from browser
+  --cookie-file COOKIE_FILE
+                        File containing auth cookie
   --prompt PROMPT       Prompt to generate images for
   --output-dir OUTPUT_DIR
                         Output directory
@@ -170,18 +174,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # Create image generator
     image_generator = ImageGen(args.U)
-    image_generator.saveImages(
-        image_generator.getImages(args.prompt), output_dir=args.output_dir
+    image_generator.save_images(
+        image_generator.get_images(args.prompt), output_dir=args.output_dir
     )
 ```
 
 </details>
 
 ## Star History
+
 [![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
 
-
 ## Contributors
+
 This project exists thanks to all the people who contribute.
 
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
