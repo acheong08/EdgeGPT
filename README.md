@@ -16,21 +16,6 @@
 
 ---
 
-## Table of Contents
-- [Edge GPT](#edge-gpt)
-  - [Table of Contents](#table-of-contents)
-  - [Setup](#setup)
-    - [Install package](#install-package)
-    - [Requirements](#requirements)
-    - [Checking access (Required)](#checking-access-required)
-    - [Getting authentication (Required)](#getting-authentication-required)
-  - [Usage](#usage)
-    - [Quick start](#quick-start)
-    - [Developer demo](#developer-demo)
-  - [Work in progress](#work-in-progress)
-  - [Star History](#star-history)
-  - [Contributors](#contributors)
-
 ## Setup
 
 ### Install package
