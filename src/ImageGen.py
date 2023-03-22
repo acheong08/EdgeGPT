@@ -69,7 +69,10 @@ class ImageGen:
         Saves images to output directory
         """
         print("Downloading images...")
-        os.mkdir(args.output_dir)
+        try:
+            os.mkdir(args.output_dir)
+        except FileExistsError:
+            pass
         image_num = 0
         for link in links:
             with self.session.get(link, stream=True) as response:
