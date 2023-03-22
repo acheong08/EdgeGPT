@@ -73,7 +73,12 @@ python3 -m pip install EdgeGPT --upgrade
 
 </details>
 
+<details>
 
+<summary>
+
+## Chatbot
+</summary>
 
 ## Usage
 
@@ -141,9 +146,51 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 ```
+</details>
 
-## Work in progress
-- Error handling
+<details>
+
+<summary>
+
+## Image generator
+</summary>
+
+```bash
+ $ python3 -m ImageGen -h
+usage: ImageGen.py [-h] --U U --prompt PROMPT [--output-dir OUTPUT_DIR]
+
+options:
+  -h, --help            show this help message and exit
+  --U U                 Auth cookie from browser
+  --prompt PROMPT       Prompt to generate images for
+  --output-dir OUTPUT_DIR
+                        Output directory
+```
+
+### Developer demo
+
+```python
+from ImageGen import ImageGen
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--U", help="Auth cookie from browser", type=str, required=True)
+    parser.add_argument(
+        "--prompt", help="Prompt to generate images for", type=str, required=True
+    )
+    parser.add_argument(
+        "--output-dir", help="Output directory", type=str, default="./output"
+    )
+    args = parser.parse_args()
+    # Create image generator
+    image_generator = ImageGen(args.U)
+    image_generator.saveImages(
+        image_generator.getImages(args.prompt), output_dir=args.output_dir
+    )
+```
+
+</details>
 
 ## Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
