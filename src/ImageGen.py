@@ -69,7 +69,7 @@ class ImageGen:
         """
         Saves images to output directory
         """
-        print("Downloading images...")
+        print("\nDownloading images...")
         try:
             os.mkdir(args.output_dir)
         except FileExistsError:
