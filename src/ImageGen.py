@@ -3,6 +3,7 @@ import urllib
 import time
 import requests
 import regex
+import json
 
 BING_URL = "https://www.bing.com"
 
@@ -27,7 +28,7 @@ class ImageGen:
         }
         self.session.cookies.set("_U", auth_cookie)
 
-    def getImages(self, prompt: str) -> list:
+    def get_images(self, prompt: str) -> list:
         """
         Fetches image links from Bing
         Parameters:
@@ -65,7 +66,7 @@ class ImageGen:
         # Remove duplicates
         return list(set(image_links))
 
-    def saveImages(self, links: list, output_dir: str) -> None:
+    def save_images(self, links: list, output_dir: str) -> None:
         """
         Saves images to output directory
         """
@@ -79,9 +80,9 @@ class ImageGen:
             with self.session.get(link, stream=True) as response:
                 # save response to file
                 response.raise_for_status()
-                with open(f"{output_dir}/{image_num}.jpeg", "wb") as file:
+                with open(f"{output_dir}/{image_num}.jpeg", "wb") as output_file:
                     for chunk in response.iter_content(chunk_size=8192):
-                        file.write(chunk)
+                        output_file.write(chunk)
 
             image_num += 1
 
@@ -90,7 +91,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--U", help="Auth cookie from browser", type=str, required=True)
+    parser.add_argument("-U", help="Auth cookie from browser", type=str)
+    parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
     parser.add_argument(
         "--prompt", help="Prompt to generate images for", type=str, required=True
     )
@@ -98,8 +100,19 @@ if __name__ == "__main__":
         "--output-dir", help="Output directory", type=str, default="./output"
     )
     args = parser.parse_args()
+    # Load auth cookie
+    with open(args.cookie_file, "r", encoding="utf-8") as file:
+        cookie_json = json.load(file)
+        for cookie in cookie_json:
+            if cookie.get("name") == "_U":
+                args.U = cookie.get("value")
+                break
+
+    if args.U is None:
+        raise Exception("Could not find auth cookie")
+
     # Create image generator
     image_generator = ImageGen(args.U)
-    image_generator.saveImages(
-        image_generator.getImages(args.prompt), output_dir=args.output_dir
+    image_generator.save_images(
+        image_generator.get_images(args.prompt), output_dir=args.output_dir
     )

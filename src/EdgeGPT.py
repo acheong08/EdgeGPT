@@ -286,7 +286,7 @@ class ChatHub:
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.recv()
+        # await self.wss.recv()
 
     async def close(self):
         """
