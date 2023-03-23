@@ -214,11 +214,13 @@ class Conversation:
 
         # Send GET request
         response = self.session.get(
-            "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
+            url=os.environ.get("BING_PROXY_URL")
+            or "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
         )
         if response.status_code != 200:
             print(f"Status code: {response.status_code}")
             print(response.text)
+            print(response.url)
             raise Exception("Authentication failed")
         try:
             self.struct = response.json()
