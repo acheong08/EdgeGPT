@@ -461,6 +461,9 @@ if __name__ == "__main__":
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument(
+        "--proxy", help="Proxy URL (e.g. socks5://127.0.0.1:1080)", type=str
+    )
+    parser.add_argument(
         "--style",
         choices=["creative", "balanced", "precise"],
         default="balanced",
@@ -483,6 +486,6 @@ if __name__ == "__main__":
     else:
         parser.print_help()
         parser.exit(
-            1, 'ERROR: use --cookied-file or set environemnt variable COOKIE_FILE'
+            1, "ERROR: use --cookied-file or set environemnt variable COOKIE_FILE"
         )
     asyncio.run(main())
