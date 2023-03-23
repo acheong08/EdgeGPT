@@ -459,9 +459,16 @@ if __name__ == "__main__":
         "--cookie-file",
         type=str,
         default="cookies.json",
-        required=True,
+        required=False,
+        help="needed if environment variable COOKIE_FILE is not set"
     )
     args = parser.parse_args()
-    os.environ["COOKIE_FILE"] = args.cookie_file
-    args = parser.parse_args()
+    if os.path.exists(args.cookie_file):
+        os.environ["COOKIE_FILE"] = args.cookie_file
+    else:
+        parser.print_help()
+        parser.exit(
+            1, 
+            'ERROR: use --cookied-file or set environemnt variable COOKIE_FILE'
+        )
     asyncio.run(main())
