@@ -183,18 +183,22 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(
+        self,
+        cookiePath: str = "",
+        cookies: dict | None = None,
+        proxy: str | None = None,
+    ) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.session = httpx.Client()
-        self.session.headers.update(
-            {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-            },
+        self.session = httpx.Client(
+            proxies=proxy,
+            timeout=30,
+            headers=HEADERS_INIT_CONVER,
         )
         if cookies is not None:
             cookie_file = cookies
@@ -207,12 +211,10 @@ class Conversation:
             cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
-        url = "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
+
         # Send GET request
         response = self.session.get(
-            url,
-            timeout=30,
-            headers=HEADERS_INIT_CONVER,
+            "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
         )
         if response.status_code != 200:
             print(f"Status code: {response.status_code}")
@@ -302,10 +304,18 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(
+        self,
+        cookiePath: str = "",
+        cookies: dict | None = None,
+        proxy: str | None = None,
+    ) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: dict | None = cookies
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.proxy: str | None = proxy
+        self.chat_hub: ChatHub = ChatHub(
+            Conversation(self.cookiePath, self.cookies, self.proxy)
+        )
 
     async def ask(
         self,
@@ -375,7 +385,7 @@ async def main():
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = Chatbot()
+    bot = Chatbot(proxy=args.proxy)
     session = create_session()
     while True:
         print("\nYou:")
@@ -460,7 +470,12 @@ if __name__ == "__main__":
         type=str,
         default="cookies.json",
         required=False,
-        help="needed if environment variable COOKIE_FILE is not set"
+        help="needed if environment variable COOKIE_FILE is not set",
+    )
+    parser.add_argument(
+        "--proxy",
+        type=str,
+        default=None,
     )
     args = parser.parse_args()
     if os.path.exists(args.cookie_file):
@@ -468,7 +483,6 @@ if __name__ == "__main__":
     else:
         parser.print_help()
         parser.exit(
-            1, 
-            'ERROR: use --cookied-file or set environemnt variable COOKIE_FILE'
+            1, 'ERROR: use --cookied-file or set environemnt variable COOKIE_FILE'
         )
     asyncio.run(main())
