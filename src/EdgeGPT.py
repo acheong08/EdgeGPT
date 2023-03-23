@@ -475,11 +475,6 @@ if __name__ == "__main__":
         required=False,
         help="needed if environment variable COOKIE_FILE is not set",
     )
-    parser.add_argument(
-        "--proxy",
-        type=str,
-        default=None,
-    )
     args = parser.parse_args()
     if os.path.exists(args.cookie_file):
         os.environ["COOKIE_FILE"] = args.cookie_file
