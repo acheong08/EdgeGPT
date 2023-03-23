@@ -47,7 +47,7 @@ class ImageGen:
             if response3.status_code != 302:
                     print(f"ERROR: {response3.text}")
                     raise Exception("Redirect failed")
-        # Get redirect URL
+            response=response3
         # Get redirect URL
         redirect_url = response.headers["Location"].replace("&nfy=1", "")
         request_id = redirect_url.split("id=")[-1]
