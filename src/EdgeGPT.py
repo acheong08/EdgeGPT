@@ -183,14 +183,14 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: dict | None = None, **kwargs) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.session = httpx.Client()
+        self.session = httpx.Client(**kwargs)
         self.session.headers.update(
             {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
@@ -302,10 +302,10 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(self, cookiePath: str = "", cookies: dict | None = None, **kwargs) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: dict | None = cookies
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies, **kwargs))
 
     async def ask(
         self,
