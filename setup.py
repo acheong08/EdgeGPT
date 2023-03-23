@@ -13,7 +13,6 @@ setup(
     url="https://github.com/acheong08/EdgeGPT",
     project_urls={"Bug Report": "https://github.com/acheong08/EdgeGPT/issues/new"},
     install_requires=[
-        "asyncio",
         "httpx",
         "websockets",
         "rich",
