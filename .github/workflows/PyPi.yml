@@ -11,6 +11,8 @@ name: Upload Python Package
 on:
   release:
     types: [published]
+  pull_request:
+  push:
 
 permissions:
   contents: read
