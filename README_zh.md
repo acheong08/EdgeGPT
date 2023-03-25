@@ -41,7 +41,7 @@ python3 -m pip install EdgeGPT --upgrade
   </summary>
 
 - 安装最新版本的 Microsoft Edge
-- 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager" [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作.
+- 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如`Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager" [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作.
 - 打开 [bing.com/chat](https://bing.com/chat)
 - 如果您看到聊天功能，就准备就绪
 
@@ -50,7 +50,7 @@ python3 -m pip install EdgeGPT --upgrade
 <details>
   <summary>
 
-### 获取身份验证 (必须)
+### 获取身份验证 (必需)
 
   </summary>
 
