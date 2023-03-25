@@ -328,7 +328,7 @@ class Chatbot:
     async def ask(
         self,
         prompt: str,
-        wss_link: str,
+        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> dict:
         """
@@ -346,7 +346,7 @@ class Chatbot:
     async def ask_stream(
         self,
         prompt: str,
-        wss_link: str,
+        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> Generator[str, None, None]:
         """
