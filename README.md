@@ -86,14 +86,19 @@ python3 -m pip install EdgeGPT --upgrade
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--style {creative,balanced,precise}] --cookie-file COOKIE_FILE
+usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK] [--style {creative,balanced,precise}]
+                  [--cookie-file COOKIE_FILE]
 
 options:
   -h, --help            show this help message and exit
   --enter-once
   --no-stream
+  --rich
+  --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
+  --wss-link WSS_LINK   WSS URL(e.g. wss://sydney.bing.com/sydney/ChatHub)
   --style {creative,balanced,precise}
   --cookie-file COOKIE_FILE
+                        needed if environment variable COOKIE_FILE is not set
 ```
 
 ---
@@ -127,7 +132,7 @@ from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = Chatbot()
-    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative))
+    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, wss_link="wss://sydney.bing.com/sydney/ChatHub"))
     await bot.close()
 
 
