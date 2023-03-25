@@ -5,6 +5,9 @@
 
 _新必应的逆向工程_
 
+<a href="./README.md">English</a> -
+<a>中文</a>
+
 </div>
 
 <p align="center">
