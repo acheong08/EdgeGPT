@@ -43,7 +43,7 @@ class ImageGen:
         if response.status_code != 302:
             #if rt4 fails, try rt3
             url= f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
-            response3 = self.session.post(url, allow_redirects=False)
+            response3 = self.session.post(url, allow_redirects=False, timeout=200)
             if response3.status_code != 302:
                     print(f"ERROR: {response3.text}")
                     raise Exception("Redirect failed")
