@@ -78,6 +78,7 @@ HEADERS_INIT_CONVER = {
     "upgrade-insecure-requests": "1",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69",
     "x-edge-shopping-flag": "1",
+    "x-forwarded-for": "1.1.1.1",
 }
 
 ssl_context = ssl.create_default_context()
@@ -183,18 +184,22 @@ class Conversation:
     Conversation API
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(
+        self,
+        cookiePath: str = "",
+        cookies: dict | None = None,
+        proxy: str | None = None,
+    ) -> None:
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
-        self.session = httpx.Client()
-        self.session.headers.update(
-            {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-            },
+        self.session = httpx.Client(
+            proxies=proxy,
+            timeout=30,
+            headers=HEADERS_INIT_CONVER,
         )
         if cookies is not None:
             cookie_file = cookies
@@ -207,17 +212,21 @@ class Conversation:
             cookie_file = json.loads(f)
         for cookie in cookie_file:
             self.session.cookies.set(cookie["name"], cookie["value"])
-        url = "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
+
         # Send GET request
         response = self.session.get(
-            url,
-            timeout=30,
-            headers=HEADERS_INIT_CONVER,
+            url=os.environ.get("BING_PROXY_URL")
+            or "https://edgeservices.bing.com/edgesvc/turing/conversation/create"
         )
         if response.status_code != 200:
-            print(f"Status code: {response.status_code}")
-            print(response.text)
-            raise Exception("Authentication failed")
+            response = self.session.get(
+                "https://edge.churchless.tech/edgesvc/turing/conversation/create"
+            )
+            if response.status_code != 200:
+                print(f"Status code: {response.status_code}")
+                print(response.text)
+                print(response.url)
+                raise Exception("Authentication failed")
         try:
             self.struct = response.json()
             if self.struct["result"]["value"] == "UnauthorizedRequest":
@@ -247,6 +256,7 @@ class ChatHub:
     async def ask_stream(
         self,
         prompt: str,
+        wss_link: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> Generator[str, None, None]:
         """
@@ -257,7 +267,7 @@ class ChatHub:
                 await self.wss.close()
         # Check if websocket is closed
         self.wss = await websockets.connect(
-            "wss://sydney.bing.com/sydney/ChatHub",
+            wss_link,
             extra_headers=HEADERS,
             max_size=None,
             ssl=ssl_context,
@@ -287,7 +297,7 @@ class ChatHub:
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
-        # await self.wss.recv()
+        await self.wss.recv()
 
     async def close(self):
         """
@@ -302,14 +312,23 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookiePath: str = "", cookies: dict | None = None) -> None:
+    def __init__(
+        self,
+        cookiePath: str = "",
+        cookies: dict | None = None,
+        proxy: str | None = None,
+    ) -> None:
         self.cookiePath: str = cookiePath
         self.cookies: dict | None = cookies
-        self.chat_hub: ChatHub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.proxy: str | None = proxy
+        self.chat_hub: ChatHub = ChatHub(
+            Conversation(self.cookiePath, self.cookies, self.proxy)
+        )
 
     async def ask(
         self,
         prompt: str,
+        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> dict:
         """
@@ -318,6 +337,7 @@ class Chatbot:
         async for final, response in self.chat_hub.ask_stream(
             prompt=prompt,
             conversation_style=conversation_style,
+            wss_link=wss_link
         ):
             if final:
                 return response
@@ -326,6 +346,7 @@ class Chatbot:
     async def ask_stream(
         self,
         prompt: str,
+        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
     ) -> Generator[str, None, None]:
         """
@@ -334,6 +355,7 @@ class Chatbot:
         async for response in self.chat_hub.ask_stream(
             prompt=prompt,
             conversation_style=conversation_style,
+            wss_link=wss_link
         ):
             yield response
 
@@ -375,11 +397,14 @@ async def main():
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = Chatbot()
+    bot = Chatbot(proxy=args.proxy)
     session = create_session()
     while True:
         print("\nYou:")
-        question = await get_input_async(session=session)
+        if not args.enter_once:
+            question = await get_input_async(session=session)
+        else:
+            question = input()
         print()
         if question == "!exit":
             break
@@ -398,7 +423,7 @@ async def main():
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=question, conversation_style=args.style))["item"][
+                (await bot.ask(prompt=question, conversation_style=args.style,wss_link=args.wss_link))["item"][
                     "messages"
                 ][1]["adaptiveCards"][0]["body"][0]["text"],
             )
@@ -410,6 +435,7 @@ async def main():
                     async for final, response in bot.ask_stream(
                         prompt=question,
                         conversation_style=args.style,
+                        wss_link=args.wss_link
                     ):
                         if not final:
                             if wrote > len(response):
@@ -423,6 +449,7 @@ async def main():
                 async for final, response in bot.ask_stream(
                     prompt=question,
                     conversation_style=args.style,
+                    wss_link=args.wss_link
                 ):
                     if not final:
                         print(response[wrote:], end="", flush=True)
@@ -448,6 +475,12 @@ if __name__ == "__main__":
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument(
+        "--proxy", help="Proxy URL (e.g. socks5://127.0.0.1:1080)", type=str
+    )
+    parser.add_argument(
+        "--wss-link", help="WSS URL(e.g. wss://sydney.bing.com/sydney/ChatHub)",type=str,default="wss://sydney.bing.com/sydney/ChatHub"
+    )
+    parser.add_argument(
         "--style",
         choices=["creative", "balanced", "precise"],
         default="balanced",
@@ -456,9 +489,15 @@ if __name__ == "__main__":
         "--cookie-file",
         type=str,
         default="cookies.json",
-        required=True,
+        required=False,
+        help="needed if environment variable COOKIE_FILE is not set",
     )
     args = parser.parse_args()
-    os.environ["COOKIE_FILE"] = args.cookie_file
-    args = parser.parse_args()
+    if os.path.exists(args.cookie_file):
+        os.environ["COOKIE_FILE"] = args.cookie_file
+    else:
+        parser.print_help()
+        parser.exit(
+            1, "ERROR: use --cookied-file or set environemnt variable COOKIE_FILE"
+        )
     asyncio.run(main())

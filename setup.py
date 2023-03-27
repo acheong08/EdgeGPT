@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="EdgeGPT",
-    version="0.1.2",
+    version="0.1.10.1",
     license="GNU General Public License v2.0",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
@@ -13,7 +13,6 @@ setup(
     url="https://github.com/acheong08/EdgeGPT",
     project_urls={"Bug Report": "https://github.com/acheong08/EdgeGPT/issues/new"},
     install_requires=[
-        "asyncio",
         "httpx",
         "websockets",
         "rich",
@@ -26,7 +25,7 @@ setup(
     long_description_content_type="text/markdown",
     py_modules=["EdgeGPT", "ImageGen"],
     classifiers=[
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "License :: OSI Approved :: The Unlicense (Unlicense)",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Programming Language :: Python :: 3.8",

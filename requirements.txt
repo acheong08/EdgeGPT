@@ -1,3 +1,7 @@
-requests
-rich
+httpx
 websockets
+rich
+certifi
+prompt_toolkit
+regex
+requests
