@@ -69,8 +69,10 @@ class ImageGen:
 
         # Use regex to search for src=""
         image_links = regex.findall(r'src="([^"]+)"', response.text)
+        # Remove size limit
+        normal_image_links = [link.split("?w=")[0] for link in image_links]
         # Remove duplicates
-        return list(set(image_links))
+        return list(set(normal_image_links))
 
     def save_images(self, links: list, output_dir: str) -> None:
         """
@@ -82,15 +84,18 @@ class ImageGen:
         except FileExistsError:
             pass
         image_num = 0
-        for link in links:
-            with self.session.get(link, stream=True) as response:
-                # save response to file
-                response.raise_for_status()
-                with open(f"{output_dir}/{image_num}.jpeg", "wb") as output_file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        output_file.write(chunk)
+        try:
+            for link in links:
+                with self.session.get(link, stream=True) as response:
+                    # save response to file
+                    response.raise_for_status()
+                    with open(f"{output_dir}/{image_num}.jpeg", "wb") as output_file:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            output_file.write(chunk)
 
-            image_num += 1
+                image_num += 1
+        except requests.exceptions.MissingSchema as url_exception:
+            raise Exception('Inappropriate contents found in the generated images. Please try again or try another prompt.') from url_exception
 
 
 if __name__ == "__main__":
