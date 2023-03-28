@@ -56,7 +56,10 @@ class ImageGen:
         polling_url = f"{BING_URL}/images/create/async/results/{request_id}?q={url_encoded_prompt}"
         # Poll for results
         print("Waiting for results...")
+        start_wait = time.time()
         while True:
+            if int(time.time() - start_wait) > 300:
+                raise Exception("Timeout error")
             print(".", end="", flush=True)
             response = self.session.get(polling_url)
             if response.status_code != 200:
