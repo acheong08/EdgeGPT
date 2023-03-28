@@ -6,7 +6,8 @@
 _The reverse engineering the chat feature of the new version of Bing_
 
 <a>English</a> -
-<a href="./README_zh.md">中文</a>
+<a href="./README_zh.md">中文</a> -
+<a href="./README_es.md">Español</a>
 
 </div>
 
@@ -15,9 +16,9 @@ _The reverse engineering the chat feature of the new version of Bing_
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
-  
+
   <img alt="Total downloads" src="https://static.pepy.tech/badge/edgegpt">
-  
+
 </p>
 
 ---
@@ -60,7 +61,7 @@ python3 -m pip install EdgeGPT --upgrade
 - Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
 - Go to `bing.com`
 - Open the extension
-- Click "Export" on the bottom right (This saves your cookies to clipboard)
+- Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
 - Paste your cookies into a file `cookies.json`
 
 </details>
@@ -156,9 +157,9 @@ if __name__ == "__main__":
 
 ```bash
 $ python3 -m ImageGen -h
-usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR]
+usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   -U U                  Auth cookie from browser
   --cookie-file COOKIE_FILE
@@ -166,6 +167,8 @@ options:
   --prompt PROMPT       Prompt to generate images for
   --output-dir OUTPUT_DIR
                         Output directory
+  --quiet               Disable pipeline messages
+  --asyncio             Run ImageGen using asyncio
 ```
 
 ### Developer demo
@@ -174,6 +177,11 @@ options:
 from ImageGen import ImageGen
 import argparse
 import json
+
+async def async_image_gen(args) -> None:
+    async with ImageGenAsync(args.U, args.quiet) as image_generator:
+        images = await image_generator.get_images(args.prompt)
+        await image_generator.save_images(images, output_dir=args.output_dir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -191,6 +199,12 @@ if __name__ == "__main__":
         type=str,
         default="./output",
     )
+    parser.add_argument(
+        "--quiet", help="Disable pipeline messages", action="store_true"
+    )
+    parser.add_argument(
+        "--asyncio", help="Run ImageGen using asyncio", action="store_true"
+    )
     args = parser.parse_args()
     # Load auth cookie
     with open(args.cookie_file, encoding="utf-8") as file:
@@ -203,12 +217,15 @@ if __name__ == "__main__":
     if args.U is None:
         raise Exception("Could not find auth cookie")
 
-    # Create image generator
-    image_generator = ImageGen(args.U)
-    image_generator.save_images(
-        image_generator.get_images(args.prompt),
-        output_dir=args.output_dir,
-    )
+    if not args.asyncio:
+        # Create image generator
+        image_generator = ImageGen(args.U, args.quiet)
+        image_generator.save_images(
+            image_generator.get_images(args.prompt),
+            output_dir=args.output_dir,
+        )
+    else:
+        asyncio.run(async_image_gen(args))
 
 ```
 
