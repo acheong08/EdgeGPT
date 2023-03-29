@@ -1,8 +1,6 @@
 import json
 import os
 import time
-import urllib
-
 import regex
 import requests
 
@@ -36,18 +34,18 @@ class ImageGen:
             prompt: str
         """
         print("Sending request...")
-        url_encoded_prompt = urllib.parse.quote(prompt)
+        url_encoded_prompt = requests.utils.quote(prompt)
         # https://www.bing.com/images/create?q=<PROMPT>&rt=3&FORM=GENCRE
         url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
         response = self.session.post(url, allow_redirects=False)
         if response.status_code != 302:
-            #if rt4 fails, try rt3
-            url= f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
+            # if rt4 fails, try rt3
+            url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
             response3 = self.session.post(url, allow_redirects=False, timeout=200)
             if response3.status_code != 302:
-                    print(f"ERROR: {response3.text}")
-                    raise Exception("Redirect failed")
-            response=response3
+                print(f"ERROR: {response3.text}")
+                raise Exception("Redirect failed")
+            response = response3
         # Get redirect URL
         redirect_url = response.headers["Location"].replace("&nfy=1", "")
         request_id = redirect_url.split("id=")[-1]
@@ -98,7 +96,9 @@ class ImageGen:
 
                 image_num += 1
         except requests.exceptions.MissingSchema as url_exception:
-            raise Exception('Inappropriate contents found in the generated images. Please try again or try another prompt.') from url_exception
+            raise Exception(
+                "Inappropriate contents found in the generated images. Please try again or try another prompt."
+            ) from url_exception
 
 
 if __name__ == "__main__":
@@ -121,13 +121,16 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     # Load auth cookie
-    with open(args.cookie_file, encoding="utf-8") as file:
-        cookie_json = json.load(file)
-        for cookie in cookie_json:
-            if cookie.get("name") == "_U":
-                args.U = cookie.get("value")
-                break
+    try:
+        with open(args.cookie_file, encoding="utf-8") as file:
+            cookie_json = json.load(file)
+            for cookie in cookie_json:
+                if cookie.get("name") == "_U":
+                    args.U = cookie.get("value")
+                    break
 
+    except:
+        pass
     if args.U is None:
         raise Exception("Could not find auth cookie")
 
