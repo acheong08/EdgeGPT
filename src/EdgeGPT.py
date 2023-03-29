@@ -181,7 +181,7 @@ class ChatHubRequest:
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
-                        "messageType": "SearchQuery",
+                        "messageType": "Chat",
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
