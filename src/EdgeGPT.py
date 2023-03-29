@@ -341,7 +341,7 @@ class Chatbot:
         ):
             if final:
                 return response
-        self.chat_hub.wss.close()
+        await self.chat_hub.wss.close()
 
     async def ask_stream(
         self,
