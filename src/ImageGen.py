@@ -73,7 +73,17 @@ class ImageGen:
         # Remove size limit
         normal_image_links = [link.split("?w=")[0] for link in image_links]
         # Remove duplicates
-        return list(set(normal_image_links))
+        normal_image_links = list(set(normal_image_links))
+        
+        # Bad images
+        bad_images = ["https://r.bing.com/rp/in-2zU3AJUdkgFe7ZKv19yPBHVs.png", "https://r.bing.com/rp/TX9QuO3WzcCJz1uaaSwQAz39Kb0.jpg"]
+        for im in normal_image_links:
+            if im in bad_images:
+                raise Exception("Bad images")
+        # No images
+        if not normal_image_links:
+            raise Exception("No images")
+        return normal_image_links
 
     def save_images(self, links: list, output_dir: str) -> None:
         """
