@@ -108,6 +108,13 @@ def append_identifier(msg: dict) -> str:
     return json.dumps(msg) + DELIMITER
 
 
+def getRanHex(length: int = 32) -> str:
+    """
+    Returns random hex string
+    """
+    return "".join(random.choice("0123456789abcdef") for i in range(length))
+
+
 class ChatHubRequest:
     """
     Request object for ChatHub
@@ -147,23 +154,34 @@ class ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = [
+                "nlu_direct_response_filter",
                 "deepleo",
-                "enable_debug_commands",
                 "disable_emoji_spoken_text",
+                "responsible_ai_policy_235",
                 "enablemm",
                 conversation_style.value,
+                "dtappid",
+                "cricinfo",
+                "cricinfov2",
+                "dv3sugg",
             ]
         self.struct = {
             "arguments": [
                 {
                     "source": "cib",
                     "optionsSets": options,
+                    "sliceIds": [
+                        "222dtappid",
+                        "225cricinfo",
+                        "224locals0",
+                    ],
+                    "traceId": getRanHex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
-                        "messageType": "Chat",
+                        "messageType": "SearchQuery",
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -294,6 +312,8 @@ class ChatHub:
                 elif response.get("type") == 2:
                     final = True
                     yield True, response
+                else:
+                    print(response)
 
     async def __initial_handshake(self):
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
@@ -335,13 +355,11 @@ class Chatbot:
         Ask a question to the bot
         """
         async for final, response in self.chat_hub.ask_stream(
-            prompt=prompt,
-            conversation_style=conversation_style,
-            wss_link=wss_link
+            prompt=prompt, conversation_style=conversation_style, wss_link=wss_link
         ):
             if final:
                 return response
-        self.chat_hub.wss.close()
+        await self.chat_hub.wss.close()
 
     async def ask_stream(
         self,
@@ -353,9 +371,7 @@ class Chatbot:
         Ask a question to the bot
         """
         async for response in self.chat_hub.ask_stream(
-            prompt=prompt,
-            conversation_style=conversation_style,
-            wss_link=wss_link
+            prompt=prompt, conversation_style=conversation_style, wss_link=wss_link
         ):
             yield response
 
@@ -423,9 +439,13 @@ async def main():
         print("Bot:")
         if args.no_stream:
             print(
-                (await bot.ask(prompt=question, conversation_style=args.style,wss_link=args.wss_link))["item"][
-                    "messages"
-                ][1]["adaptiveCards"][0]["body"][0]["text"],
+                (
+                    await bot.ask(
+                        prompt=question,
+                        conversation_style=args.style,
+                        wss_link=args.wss_link,
+                    )
+                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"],
             )
         else:
             if args.rich:
@@ -435,7 +455,7 @@ async def main():
                     async for final, response in bot.ask_stream(
                         prompt=question,
                         conversation_style=args.style,
-                        wss_link=args.wss_link
+                        wss_link=args.wss_link,
                     ):
                         if not final:
                             if wrote > len(response):
@@ -449,7 +469,7 @@ async def main():
                 async for final, response in bot.ask_stream(
                     prompt=question,
                     conversation_style=args.style,
-                    wss_link=args.wss_link
+                    wss_link=args.wss_link,
                 ):
                     if not final:
                         print(response[wrote:], end="", flush=True)
@@ -478,7 +498,10 @@ if __name__ == "__main__":
         "--proxy", help="Proxy URL (e.g. socks5://127.0.0.1:1080)", type=str
     )
     parser.add_argument(
-        "--wss-link", help="WSS URL(e.g. wss://sydney.bing.com/sydney/ChatHub)",type=str,default="wss://sydney.bing.com/sydney/ChatHub"
+        "--wss-link",
+        help="WSS URL(e.g. wss://sydney.bing.com/sydney/ChatHub)",
+        type=str,
+        default="wss://sydney.bing.com/sydney/ChatHub",
     )
     parser.add_argument(
         "--style",

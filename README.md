@@ -15,6 +15,9 @@ _The reverse engineering the chat feature of the new version of Bing_
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
+  
+  <img alt="Total downloads" src="https://static.pepy.tech/badge/edgegpt">
+  
 </p>
 
 ---
