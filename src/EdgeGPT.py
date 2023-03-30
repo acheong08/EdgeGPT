@@ -108,7 +108,7 @@ def append_identifier(msg: dict) -> str:
     return json.dumps(msg) + DELIMITER
 
 
-def getRanHex(length: int = 32) -> str:
+def get_ran_hex(length: int = 32) -> str:
     """
     Returns random hex string
     """
@@ -175,7 +175,7 @@ class ChatHubRequest:
                         "225cricinfo",
                         "224locals0",
                     ],
-                    "traceId": getRanHex(32),
+                    "traceId": get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
