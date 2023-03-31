@@ -171,6 +171,7 @@ options:
 from ImageGen import ImageGen
 import argparse
 import json
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
