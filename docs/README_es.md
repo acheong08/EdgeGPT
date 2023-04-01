@@ -3,11 +3,11 @@
 
 # Edge GPT
 
-_新必应的逆向工程_
+_Ingeniería inversa al nuevo chat integrado en Bing_
 
 <a href="./README.md">English</a> -
-<a>中文</a> -
-<a href="./README_es.md">Español</a>
+<a href="./README_zh.md">中文</a> -
+<a>Español</a>
 
 </div>
 
@@ -16,50 +16,53 @@ _新必应的逆向工程_
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
+
+  <img alt="Total downloads" src="https://static.pepy.tech/badge/edgegpt">
+
 </p>
 
 ---
 
-## 设置
+## Configuración
 
-### 安装模块
+### Instalación de dependencias
 
 ```bash
 python3 -m pip install EdgeGPT --upgrade
 ```
 
-### 要求
+### Requisitos
 
 - python 3.8+
-- 一个已经通过候补名单的微软账户 <https://bing.com/chat> (必填)
-- 需要在 New Bing 支持的国家（中国大陆需使用VPN）
+- Una cuenta de Microsoft con acceso a <https://bing.com/chat> (Obligatorio)
+- Estar localizado en una región con soporte para el nuevo Bing (para usuarios en China es necesario el uso de VPN)
 
 <details>
   <summary>
 
-### 检查访问权限 (必需)
+### Comprobar el acceso (Obligatorio)
 
   </summary>
 
-- 安装最新版本的 Microsoft Edge
-- 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如`Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager" [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作.
-- 打开 [bing.com/chat](https://bing.com/chat)
-- 如果您看到聊天功能，就准备就绪
+- Instalar la última versión de Microsoft Edge
+- Es posible configurar el user-agent para imitar el navegador Edge (p. ej., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). Puedes realizar esto fácilmente mediante extensiones como "User-Agent Switcher and Manager" para [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) y [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
+- Abrir [bing.com/chat](https://bing.com/chat)
+- Si ves disponible el nuevo chat, todo estaría correcto y podrías continuar
 
 </details>
 
 <details>
   <summary>
 
-### 获取身份验证 (必需)
+### Obteniendo las cookies de autenticación (Obligatorio)
 
   </summary>
 
-- 安装 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 扩展
-- 移步到 `bing.com`
-- 打开扩展程序
-- 点击右下角的"导出" (将会把内容保存到你的剪贴板上)
-- 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
+- Instala la extensión para editar cookies en [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) o [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
+- Ve a `bing.com`
+- Abre la extensión
+- Presiona en "Export" en la parte inferior derecha y luego en "Export as JSON" (Esto guarda las cookies en el portapapeles)
+- Pega las cookies en el fichero `cookies.json`
 
 </details>
 
@@ -71,9 +74,9 @@ python3 -m pip install EdgeGPT --upgrade
 
 </summary>
 
-## 使用方法
+## Uso
 
-### 快速开始
+### Ejemplo línea de comandos
 
 ```
  $ python3 -m EdgeGPT -h
@@ -104,18 +107,18 @@ options:
 
 ---
 
-### 开发演示
+### Ejemplo para desarrolladores
 
-传入 cookie 的三种方式:
+Es posible pasar las cookies a EdgeGPT de tres maneras:
 
-- 设置环境变量: `export COOKIE_FILE=/path/to/cookies.json`.
-- 像这样把 `cookies.json` 的路径传入 `cookiePath` 参数中:
+- Usando una variable de entorno: `export COOKIE_FILE=/path/to/cookies.json`.
+- Especificando la ruta a `cookies.json` en el argumento `cookiePath`:
 
   ```python
   bot = Chatbot(cookiePath='./cookie.json')
   ```
 
-- 通过参数 `cookie` 传入 cookie，如下所示:
+- Pasando las cookies directamente mediante el argumento `cookies`:
 
   ```python
   with open('./cookie.json', 'r') as f:
@@ -123,9 +126,9 @@ options:
   bot = Chatbot(cookies=cookies)
   ```
 
-使用 aysnc 获得最佳体验
+Usa programación asíncrona para una mejor experiencia de usuario
 
-更高级用法示例的参考代码：
+Código de ejemplo usando programación asíncrona:
 
 ```python
 import asyncio
@@ -133,7 +136,7 @@ from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = Chatbot()
-    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative,wss_link="wss://sydney.bing.com/sydney/ChatHub"))
+    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, wss_link="wss://sydney.bing.com/sydney/ChatHub"))
     await bot.close()
 
 
@@ -148,7 +151,7 @@ if __name__ == "__main__":
 
 <summary>
 
-## 图片生成
+## Generación de imágenes
 
 </summary>
 
@@ -168,7 +171,7 @@ optional arguments:
   --asyncio             Run ImageGen using asyncio
 ```
 
-### 开发演示
+### Ejemplo para desarrolladores
 
 ```python
 from ImageGen import ImageGen
@@ -196,6 +199,12 @@ if __name__ == "__main__":
         type=str,
         default="./output",
     )
+    parser.add_argument(
+        "--quiet", help="Disable pipeline messages", action="store_true"
+    )
+    parser.add_argument(
+        "--asyncio", help="Run ImageGen using asyncio", action="store_true"
+    )
     args = parser.parse_args()
     # Load auth cookie
     with open(args.cookie_file, encoding="utf-8") as file:
@@ -222,13 +231,13 @@ if __name__ == "__main__":
 
 </details>
 
-## Star历史
+## Historial de estrellas
 
-[![Star历史](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
 
-## 贡献者
+## Contribuidores
 
-这个项目的存在要归功于所有做出贡献的人。
+Este proyecto existe gracias a todas las personas que apoyan y contribuyen.
 
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
