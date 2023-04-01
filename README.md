@@ -172,9 +172,10 @@ options:
 
 ```python
 from ImageGen import ImageGen
-if __name__ == "__main__":
-    import argparse
+import argparse
+import json
 
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
     parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
