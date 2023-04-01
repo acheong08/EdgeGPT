@@ -38,6 +38,9 @@ class ImageGen:
         # https://www.bing.com/images/create?q=<PROMPT>&rt=3&FORM=GENCRE
         url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
         response = self.session.post(url, allow_redirects=False)
+        #check for content waring message
+        if "this prompt has been blocked" in response.text.lower():
+            raise Exception("Your prompt has been blocked by Bing. Try to change any bad words and try again.") 
         if response.status_code != 302:
             # if rt4 fails, try rt3
             url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
