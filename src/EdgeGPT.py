@@ -311,8 +311,6 @@ class ChatHub:
                 elif response.get("type") == 2:
                     final = True
                     yield True, response
-                else:
-                    print(response)
 
     async def __initial_handshake(self) -> None:
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
