@@ -1,19 +1,26 @@
+import asyncio
+import contextlib
 import json
 import os
+import sys
 import time
+
+import aiohttp
 import regex
 import requests
-import aiohttp
-import asyncio
+import argparse
+import pkg_resources
 
 BING_URL = "https://www.bing.com"
-HEADERS = {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-           "accept-language": "en-US,en;q=0.9",
-           "cache-control": "max-age=0",
-           "content-type": "application/x-www-form-urlencoded",
-           "referrer": "https://www.bing.com/images/create/",
-           "origin": "https://www.bing.com",
-           "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63"}
+HEADERS = {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "max-age=0",
+    "content-type": "application/x-www-form-urlencoded",
+    "referrer": "https://www.bing.com/images/create/",
+    "origin": "https://www.bing.com",
+    "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63",
+}
 
 
 class ImageGen:
@@ -41,16 +48,20 @@ class ImageGen:
         # https://www.bing.com/images/create?q=<PROMPT>&rt=3&FORM=GENCRE
         url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
         response = self.session.post(url, allow_redirects=False)
-        #check for content waring message
+        # check for content waring message
         if "this prompt has been blocked" in response.text.lower():
-            raise Exception("Your prompt has been blocked by Bing. Try to change any bad words and try again.")
+            raise Exception(
+                "Your prompt has been blocked by Bing. Try to change any bad words and try again."
+            )
         if response.status_code != 302:
             # if rt4 fails, try rt3
             url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
             response3 = self.session.post(url, allow_redirects=False, timeout=200)
             if response3.status_code != 302:
                 print(f"ERROR: {response3.text}")
-                raise Exception("Redirect failed")
+                raise Exception(
+                    "Redirect failed, also possible that this prompt isn't allowed"
+                )
             response = response3
         # Get redirect URL
         redirect_url = response.headers["Location"].replace("&nfy=1", "")
@@ -63,19 +74,18 @@ class ImageGen:
             print("Waiting for results...")
         start_wait = time.time()
         while True:
-            if int(time.time() - start_wait) > 300:
+            if int(time.time() - start_wait) > 200:
                 raise Exception("Timeout error")
             if not self.quiet:
                 print(".", end="", flush=True)
             response = self.session.get(polling_url)
             if response.status_code != 200:
                 raise Exception("Could not get results")
-            if response.text == "":
+            if not response.text:
                 time.sleep(1)
                 continue
             else:
                 break
-
         # Use regex to search for src=""
         image_links = regex.findall(r'src="([^"]+)"', response.text)
         # Remove size limit
@@ -102,10 +112,8 @@ class ImageGen:
         """
         if not self.quiet:
             print("\nDownloading images...")
-        try:
+        with contextlib.suppress(FileExistsError):
             os.mkdir(output_dir)
-        except FileExistsError:
-            pass
         try:
             for image_num, link in enumerate(links):
                 with self.session.get(link, stream=True) as response:
@@ -129,14 +137,15 @@ class ImageGenAsync:
 
     def __init__(self, auth_cookie: str, quiet: bool = False) -> None:
         self.session = aiohttp.ClientSession(
-            headers=HEADERS, cookies={"_U": auth_cookie}
+            headers=HEADERS,
+            cookies={"_U": auth_cookie},
         )
         self.quiet = quiet
 
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, *excinfo):
+    async def __aexit__(self, *excinfo) -> None:
         await self.session.close()
 
     async def get_images(self, prompt: str) -> list:
@@ -149,18 +158,22 @@ class ImageGenAsync:
             print("Sending request...")
         url_encoded_prompt = requests.utils.quote(prompt)
         # https://www.bing.com/images/create?q=<PROMPT>&rt=3&FORM=GENCRE
-        url = (
-            f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
-        )
+        url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
         async with self.session.post(url, allow_redirects=False) as response:
             content = await response.text()
             if "this prompt has been blocked" in content.lower():
-                raise Exception("Your prompt has been blocked by Bing. Try to change any bad words and try again.")
+                raise Exception(
+                    "Your prompt has been blocked by Bing. Try to change any bad words and try again."
+                )
             if response.status != 302:
                 # if rt4 fails, try rt3
-                url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
+                url = (
+                    f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
+                )
                 async with self.session.post(
-                    url, allow_redirects=False, timeout=200
+                    url,
+                    allow_redirects=False,
+                    timeout=200,
                 ) as response3:
                     if response3.status != 302:
                         print(f"ERROR: {response3.text}")
@@ -183,12 +196,11 @@ class ImageGenAsync:
             if response.status != 200:
                 raise Exception("Could not get results")
             content = await response.text()
-            if content == "":
-                await asyncio.sleep(1)
-                continue
-            else:
+            if content:
                 break
 
+            await asyncio.sleep(1)
+            continue
         # Use regex to search for src=""
         image_links = regex.findall(r'src="([^"]+)"', content)
         # Remove size limit
@@ -215,15 +227,11 @@ class ImageGenAsync:
         """
         if not self.quiet:
             print("\nDownloading images...")
-        try:
+        with contextlib.suppress(FileExistsError):
             os.mkdir(output_dir)
-        except FileExistsError:
-            pass
         try:
             for image_num, link in enumerate(links):
-                async with self.session.get(
-                    link, raise_for_status=True
-                ) as response:
+                async with self.session.get(link, raise_for_status=True) as response:
                     # save response to file
                     with open(f"{output_dir}/{image_num}.jpeg", "wb") as output_file:
                         async for chunk in response.content.iter_chunked(8192):
@@ -241,8 +249,6 @@ async def async_image_gen(args) -> None:
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
     parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
@@ -252,6 +258,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+
     parser.add_argument(
         "--output-dir",
         help="Output directory",
@@ -259,14 +266,28 @@ if __name__ == "__main__":
         default="./output",
     )
     parser.add_argument(
-        "--quiet", help="Disable pipeline messages", action="store_true"
+        "--quiet",
+        help="Disable pipeline messages",
+        action="store_true",
     )
     parser.add_argument(
-        "--asyncio", help="Run ImageGen using asyncio", action="store_true"
+        "--asyncio",
+        help="Run ImageGen using asyncio",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print the version number",
     )
     args = parser.parse_args()
+
+    if args.version:
+        print(pkg_resources.get_distribution("BingImageCreator").version)
+        sys.exit()
+
     # Load auth cookie
-    try:
+    with contextlib.suppress(Exception):
         with open(args.cookie_file, encoding="utf-8") as file:
             cookie_json = json.load(file)
             for cookie in cookie_json:
@@ -274,9 +295,7 @@ if __name__ == "__main__":
                     args.U = cookie.get("value")
                     break
 
-    except:
-        pass
-    if args.U is None:
+    if args.U is None and args.cookie_file is None:
         raise Exception("Could not find auth cookie")
 
     if not args.asyncio:
