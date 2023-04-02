@@ -2,11 +2,14 @@ import asyncio
 import contextlib
 import json
 import os
+import sys
 import time
 
 import aiohttp
 import regex
 import requests
+import argparse
+import pkg_resources
 
 BING_URL = "https://www.bing.com"
 HEADERS = {
@@ -56,7 +59,9 @@ class ImageGen:
             response3 = self.session.post(url, allow_redirects=False, timeout=200)
             if response3.status_code != 302:
                 print(f"ERROR: {response3.text}")
-                raise Exception("Redirect failed")
+                raise Exception(
+                    "Redirect failed, also possible that this prompt isn't allowed"
+                )
             response = response3
         # Get redirect URL
         redirect_url = response.headers["Location"].replace("&nfy=1", "")
@@ -69,18 +74,18 @@ class ImageGen:
             print("Waiting for results...")
         start_wait = time.time()
         while True:
-            if int(time.time() - start_wait) > 300:
+            if int(time.time() - start_wait) > 200:
                 raise Exception("Timeout error")
             if not self.quiet:
                 print(".", end="", flush=True)
             response = self.session.get(polling_url)
             if response.status_code != 200:
                 raise Exception("Could not get results")
-            if response.text:
+            if not response.text:
+                time.sleep(1)
+                continue
+            else:
                 break
-
-            time.sleep(1)
-            continue
         # Use regex to search for src=""
         image_links = regex.findall(r'src="([^"]+)"', response.text)
         # Remove size limit
@@ -244,8 +249,6 @@ async def async_image_gen(args) -> None:
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
     parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
@@ -255,6 +258,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+
     parser.add_argument(
         "--output-dir",
         help="Output directory",
@@ -271,7 +275,17 @@ if __name__ == "__main__":
         help="Run ImageGen using asyncio",
         action="store_true",
     )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print the version number",
+    )
     args = parser.parse_args()
+
+    if args.version:
+        print(pkg_resources.get_distribution("BingImageCreator").version)
+        sys.exit()
+
     # Load auth cookie
     with contextlib.suppress(Exception):
         with open(args.cookie_file, encoding="utf-8") as file:
@@ -281,7 +295,7 @@ if __name__ == "__main__":
                     args.U = cookie.get("value")
                     break
 
-    if args.U is None:
+    if args.U is None and args.cookie_file is None:
         raise Exception("Could not find auth cookie")
 
     if not args.asyncio:
