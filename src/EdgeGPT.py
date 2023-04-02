@@ -14,6 +14,7 @@ from enum import Enum
 from typing import Generator
 from typing import Literal
 from typing import Optional
+from typing import Union
 
 import certifi
 import httpx
@@ -95,7 +96,7 @@ class ConversationStyle(Enum):
 
 
 CONVERSATION_STYLE_TYPE = Optional[
-    ConversationStyle | Literal["creative", "balanced", "precise"]
+    Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
 ]
 
 
