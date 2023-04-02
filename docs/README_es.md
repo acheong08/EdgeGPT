@@ -3,10 +3,11 @@
 
 # Edge GPT
 
-_The reverse engineering the chat feature of the new version of Bing_
+_Ingeniería inversa al nuevo chat integrado en Bing_
 
-<a>English</a> -
-<a href="./README_zh.md">中文</a>
+<a href="./README.md">English</a> -
+<a href="./README_zh.md">中文</a> -
+<a>Español</a>
 
 </div>
 
@@ -15,53 +16,53 @@ _The reverse engineering the chat feature of the new version of Bing_
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
-  
+
   <img alt="Total downloads" src="https://static.pepy.tech/badge/edgegpt">
-  
+
 </p>
 
 ---
 
-## Setup
+## Configuración
 
-### Install package
+### Instalación de dependencias
 
 ```bash
 python3 -m pip install EdgeGPT --upgrade
 ```
 
-### Requirements
+### Requisitos
 
 - python 3.8+
-- A Microsoft Account with early access to <https://bing.com/chat> (Required)
-- Required in a supported country with New Bing (Chinese mainland VPN required)
+- Una cuenta de Microsoft con acceso a <https://bing.com/chat> (Obligatorio)
+- Estar localizado en una región con soporte para el nuevo Bing (para usuarios en China es necesario el uso de VPN)
 
 <details>
   <summary>
 
-### Checking access (Required)
+### Comprobar el acceso (Obligatorio)
 
   </summary>
 
-- Install the latest version of Microsoft Edge
-- Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
-- Open [bing.com/chat](https://bing.com/chat)
-- If you see a chat feature, you are good to go
+- Instalar la última versión de Microsoft Edge
+- Es posible configurar el user-agent para imitar el navegador Edge (p. ej., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). Puedes realizar esto fácilmente mediante extensiones como "User-Agent Switcher and Manager" para [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) y [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
+- Abrir [bing.com/chat](https://bing.com/chat)
+- Si ves disponible el nuevo chat, todo estaría correcto y podrías continuar
 
 </details>
 
 <details>
   <summary>
 
-### Getting authentication (Required)
+### Obteniendo las cookies de autenticación (Obligatorio)
 
   </summary>
 
-- Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
-- Go to `bing.com`
-- Open the extension
-- Click "Export" on the bottom right (This saves your cookies to clipboard)
-- Paste your cookies into a file `cookies.json`
+- Instala la extensión para editar cookies en [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) o [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
+- Ve a `bing.com`
+- Abre la extensión
+- Presiona en "Export" en la parte inferior derecha y luego en "Export as JSON" (Esto guarda las cookies en el portapapeles)
+- Pega las cookies en el fichero `cookies.json`
 
 </details>
 
@@ -73,9 +74,9 @@ python3 -m pip install EdgeGPT --upgrade
 
 </summary>
 
-## Usage
+## Uso
 
-### Quick start
+### Ejemplo línea de comandos
 
 ```
  $ python3 -m EdgeGPT -h
@@ -106,18 +107,18 @@ options:
 
 ---
 
-### Developer demo
+### Ejemplo para desarrolladores
 
-Three ways to pass in cookies:
+Es posible pasar las cookies a EdgeGPT de tres maneras:
 
-- Environment variable: `export COOKIE_FILE=/path/to/cookies.json`.
-- Specify the path to `cookies.json` in the argument `cookiePath` like this:
+- Usando una variable de entorno: `export COOKIE_FILE=/path/to/cookies.json`.
+- Especificando la ruta a `cookies.json` en el argumento `cookiePath`:
 
   ```python
   bot = Chatbot(cookiePath='./cookie.json')
   ```
 
-- Pass in the cookies directly by the argument `cookies`, like this:
+- Pasando las cookies directamente mediante el argumento `cookies`:
 
   ```python
   with open('./cookie.json', 'r') as f:
@@ -125,9 +126,9 @@ Three ways to pass in cookies:
   bot = Chatbot(cookies=cookies)
   ```
 
-Use Async for the best experience
+Usa programación asíncrona para una mejor experiencia de usuario
 
-Reference code for more advanced example of usage:
+Código de ejemplo usando programación asíncrona:
 
 ```python
 import asyncio
@@ -150,15 +151,15 @@ if __name__ == "__main__":
 
 <summary>
 
-## Image generator
+## Generación de imágenes
 
 </summary>
 
 ```bash
 $ python3 -m ImageGen -h
-usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR]
+usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   -U U                  Auth cookie from browser
   --cookie-file COOKIE_FILE
@@ -166,15 +167,23 @@ options:
   --prompt PROMPT       Prompt to generate images for
   --output-dir OUTPUT_DIR
                         Output directory
+  --quiet               Disable pipeline messages
+  --asyncio             Run ImageGen using asyncio
 ```
 
-### Developer demo
+### Ejemplo para desarrolladores
 
 ```python
 from ImageGen import ImageGen
-if __name__ == "__main__":
-    import argparse
+import argparse
+import json
 
+async def async_image_gen(args) -> None:
+    async with ImageGenAsync(args.U, args.quiet) as image_generator:
+        images = await image_generator.get_images(args.prompt)
+        await image_generator.save_images(images, output_dir=args.output_dir)
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
     parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
@@ -190,6 +199,12 @@ if __name__ == "__main__":
         type=str,
         default="./output",
     )
+    parser.add_argument(
+        "--quiet", help="Disable pipeline messages", action="store_true"
+    )
+    parser.add_argument(
+        "--asyncio", help="Run ImageGen using asyncio", action="store_true"
+    )
     args = parser.parse_args()
     # Load auth cookie
     with open(args.cookie_file, encoding="utf-8") as file:
@@ -202,24 +217,27 @@ if __name__ == "__main__":
     if args.U is None:
         raise Exception("Could not find auth cookie")
 
-    # Create image generator
-    image_generator = ImageGen(args.U)
-    image_generator.save_images(
-        image_generator.get_images(args.prompt),
-        output_dir=args.output_dir,
-    )
+    if not args.asyncio:
+        # Create image generator
+        image_generator = ImageGen(args.U, args.quiet)
+        image_generator.save_images(
+            image_generator.get_images(args.prompt),
+            output_dir=args.output_dir,
+        )
+    else:
+        asyncio.run(async_image_gen(args))
 
 ```
 
 </details>
 
-## Star History
+## Historial de estrellas
 
 [![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
 
-## Contributors
+## Contribuidores
 
-This project exists thanks to all the people who contribute.
+Este proyecto existe gracias a todas las personas que apoyan y contribuyen.
 
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />

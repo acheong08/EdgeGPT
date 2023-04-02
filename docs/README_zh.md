@@ -6,7 +6,8 @@
 _新必应的逆向工程_
 
 <a href="./README.md">English</a> -
-<a>中文</a>
+<a>中文</a> -
+<a href="./README_es.md">Español</a>
 
 </div>
 
@@ -153,9 +154,9 @@ if __name__ == "__main__":
 
 ```bash
 $ python3 -m ImageGen -h
-usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR]
+usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   -U U                  Auth cookie from browser
   --cookie-file COOKIE_FILE
@@ -163,15 +164,23 @@ options:
   --prompt PROMPT       Prompt to generate images for
   --output-dir OUTPUT_DIR
                         Output directory
+  --quiet               Disable pipeline messages
+  --asyncio             Run ImageGen using asyncio
 ```
 
 ### 开发演示
 
 ```python
 from ImageGen import ImageGen
-if __name__ == "__main__":
-    import argparse
+import argparse
+import json
 
+async def async_image_gen(args) -> None:
+    async with ImageGenAsync(args.U, args.quiet) as image_generator:
+        images = await image_generator.get_images(args.prompt)
+        await image_generator.save_images(images, output_dir=args.output_dir)
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-U", help="Auth cookie from browser", type=str)
     parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
@@ -199,12 +208,15 @@ if __name__ == "__main__":
     if args.U is None:
         raise Exception("Could not find auth cookie")
 
-    # Create image generator
-    image_generator = ImageGen(args.U)
-    image_generator.save_images(
-        image_generator.get_images(args.prompt),
-        output_dir=args.output_dir,
-    )
+    if not args.asyncio:
+        # Create image generator
+        image_generator = ImageGen(args.U, args.quiet)
+        image_generator.save_images(
+            image_generator.get_images(args.prompt),
+            output_dir=args.output_dir,
+        )
+    else:
+        asyncio.run(async_image_gen(args))
 
 ```
 

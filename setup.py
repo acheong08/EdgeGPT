@@ -1,9 +1,17 @@
 from setuptools import find_packages
 from setuptools import setup
+from pathlib import Path
+
+DOCS_PATH = Path(__file__).parents[0] / "docs/README.md"
+PATH = Path("README.md")
+if not PATH.exists():
+    with open(DOCS_PATH, "rt", encoding="utf-8") as f1:
+        with open(PATH, "wt+", encoding="utf-8") as f2:
+            f2.write(f1.read())
 
 setup(
     name="EdgeGPT",
-    version="0.1.12.1",
+    version="0.1.13.1",
     license="GNU General Public License v2.0",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
