@@ -115,13 +115,13 @@ Three ways to pass in cookies:
 - Specify the path to `cookies.json` in the argument `cookiePath` like this:
 
   ```python
-  bot = Chatbot(cookiePath='./cookie.json')
+  bot = Chatbot(cookiePath='./cookies.json')
   ```
 
 - Pass in the cookies directly by the argument `cookies`, like this:
 
   ```python
-  with open('./cookie.json', 'r') as f:
+  with open('./cookies.json', 'r') as f:
       cookies = json.load(f)
   bot = Chatbot(cookies=cookies)
   ```
