@@ -112,13 +112,13 @@ options:
 - 像这样把 `cookies.json` 的路径传入 `cookiePath` 参数中:
 
   ```python
-  bot = Chatbot(cookiePath='./cookie.json')
+  bot = Chatbot(cookiePath='./cookies.json')
   ```
 
 - 通过参数 `cookie` 传入 cookie，如下所示:
 
   ```python
-  with open('./cookie.json', 'r') as f:
+  with open('./cookies.json', 'r') as f:
       cookies = json.load(f)
   bot = Chatbot(cookies=cookies)
   ```
