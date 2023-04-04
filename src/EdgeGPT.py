@@ -78,7 +78,7 @@ HEADERS_INIT_CONVER = {
     "upgrade-insecure-requests": "1",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69",
     "x-edge-shopping-flag": "1",
-    "x-forwarded-for": "1.1.1.1",
+    "x-forwarded-for": FORWARDED_IP,
 }
 
 ssl_context = ssl.create_default_context()
@@ -311,8 +311,6 @@ class ChatHub:
                 elif response.get("type") == 2:
                     final = True
                     yield True, response
-                else:
-                    print(response)
 
     async def __initial_handshake(self) -> None:
         await self.wss.send(append_identifier({"protocol": "json", "version": 1}))

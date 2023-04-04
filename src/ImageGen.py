@@ -98,8 +98,8 @@ class ImageGen:
             "https://r.bing.com/rp/in-2zU3AJUdkgFe7ZKv19yPBHVs.png",
             "https://r.bing.com/rp/TX9QuO3WzcCJz1uaaSwQAz39Kb0.jpg",
         ]
-        for im in normal_image_links:
-            if im in bad_images:
+        for img in normal_image_links:
+            if img in bad_images:
                 raise Exception("Bad images")
         # No images
         if not normal_image_links:
