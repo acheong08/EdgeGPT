@@ -39,4 +39,3 @@ def save_images(links: list, output_dir: str) -> None
 ```
 
 Saves images to output directory
-
