@@ -29,6 +29,7 @@ setup(
         "prompt_toolkit",
         "regex",
         "requests",
+        "BingImageCreator>=0.1.1.1",
     ],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
