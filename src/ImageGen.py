@@ -59,6 +59,11 @@ class ImageGen:
             raise Exception(
                 "Your prompt has been blocked by Bing. Try to change any bad words and try again.",
             )
+        if (
+            "we're working hard to offer image creator in more languages"
+            in response.text.lower()
+        ):
+            raise Exception("this language is currently not supported by bing")
         if response.status_code != 302:
             # if rt4 fails, try rt3
             url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
@@ -87,7 +92,7 @@ class ImageGen:
             response = self.session.get(polling_url)
             if response.status_code != 200:
                 raise Exception("Could not get results")
-            if not response.text:
+            if not response.text or response.text.find("errorMessage") != -1:
                 time.sleep(1)
                 continue
             else:
