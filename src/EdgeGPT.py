@@ -417,11 +417,18 @@ async def async_main(args: argparse.Namespace) -> None:
     print("Enter `alt+enter` or `escape+enter` to send a message")
     bot = Chatbot(proxy=args.proxy)
     session = create_session()
+    initial_prompt = args.prompt
+
     while True:
         print("\nYou:")
-        question = (
-            input() if args.enter_once else await get_input_async(session=session)
-        )
+        if initial_prompt:
+            question = initial_prompt
+            print(question)
+            initial_prompt = None
+        else:
+            question = (
+                input() if args.enter_once else await get_input_async(session=session)
+            )
         print()
         if question == "!exit":
             break
@@ -516,6 +523,13 @@ def main() -> None:
         default="cookies.json",
         required=False,
         help="needed if environment variable COOKIE_FILE is not set",
+    )
+    parser.add_argument(
+        "--prompt",
+        type=str,
+        default="",
+        required=False,
+        help="prompt to start with",
     )
     args = parser.parse_args()
     if os.path.exists(args.cookie_file):
