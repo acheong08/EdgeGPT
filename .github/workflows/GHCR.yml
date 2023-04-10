@@ -30,7 +30,7 @@ jobs:
         run: echo ::set-output name=ACTUAL_MAJOR_VERSION::$(echo $GITHUB_REF | cut -d / -f 3  | cut -d "." -f 1)
       - name: Docker compliant registry for image pushes
         id: registry
-        run: echo ::set-output name=REGISTRY::$(echo "${{steps.registry.REGISTRY}}"| tr '[:upper:]' '[:lower:]')
+        run: echo ::set-output name=REGISTRY::$(echo "ghcr.io/${{github.repository }}"| tr '[:upper:]' '[:lower:]')
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
