@@ -27,7 +27,6 @@ setup(
         "rich",
         "certifi",
         "prompt_toolkit",
-        "regex",
         "requests",
         "BingImageCreator>=0.1.1.1",
     ],

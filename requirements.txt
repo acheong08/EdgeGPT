@@ -1,7 +1,6 @@
 certifi
 httpx
 prompt_toolkit
-regex
 requests
 rich
 websockets
