@@ -21,6 +21,12 @@ setup(
     package_dir={"": "src"},
     url="https://github.com/acheong08/EdgeGPT",
     project_urls={"Bug Report": "https://github.com/acheong08/EdgeGPT/issues/new"},
+    entry_points={
+        "console_scripts": [
+            "edge-gpt = EdgeGPT:main",
+            "edge-gpt-image = ImageGen:main"
+        ]
+    },
     install_requires=[
         "httpx",
         "websockets",

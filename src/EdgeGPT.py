@@ -409,7 +409,7 @@ def create_session() -> PromptSession:
     return PromptSession(history=InMemoryHistory())
 
 
-async def main() -> None:
+async def async_main(args: argparse.Namespace) -> None:
     """
     Main function
     """
@@ -478,7 +478,7 @@ async def main() -> None:
     await bot.close()
 
 
-if __name__ == "__main__":
+def main() -> None:
     print(
         """
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
@@ -526,4 +526,8 @@ if __name__ == "__main__":
             1,
             "ERROR: use --cookie-file or set environemnt variable COOKIE_FILE",
         )
-    asyncio.run(main())
+    asyncio.run(async_main(args))
+
+
+if __name__ == "__main__":
+    main()
