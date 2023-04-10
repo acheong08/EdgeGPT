@@ -4,11 +4,13 @@ WORKDIR /EdgeGPT
 
 COPY requirements.txt requirements.txt
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 RUN apk add --no-cache make && \
-make init && make build && make ci && apk del make
+make init && make build && make ci && apk del make && \
+rm -Rf /root/.cache/pip
+
 
 ENTRYPOINT ["python3", "-m" , "EdgeGPT"]
