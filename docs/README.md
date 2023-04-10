@@ -107,6 +107,22 @@ options:
 
 ---
 
+## Running with Docker
+
+This assumes you have a file cookies.json in your current working directory
+
+``` bash
+
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt
+```
+
+You can add any extra flags as following
+
+``` bash
+
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt --rich --style creative
+```
+
 ### Developer demo
 
 Three ways to pass in cookies:
