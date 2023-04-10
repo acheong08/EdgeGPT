@@ -28,6 +28,9 @@ jobs:
       - name: Get actual major version
         id: actual_major_version
         run: echo ::set-output name=ACTUAL_MAJOR_VERSION::$(echo $GITHUB_REF | cut -d / -f 3  | cut -d "." -f 1)
+      - name: Docker compliant registry for image pushes
+        id: registry
+        run: echo ::set-output name=REGISTRY::$(echo "${{steps.registry.REGISTRY}}"| tr '[:upper:]' '[:lower:]')
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
@@ -62,11 +65,11 @@ jobs:
           context: .
           push: true # push the image to ghcr
           tags: |
-            ghcr.io/${{github.repository }}:latest
-            ghcr.io/${{github.repository }}:${{ steps.actual_patch_version.outputs.ACTUAL_PATCH_VERSION }},
-            ghcr.io/${{github.repository }}:${{ steps.actual_minor_version.outputs.ACTUAL_MINOR_VERSION }}
-            ghcr.io/${{github.repository }}:${{ steps.actual_major_version.outputs.ACTUAL_MAJOR_VERSION }}
-            ghcr.io/${{github.repository }}:${{github.sha}}
+            ${{steps.registry.REGISTRY}}:latest
+            ${{steps.registry.REGISTRY}}:${{ steps.actual_patch_version.outputs.ACTUAL_PATCH_VERSION }},
+            ${{steps.registry.REGISTRY}}:${{ steps.actual_minor_version.outputs.ACTUAL_MINOR_VERSION }}
+            ${{steps.registry.REGISTRY}}:${{ steps.actual_major_version.outputs.ACTUAL_MAJOR_VERSION }}
+            ${{steps.registry.REGISTRY}}:${{github.sha}}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
