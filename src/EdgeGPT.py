@@ -90,9 +90,9 @@ class NotAllowedToAccess(Exception):
 
 
 class ConversationStyle(Enum):
-    creative = "h3relaxedimg"
+    creative = "h3imaginative,clgalileo,gencontentv3"
     balanced = "galileo"
-    precise = "h3precise"
+    precise = "h3precise,clgalileo"
 
 
 CONVERSATION_STYLE_TYPE = Optional[
