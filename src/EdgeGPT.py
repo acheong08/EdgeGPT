@@ -25,7 +25,7 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from rich.live import Live
 from rich.markdown import Markdown
-from os import system, name
+from os import system,name
 DELIMITER = "\x1e"
 
 
@@ -90,9 +90,56 @@ class NotAllowedToAccess(Exception):
 
 
 class ConversationStyle(Enum):
-    creative = "h3imaginative,clgalileo,gencontentv3"
-    balanced = "galileo"
-    precise = "h3precise,clgalileo"
+    creative = [
+		"nlu_direct_response_filter",
+		"deepleo",
+		"disable_emoji_spoken_text",
+		"responsible_ai_policy_235",
+		"enablemm",
+		"h3imaginative",
+		"responseos",
+		"cachewriteext",
+		"e2ecachewrite",
+		"nodlcpcwrite",
+		"travelansgnd",
+		"dv3sugg",
+		"clgalileo",
+		"gencontentv3"
+	]
+    balanced = [
+		"nlu_direct_response_filter",
+		"deepleo",
+		"disable_emoji_spoken_text",
+		"responsible_ai_policy_235",
+		"enablemm",
+		"galileo",
+		"responseos",
+		"cachewriteext",
+		"e2ecachewrite",
+		"nodlcpcwrite",
+		"travelansgnd",
+		"dv3sugg"
+	]
+    precise = [
+		"chk1cf",
+		"nopreloadsscf",
+		"winlongmsg2tf",
+		"perfimpcomb",
+		"sugdivdis",
+		"sydnoinputt",
+		"wpcssopt",
+		"wintone2tf",
+		"0404sydicnbs0",
+		"405suggbs0",
+		"scctl",
+		"330uaugs0",
+		"0329resp",
+		"udscahrfon",
+		"udstrblm5",
+		"404e2ewrt",
+		"408nodedups0",
+		"403tvlansgnd"
+	]
 
 
 CONVERSATION_STYLE_TYPE = Optional[
@@ -153,27 +200,43 @@ class ChatHubRequest:
         if conversation_style:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
-            options = [
-                "nlu_direct_response_filter",
-                "deepleo",
-                "disable_emoji_spoken_text",
-                "responsible_ai_policy_235",
-                "enablemm",
-                conversation_style.value,
-                "dtappid",
-                "cricinfo",
-                "cricinfov2",
-                "dv3sugg",
-            ]
+            options = conversation_style.value
         self.struct = {
             "arguments": [
                 {
                     "source": "cib",
                     "optionsSets": options,
+                    "allowedMessageTypes":[
+                        "Chat",
+                        "InternalSearchQuery",
+                        "InternalSearchResult",
+                        "Disengaged",
+                        "InternalLoaderMessage",
+                        "RenderCardRequest",
+                        "AdsQuery",
+                        "SemanticSerp",
+                        "GenerateContentQuery",
+                        "SearchQuery"
+                    ],
                     "sliceIds": [
-                        "222dtappid",
-                        "225cricinfo",
-                        "224locals0",
+                        "chk1cf",
+                        "nopreloadsscf",
+                        "winlongmsg2tf",
+                        "perfimpcomb",
+                        "sugdivdis",
+                        "sydnoinputt",
+                        "wpcssopt",
+                        "wintone2tf",
+                        "0404sydicnbs0",
+                        "405suggbs0",
+                        "scctl",
+                        "330uaugs0",
+                        "0329resp",
+                        "udscahrfon",
+                        "udstrblm5",
+                        "404e2ewrt",
+                        "408nodedups0",
+                        "403tvlansgnd"
                     ],
                     "traceId": get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
@@ -452,11 +515,11 @@ async def async_main(args: argparse.Namespace) -> None:
             continue
         if question == "!clear":
             await bot.reset()
-            if name == 'nt':
+            if(name == "nt"):
                 system("cls")
             else:
                 system("clear")
-            
+            continue
         print("Bot:")
         if args.no_stream:
             print(
@@ -485,6 +548,8 @@ async def async_main(args: argparse.Namespace) -> None:
                             wrote = len(response)
                             md = Markdown(response)
                             live.update(md, refresh=True)
+                        else:
+                            print(json.dumps(response))
             else:
                 async for final, response in bot.ask_stream(
                     prompt=question,
