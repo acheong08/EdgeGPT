@@ -341,8 +341,8 @@ class Chatbot:
             try:
                 with open(cookiePath, "r", encoding="utf-8") as f:
                     cookies = json.load(f)
-            except FileNotFoundError:
-                raise FileNotFoundError("Cookie file not found")
+            except FileNotFoundError as e:
+                raise FileNotFoundError("Cookie file not found") from e
         else:
             self.cookies = cookies
         self.proxy: str | None = proxy
@@ -434,8 +434,7 @@ def create_session() -> PromptSession:
 
 
 def create_completer(commands: list, pattern_str: str = "$"):
-    completer = WordCompleter(words=commands, pattern=re.compile(pattern_str))
-    return completer
+    return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
 
 async def async_main(args: argparse.Namespace) -> None:
@@ -573,7 +572,7 @@ def main() -> None:
     try:
         args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
     except OSError as exc:
-        print("Could not open cookie file: {}".format(exc), file=sys.stderr)
+        print(f"Could not open cookie file: {exc}", file=sys.stderr)
         sys.exit(1)
 
     asyncio.run(async_main(args))
