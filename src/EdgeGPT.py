@@ -373,9 +373,12 @@ class ChatHub:
                 if response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):
-                    resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
+                    try:
+                        resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
                         0
                     ]["body"][0].get("text")
+                    except:
+                        resp_txt = "This is a draw feature."
                     yield False, resp_txt
                 elif response.get("type") == 2:
                     final = True
