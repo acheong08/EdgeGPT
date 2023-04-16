@@ -7,9 +7,11 @@ import argparse
 import asyncio
 import json
 import os
+import sys
 import random
 import ssl
 import uuid
+from pathlib import Path
 from enum import Enum
 from typing import Generator
 from typing import Literal
@@ -204,8 +206,7 @@ class Conversation:
 
     def __init__(
         self,
-        cookiePath: str = "",
-        cookies: dict | None = None,
+        cookies: dict,
         proxy: str | None = None,
     ) -> None:
         self.struct: dict = {
@@ -225,16 +226,7 @@ class Conversation:
             timeout=30,
             headers=HEADERS_INIT_CONVER,
         )
-        if cookies is not None:
-            cookie_file = cookies
-        else:
-            f = (
-                open(cookiePath, encoding="utf8").read()
-                if cookiePath
-                else open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read()
-            )
-            cookie_file = json.loads(f)
-        for cookie in cookie_file:
+        for cookie in cookies:
             self.session.cookies.set(cookie["name"], cookie["value"])
 
         # Send GET request
@@ -337,15 +329,13 @@ class Chatbot:
 
     def __init__(
         self,
-        cookiePath: str = "",
-        cookies: dict | None = None,
+        cookies: dict,
         proxy: str | None = None,
     ) -> None:
-        self.cookiePath: str = cookiePath
-        self.cookies: dict | None = cookies
+        self.cookies = cookies
         self.proxy: str | None = proxy
         self.chat_hub: ChatHub = ChatHub(
-            Conversation(self.cookiePath, self.cookies, self.proxy),
+            Conversation(self.cookies, self.proxy),
         )
 
     async def ask(
@@ -394,7 +384,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.chat_hub = ChatHub(Conversation(self.cookies))
 
 
 async def get_input_async(
@@ -421,7 +411,7 @@ async def async_main(args: argparse.Namespace) -> None:
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = Chatbot(proxy=args.proxy)
+    bot = Chatbot(proxy=args.proxy, cookies=args.cookies)
     session = create_session()
     initial_prompt = args.prompt
 
@@ -526,9 +516,9 @@ def main() -> None:
     parser.add_argument(
         "--cookie-file",
         type=str,
-        default="cookies.json",
+        default=os.environ.get("COOKIE_FILE", ""),
         required=False,
-        help="needed if environment variable COOKIE_FILE is not set",
+        help="Cookie file used for authentication (defaults to COOKIE_FILE environment variable)",
     )
     parser.add_argument(
         "--prompt",
@@ -538,14 +528,18 @@ def main() -> None:
         help="prompt to start with",
     )
     args = parser.parse_args()
-    if os.path.exists(args.cookie_file):
-        os.environ["COOKIE_FILE"] = args.cookie_file
-    else:
+    if args.cookie_file == "":
         parser.print_help()
         parser.exit(
             1,
-            "ERROR: use --cookie-file or set environemnt variable COOKIE_FILE",
+            "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
         )
+    try:
+        args.cookies = json.loads(Path(args.cookie_file).read_text())
+    except OSError as e:
+        print("Could not open cookie file: {}".format(e), file=sys.stderr)
+        sys.exit(1)
+
     asyncio.run(async_main(args))
 
 
