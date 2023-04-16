@@ -219,10 +219,15 @@ class Conversation:
         }
         self.proxy = proxy
         proxy = (
-            proxy or os.environ.get("all_proxy") or os.environ.get("ALL_PROXY") or os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY") or None
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
         )
-        if proxy is not None and proxy.startswith('socks5h://'):
-            proxy = 'socks5://' + proxy[len('socks5h://') :]
+        if proxy is not None and proxy.startswith("socks5h://"):
+            proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.Client(
             proxies=proxy,
             timeout=30,
@@ -330,11 +335,16 @@ class Chatbot:
     """
 
     def __init__(
-        self,
-        cookies: dict,
-        proxy: str | None = None,
+        self, cookies: dict, proxy: str | None = None, cookiePath: str = None
     ) -> None:
-        self.cookies = cookies
+        if cookiePath is not None:
+            try:
+                with open(cookiePath, "r", encoding="utf-8") as f:
+                    cookies = json.load(f)
+            except FileNotFoundError:
+                raise FileNotFoundError("Cookie file not found")
+        else:
+            self.cookies = cookies
         self.proxy: str | None = proxy
         self.chat_hub: ChatHub = ChatHub(
             Conversation(self.cookies, self.proxy),
@@ -405,6 +415,7 @@ async def get_input_async(
 
 def create_session() -> PromptSession:
     kb = KeyBindings()
+
     @kb.add("enter")
     def _(event):
         buffer_text = event.current_buffer.text
@@ -412,16 +423,20 @@ def create_session() -> PromptSession:
             event.current_buffer.validate_and_handle()
         else:
             event.current_buffer.insert_text("\n")
+
     @kb.add("escape")
     def _(event):
         if event.current_buffer.complete_state:
-                #event.current_buffer.cancel_completion()
-                event.current_buffer.text = ""
+            # event.current_buffer.cancel_completion()
+            event.current_buffer.text = ""
+
     return PromptSession(key_bindings=kb, history=InMemoryHistory())
+
 
 def create_completer(commands: list, pattern_str: str = "$"):
     completer = WordCompleter(words=commands, pattern=re.compile(pattern_str))
     return completer
+
 
 async def async_main(args: argparse.Namespace) -> None:
     """
@@ -442,7 +457,9 @@ async def async_main(args: argparse.Namespace) -> None:
             initial_prompt = None
         else:
             question = (
-                input() if args.enter_once else await get_input_async(session=session,completer=completer)
+                input()
+                if args.enter_once
+                else await get_input_async(session=session, completer=completer)
             )
         print()
         if question == "!exit":
@@ -554,9 +571,9 @@ def main() -> None:
             "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
         )
     try:
-        args.cookies = json.loads(Path(args.cookie_file).read_text())
-    except OSError as e:
-        print("Could not open cookie file: {}".format(e), file=sys.stderr)
+        args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
+    except OSError as exc:
+        print("Could not open cookie file: {}".format(exc), file=sys.stderr)
         sys.exit(1)
 
     asyncio.run(async_main(args))
