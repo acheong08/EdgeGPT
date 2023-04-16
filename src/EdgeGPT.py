@@ -214,6 +214,12 @@ class Conversation:
             "conversationSignature": None,
             "result": {"value": "Success", "message": None},
         }
+        self.proxy = proxy
+        proxy = (
+            proxy or os.environ.get("all_proxy") or os.environ.get("ALL_PROXY") or os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY") or None
+        )
+        if proxy is not None and proxy.startswith('socks5h://'):
+            proxy = 'socks5://' + proxy[len('socks5h://') :]
         self.session = httpx.Client(
             proxies=proxy,
             timeout=30,
