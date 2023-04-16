@@ -25,6 +25,7 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from rich.live import Live
 from rich.markdown import Markdown
+import re
 
 DELIMITER = "\x1e"
 
@@ -414,6 +415,9 @@ async def get_input_async(
 def create_session() -> PromptSession:
     return PromptSession(history=InMemoryHistory())
 
+def create_completer(commands: list, pattern_str: str = "$"):
+    completer = WordCompleter(words=commands, pattern=re.compile(pattern_str))
+    return completer
 
 async def async_main(args: argparse.Namespace) -> None:
     """
@@ -423,6 +427,7 @@ async def async_main(args: argparse.Namespace) -> None:
     print("Enter `alt+enter` or `escape+enter` to send a message")
     bot = Chatbot(proxy=args.proxy)
     session = create_session()
+    completer = create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
     while True:
@@ -433,7 +438,7 @@ async def async_main(args: argparse.Namespace) -> None:
             initial_prompt = None
         else:
             question = (
-                input() if args.enter_once else await get_input_async(session=session)
+                input() if args.enter_once else await get_input_async(session=session,completer=completer)
             )
         print()
         if question == "!exit":
