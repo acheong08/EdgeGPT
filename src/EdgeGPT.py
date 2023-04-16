@@ -25,7 +25,7 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from rich.live import Live
 from rich.markdown import Markdown
-
+from os import system, name
 DELIMITER = "\x1e"
 
 
@@ -450,6 +450,13 @@ async def async_main(args: argparse.Namespace) -> None:
         if question == "!reset":
             await bot.reset()
             continue
+        if question == "!clear":
+            await bot.reset()
+            if name == 'nt':
+                system("cls")
+            else:
+                system("clear")
+            
         print("Bot:")
         if args.no_stream:
             print(
