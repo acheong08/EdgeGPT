@@ -29,6 +29,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
 import re
+from os import system, name
 
 DELIMITER = "\x1e"
 
@@ -219,10 +220,15 @@ class Conversation:
         }
         self.proxy = proxy
         proxy = (
-            proxy or os.environ.get("all_proxy") or os.environ.get("ALL_PROXY") or os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY") or None
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
         )
-        if proxy is not None and proxy.startswith('socks5h://'):
-            proxy = 'socks5://' + proxy[len('socks5h://') :]
+        if proxy is not None and proxy.startswith("socks5h://"):
+            proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.Client(
             proxies=proxy,
             timeout=30,
@@ -405,6 +411,7 @@ async def get_input_async(
 
 def create_session() -> PromptSession:
     kb = KeyBindings()
+
     @kb.add("enter")
     def _(event):
         buffer_text = event.current_buffer.text
@@ -412,16 +419,20 @@ def create_session() -> PromptSession:
             event.current_buffer.validate_and_handle()
         else:
             event.current_buffer.insert_text("\n")
+
     @kb.add("escape")
     def _(event):
         if event.current_buffer.complete_state:
-                #event.current_buffer.cancel_completion()
-                event.current_buffer.text = ""
+            # event.current_buffer.cancel_completion()
+            event.current_buffer.text = ""
+
     return PromptSession(key_bindings=kb, history=InMemoryHistory())
+
 
 def create_completer(commands: list, pattern_str: str = "$"):
     completer = WordCompleter(words=commands, pattern=re.compile(pattern_str))
     return completer
+
 
 async def async_main(args: argparse.Namespace) -> None:
     """
@@ -442,7 +453,9 @@ async def async_main(args: argparse.Namespace) -> None:
             initial_prompt = None
         else:
             question = (
-                input() if args.enter_once else await get_input_async(session=session,completer=completer)
+                input()
+                if args.enter_once
+                else await get_input_async(session=session, completer=completer)
             )
         print()
         if question == "!exit":
@@ -459,6 +472,13 @@ async def async_main(args: argparse.Namespace) -> None:
         if question == "!reset":
             await bot.reset()
             continue
+        if question == "!clear":
+            await bot.reset()
+            if name == "nt":
+                system("cls")
+            else:
+                system("clear")
+
         print("Bot:")
         if args.no_stream:
             print(
