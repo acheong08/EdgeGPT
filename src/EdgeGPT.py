@@ -26,6 +26,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
 import re
@@ -374,9 +375,9 @@ class ChatHub:
                     "messages",
                 ):
                     try:
-                        resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
-                        0
-                    ]["body"][0].get("text")
+                        resp_txt = response["arguments"][0]["messages"][0][
+                            "adaptiveCards"
+                        ][0]["body"][0].get("text")
                     except:
                         resp_txt = "This is a draw feature."
                     yield False, resp_txt
