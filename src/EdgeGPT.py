@@ -335,12 +335,12 @@ class Chatbot:
     """
 
     def __init__(
-        self, cookies: dict, proxy: str | None = None, cookiePath: str = None
+        self, cookies: dict = {}, proxy: str | None = None, cookiePath: str = None
     ) -> None:
         if cookiePath is not None:
             try:
                 with open(cookiePath, "r", encoding="utf-8") as f:
-                    cookies = json.load(f)
+                    self.cookies = json.load(f)
             except FileNotFoundError as e:
                 raise FileNotFoundError("Cookie file not found") from e
         else:
