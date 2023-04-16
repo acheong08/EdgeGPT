@@ -403,11 +403,16 @@ class Chatbot:
     """
 
     def __init__(
-        self,
-        cookies: dict,
-        proxy: str | None = None,
+        self, cookies: dict, proxy: str | None = None, cookiePath: str = None
     ) -> None:
-        self.cookies = cookies
+        if cookiePath is not None:
+            try:
+                with open(cookiePath, "r", encoding="utf-8") as f:
+                    cookies = json.load(f)
+            except FileNotFoundError:
+                raise FileNotFoundError("Cookie file not found")
+        else:
+            self.cookies = cookies
         self.proxy: str | None = proxy
         self.chat_hub: ChatHub = ChatHub(
             Conversation(self.cookies, self.proxy),
@@ -643,9 +648,9 @@ def main() -> None:
             "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
         )
     try:
-        args.cookies = json.loads(Path(args.cookie_file).read_text())
-    except OSError as e:
-        print(f"Could not open cookie file: {e}", file=sys.stderr)
+        args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
+    except OSError as exc:
+        print(f"Could not open cookie file: {exc}", file=sys.stderr)
         sys.exit(1)
 
     asyncio.run(async_main(args))
