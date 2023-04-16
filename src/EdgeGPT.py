@@ -7,12 +7,15 @@ import argparse
 import asyncio
 import json
 import os
-import sys
 import random
+import re
 import ssl
+import sys
 import uuid
-from pathlib import Path
 from enum import Enum
+from os import name
+from os import system
+from pathlib import Path
 from typing import Generator
 from typing import Literal
 from typing import Optional
@@ -26,11 +29,8 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
-import re
-from os import system, name
 
 DELIMITER = "\x1e"
 
@@ -645,7 +645,7 @@ def main() -> None:
     try:
         args.cookies = json.loads(Path(args.cookie_file).read_text())
     except OSError as e:
-        print("Could not open cookie file: {}".format(e), file=sys.stderr)
+        print(f"Could not open cookie file: {e}", file=sys.stderr)
         sys.exit(1)
 
     asyncio.run(async_main(args))
