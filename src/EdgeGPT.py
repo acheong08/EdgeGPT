@@ -28,6 +28,9 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
+# <<<<<<< dev
+from os import system,name
+# =======
 import re
 
 DELIMITER = "\x1e"
@@ -94,9 +97,56 @@ class NotAllowedToAccess(Exception):
 
 
 class ConversationStyle(Enum):
-    creative = "h3imaginative,clgalileo,gencontentv3"
-    balanced = "galileo"
-    precise = "h3precise,clgalileo"
+    creative = [
+		"nlu_direct_response_filter",
+		"deepleo",
+		"disable_emoji_spoken_text",
+		"responsible_ai_policy_235",
+		"enablemm",
+		"h3imaginative",
+		"responseos",
+		"cachewriteext",
+		"e2ecachewrite",
+		"nodlcpcwrite",
+		"travelansgnd",
+		"dv3sugg",
+		"clgalileo",
+		"gencontentv3"
+	]
+    balanced = [
+		"nlu_direct_response_filter",
+		"deepleo",
+		"disable_emoji_spoken_text",
+		"responsible_ai_policy_235",
+		"enablemm",
+		"galileo",
+		"responseos",
+		"cachewriteext",
+		"e2ecachewrite",
+		"nodlcpcwrite",
+		"travelansgnd",
+		"dv3sugg"
+	]
+    precise = [
+		"chk1cf",
+		"nopreloadsscf",
+		"winlongmsg2tf",
+		"perfimpcomb",
+		"sugdivdis",
+		"sydnoinputt",
+		"wpcssopt",
+		"wintone2tf",
+		"0404sydicnbs0",
+		"405suggbs0",
+		"scctl",
+		"330uaugs0",
+		"0329resp",
+		"udscahrfon",
+		"udstrblm5",
+		"404e2ewrt",
+		"408nodedups0",
+		"403tvlansgnd"
+	]
 
 
 CONVERSATION_STYLE_TYPE = Optional[
@@ -157,27 +207,43 @@ class ChatHubRequest:
         if conversation_style:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
-            options = [
-                "nlu_direct_response_filter",
-                "deepleo",
-                "disable_emoji_spoken_text",
-                "responsible_ai_policy_235",
-                "enablemm",
-                conversation_style.value,
-                "dtappid",
-                "cricinfo",
-                "cricinfov2",
-                "dv3sugg",
-            ]
+            options = conversation_style.value
         self.struct = {
             "arguments": [
                 {
                     "source": "cib",
                     "optionsSets": options,
+                    "allowedMessageTypes":[
+                        "Chat",
+                        "InternalSearchQuery",
+                        "InternalSearchResult",
+                        "Disengaged",
+                        "InternalLoaderMessage",
+                        "RenderCardRequest",
+                        "AdsQuery",
+                        "SemanticSerp",
+                        "GenerateContentQuery",
+                        "SearchQuery"
+                    ],
                     "sliceIds": [
-                        "222dtappid",
-                        "225cricinfo",
-                        "224locals0",
+                        "chk1cf",
+                        "nopreloadsscf",
+                        "winlongmsg2tf",
+                        "perfimpcomb",
+                        "sugdivdis",
+                        "sydnoinputt",
+                        "wpcssopt",
+                        "wintone2tf",
+                        "0404sydicnbs0",
+                        "405suggbs0",
+                        "scctl",
+                        "330uaugs0",
+                        "0329resp",
+                        "udscahrfon",
+                        "udstrblm5",
+                        "404e2ewrt",
+                        "408nodedups0",
+                        "403tvlansgnd"
                     ],
                     "traceId": get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
@@ -219,10 +285,15 @@ class Conversation:
         }
         self.proxy = proxy
         proxy = (
-            proxy or os.environ.get("all_proxy") or os.environ.get("ALL_PROXY") or os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY") or None
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
         )
-        if proxy is not None and proxy.startswith('socks5h://'):
-            proxy = 'socks5://' + proxy[len('socks5h://') :]
+        if proxy is not None and proxy.startswith("socks5h://"):
+            proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.Client(
             proxies=proxy,
             timeout=30,
@@ -304,9 +375,12 @@ class ChatHub:
                 if response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):
-                    resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
+                    try:
+                        resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
                         0
                     ]["body"][0].get("text")
+                    except:
+                        resp_txt = "This is a draw feature."
                     yield False, resp_txt
                 elif response.get("type") == 2:
                     final = True
@@ -330,11 +404,16 @@ class Chatbot:
     """
 
     def __init__(
-        self,
-        cookies: dict,
-        proxy: str | None = None,
+        self, cookies: dict = {}, proxy: str | None = None, cookiePath: str = None
     ) -> None:
-        self.cookies = cookies
+        if cookiePath is not None:
+            try:
+                with open(cookiePath, "r", encoding="utf-8") as f:
+                    self.cookies = json.load(f)
+            except FileNotFoundError as e:
+                raise FileNotFoundError("Cookie file not found") from e
+        else:
+            self.cookies = cookies
         self.proxy: str | None = proxy
         self.chat_hub: ChatHub = ChatHub(
             Conversation(self.cookies, self.proxy),
@@ -405,6 +484,7 @@ async def get_input_async(
 
 def create_session() -> PromptSession:
     kb = KeyBindings()
+
     @kb.add("enter")
     def _(event):
         buffer_text = event.current_buffer.text
@@ -412,16 +492,19 @@ def create_session() -> PromptSession:
             event.current_buffer.validate_and_handle()
         else:
             event.current_buffer.insert_text("\n")
+
     @kb.add("escape")
     def _(event):
         if event.current_buffer.complete_state:
-                #event.current_buffer.cancel_completion()
-                event.current_buffer.text = ""
+            # event.current_buffer.cancel_completion()
+            event.current_buffer.text = ""
+
     return PromptSession(key_bindings=kb, history=InMemoryHistory())
 
+
 def create_completer(commands: list, pattern_str: str = "$"):
-    completer = WordCompleter(words=commands, pattern=re.compile(pattern_str))
-    return completer
+    return WordCompleter(words=commands, pattern=re.compile(pattern_str))
+
 
 async def async_main(args: argparse.Namespace) -> None:
     """
@@ -442,7 +525,9 @@ async def async_main(args: argparse.Namespace) -> None:
             initial_prompt = None
         else:
             question = (
-                input() if args.enter_once else await get_input_async(session=session,completer=completer)
+                input()
+                if args.enter_once
+                else await get_input_async(session=session, completer=completer)
             )
         print()
         if question == "!exit":
@@ -458,6 +543,13 @@ async def async_main(args: argparse.Namespace) -> None:
             continue
         if question == "!reset":
             await bot.reset()
+            continue
+        if question == "!clear":
+            await bot.reset()
+            if(name == "nt"):
+                system("cls")
+            else:
+                system("clear")
             continue
         print("Bot:")
         if args.no_stream:
@@ -487,6 +579,8 @@ async def async_main(args: argparse.Namespace) -> None:
                             wrote = len(response)
                             md = Markdown(response)
                             live.update(md, refresh=True)
+                        else:
+                            print(json.dumps(response))
             else:
                 async for final, response in bot.ask_stream(
                     prompt=question,
@@ -554,9 +648,9 @@ def main() -> None:
             "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
         )
     try:
-        args.cookies = json.loads(Path(args.cookie_file).read_text())
-    except OSError as e:
-        print("Could not open cookie file: {}".format(e), file=sys.stderr)
+        args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
+    except OSError as exc:
+        print(f"Could not open cookie file: {exc}", file=sys.stderr)
         sys.exit(1)
 
     asyncio.run(async_main(args))
