@@ -7,9 +7,11 @@ import argparse
 import asyncio
 import json
 import os
+import sys
 import random
 import ssl
 import uuid
+from pathlib import Path
 from enum import Enum
 from typing import Generator
 from typing import Literal
@@ -23,8 +25,10 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
+import re
 
 DELIMITER = "\x1e"
 
@@ -204,8 +208,7 @@ class Conversation:
 
     def __init__(
         self,
-        cookiePath: str = "",
-        cookies: dict | None = None,
+        cookies: dict,
         proxy: str | None = None,
     ) -> None:
         self.struct: dict = {
@@ -216,25 +219,21 @@ class Conversation:
         }
         self.proxy = proxy
         proxy = (
-            proxy or os.environ.get("all_proxy") or os.environ.get("ALL_PROXY") or os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY") or None
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
         )
-        if proxy is not None and proxy.startswith('socks5h://'):
-            proxy = 'socks5://' + proxy[len('socks5h://') :]
+        if proxy is not None and proxy.startswith("socks5h://"):
+            proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.Client(
             proxies=proxy,
             timeout=30,
             headers=HEADERS_INIT_CONVER,
         )
-        if cookies is not None:
-            cookie_file = cookies
-        else:
-            f = (
-                open(cookiePath, encoding="utf8").read()
-                if cookiePath
-                else open(os.environ.get("COOKIE_FILE"), encoding="utf-8").read()
-            )
-            cookie_file = json.loads(f)
-        for cookie in cookie_file:
+        for cookie in cookies:
             self.session.cookies.set(cookie["name"], cookie["value"])
 
         # Send GET request
@@ -336,16 +335,19 @@ class Chatbot:
     """
 
     def __init__(
-        self,
-        cookiePath: str = "",
-        cookies: dict | None = None,
-        proxy: str | None = None,
+        self, cookies: dict = {}, proxy: str | None = None, cookiePath: str = None
     ) -> None:
-        self.cookiePath: str = cookiePath
-        self.cookies: dict | None = cookies
+        if cookiePath is not None:
+            try:
+                with open(cookiePath, "r", encoding="utf-8") as f:
+                    self.cookies = json.load(f)
+            except FileNotFoundError as e:
+                raise FileNotFoundError("Cookie file not found") from e
+        else:
+            self.cookies = cookies
         self.proxy: str | None = proxy
         self.chat_hub: ChatHub = ChatHub(
-            Conversation(self.cookiePath, self.cookies, self.proxy),
+            Conversation(self.cookies, self.proxy),
         )
 
     async def ask(
@@ -394,7 +396,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = ChatHub(Conversation(self.cookiePath, self.cookies))
+        self.chat_hub = ChatHub(Conversation(self.cookies))
 
 
 async def get_input_async(
@@ -412,7 +414,27 @@ async def get_input_async(
 
 
 def create_session() -> PromptSession:
-    return PromptSession(history=InMemoryHistory())
+    kb = KeyBindings()
+
+    @kb.add("enter")
+    def _(event):
+        buffer_text = event.current_buffer.text
+        if buffer_text.startswith("!"):
+            event.current_buffer.validate_and_handle()
+        else:
+            event.current_buffer.insert_text("\n")
+
+    @kb.add("escape")
+    def _(event):
+        if event.current_buffer.complete_state:
+            # event.current_buffer.cancel_completion()
+            event.current_buffer.text = ""
+
+    return PromptSession(key_bindings=kb, history=InMemoryHistory())
+
+
+def create_completer(commands: list, pattern_str: str = "$"):
+    return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
 
 async def async_main(args: argparse.Namespace) -> None:
@@ -421,8 +443,9 @@ async def async_main(args: argparse.Namespace) -> None:
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = Chatbot(proxy=args.proxy)
+    bot = Chatbot(proxy=args.proxy, cookies=args.cookies)
     session = create_session()
+    completer = create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
     while True:
@@ -433,7 +456,9 @@ async def async_main(args: argparse.Namespace) -> None:
             initial_prompt = None
         else:
             question = (
-                input() if args.enter_once else await get_input_async(session=session)
+                input()
+                if args.enter_once
+                else await get_input_async(session=session, completer=completer)
             )
         print()
         if question == "!exit":
@@ -526,9 +551,9 @@ def main() -> None:
     parser.add_argument(
         "--cookie-file",
         type=str,
-        default="cookies.json",
+        default=os.environ.get("COOKIE_FILE", ""),
         required=False,
-        help="needed if environment variable COOKIE_FILE is not set",
+        help="Cookie file used for authentication (defaults to COOKIE_FILE environment variable)",
     )
     parser.add_argument(
         "--prompt",
@@ -538,14 +563,18 @@ def main() -> None:
         help="prompt to start with",
     )
     args = parser.parse_args()
-    if os.path.exists(args.cookie_file):
-        os.environ["COOKIE_FILE"] = args.cookie_file
-    else:
+    if args.cookie_file == "":
         parser.print_help()
         parser.exit(
             1,
-            "ERROR: use --cookie-file or set environemnt variable COOKIE_FILE",
+            "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
         )
+    try:
+        args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
+    except OSError as exc:
+        print(f"Could not open cookie file: {exc}", file=sys.stderr)
+        sys.exit(1)
+
     asyncio.run(async_main(args))
 
 
