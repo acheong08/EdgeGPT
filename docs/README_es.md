@@ -7,7 +7,8 @@ _Ingeniería inversa al nuevo chat integrado en Bing_
 
 <a href="./README.md">English</a> -
 <a href="./README_zh.md">中文</a> -
-<a>Español</a>
+<a>Español</a> -
+<a href="./README_ja.md">日本語</a>
 
 </div>
 
