@@ -281,6 +281,7 @@ class ChatHub:
         prompt: str,
         wss_link: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
+        raw: bool = False,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -306,7 +307,9 @@ class ChatHub:
                 if obj is None or not obj:
                     continue
                 response = json.loads(obj)
-                if response.get("type") == 1 and response["arguments"][0].get(
+                if response.get("type") != 2 and raw == True:
+                    yield False, response
+                elif response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):
                     resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
@@ -374,6 +377,7 @@ class Chatbot:
         prompt: str,
         wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
+        raw: bool = False,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -382,6 +386,7 @@ class Chatbot:
             prompt=prompt,
             conversation_style=conversation_style,
             wss_link=wss_link,
+            raw=raw
         ):
             yield response
 
