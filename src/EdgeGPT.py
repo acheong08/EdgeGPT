@@ -7,12 +7,13 @@ import argparse
 import asyncio
 import json
 import os
-import sys
 import random
+import re
 import ssl
+import sys
 import uuid
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
 from typing import Generator
 from typing import Literal
 from typing import Optional
@@ -28,7 +29,6 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
-import re
 
 DELIMITER = "\x1e"
 
@@ -338,11 +338,14 @@ class Chatbot:
     """
 
     def __init__(
-        self, cookies: dict = {}, proxy: str | None = None, cookiePath: str = None
+        self,
+        cookies: dict = {},
+        proxy: str | None = None,
+        cookiePath: str = None,
     ) -> None:
         if cookiePath is not None:
             try:
-                with open(cookiePath, "r", encoding="utf-8") as f:
+                with open(cookiePath, encoding="utf-8") as f:
                     self.cookies = json.load(f)
             except FileNotFoundError as e:
                 raise FileNotFoundError("Cookie file not found") from e
@@ -386,7 +389,7 @@ class Chatbot:
             prompt=prompt,
             conversation_style=conversation_style,
             wss_link=wss_link,
-            raw=raw
+            raw=raw,
         ):
             yield response
 

@@ -14,6 +14,16 @@ def append_identifier(msg: dict) -> str
 
 Appends special character to end of message to identify end of message
 
+<a id="EdgeGPT.get_ran_hex"></a>
+
+#### get\_ran\_hex
+
+```python
+def get_ran_hex(length: int = 32) -> str
+```
+
+Returns random hex string
+
 <a id="EdgeGPT.ChatHubRequest"></a>
 
 ## ChatHubRequest Objects
@@ -63,6 +73,7 @@ Chat API
 ```python
 async def ask_stream(
     prompt: str,
+    wss_link: str,
     conversation_style: CONVERSATION_STYLE_TYPE = None
 ) -> Generator[str, None, None]
 ```
@@ -74,7 +85,7 @@ Ask a question to the bot
 #### close
 
 ```python
-async def close()
+async def close() -> None
 ```
 
 Close the connection
@@ -95,6 +106,7 @@ Combines everything to make it seamless
 
 ```python
 async def ask(prompt: str,
+              wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
               conversation_style: CONVERSATION_STYLE_TYPE = None) -> dict
 ```
 
@@ -107,6 +119,7 @@ Ask a question to the bot
 ```python
 async def ask_stream(
     prompt: str,
+    wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
     conversation_style: CONVERSATION_STYLE_TYPE = None
 ) -> Generator[str, None, None]
 ```
@@ -118,7 +131,7 @@ Ask a question to the bot
 #### close
 
 ```python
-async def close()
+async def close() -> None
 ```
 
 Close the connection
@@ -128,7 +141,7 @@ Close the connection
 #### reset
 
 ```python
-async def reset()
+async def reset() -> None
 ```
 
 Reset the conversation
@@ -144,12 +157,12 @@ async def get_input_async(session: PromptSession = None,
 
 Multiline input function.
 
-<a id="EdgeGPT.main"></a>
+<a id="EdgeGPT.async_main"></a>
 
-#### main
+#### async\_main
 
 ```python
-async def main()
+async def async_main(args: argparse.Namespace) -> None
 ```
 
 Main function
