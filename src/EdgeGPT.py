@@ -307,7 +307,7 @@ class ChatHub:
                 if obj is None or not obj:
                     continue
                 response = json.loads(obj)
-                if response.get("type") != 2 and raw == True:
+                if response.get("type") != 2 and raw:
                     yield False, response
                 elif response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
@@ -337,12 +337,9 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(
-        self,
-        cookies: dict = {},
-        proxy: str | None = None,
-        cookiePath: str = None,
-    ) -> None:
+    def __init__(self, cookies: dict = None, proxy: str | None = None, cookiePath: str = None) -> None:
+        if cookies is None:
+            cookies = {}
         if cookiePath is not None:
             try:
                 with open(cookiePath, encoding="utf-8") as f:
