@@ -7,7 +7,8 @@ _The reverse engineering the chat feature of the new version of Bing_
 
 <a>English</a> -
 <a href="./README_zh.md">中文</a> -
-<a href="./README_es.md">Español</a>
+<a href="./README_es.md">Español</a> -
+<a href="./README_ja.md">日本語</a>
 
 </div>
 
