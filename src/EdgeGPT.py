@@ -89,18 +89,18 @@ ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
 
 
-class __NotAllowedToAccess(Exception):
+class _NotAllowedToAccess(Exception):
     pass
 
 
-class __ConversationStyle(Enum):
+class _ConversationStyle(Enum):
     creative = "h3imaginative,clgalileo,gencontentv3"
     balanced = "galileo"
     precise = "h3precise,clgalileo"
 
 
 CONVERSATION_STYLE_TYPE = Optional[
-    Union[__ConversationStyle, Literal["creative", "balanced", "precise"]]
+    Union[_ConversationStyle, Literal["creative", "balanced", "precise"]]
 ]
 
 
@@ -119,7 +119,7 @@ def __get_ran_hex(length: int = 32) -> str:
     return "".join(random.choice("0123456789abcdef") for _ in range(length))
 
 
-class __ChatHubRequest:
+class _ChatHubRequest:
     """
     Request object for ChatHub
     """
@@ -155,8 +155,8 @@ class __ChatHubRequest:
                 "enablemm",
             ]
         if conversation_style:
-            if not isinstance(conversation_style, __ConversationStyle):
-                conversation_style = getattr(__ConversationStyle, conversation_style)
+            if not isinstance(conversation_style, _ConversationStyle):
+                conversation_style = getattr(_ConversationStyle, conversation_style)
             options = [
                 "nlu_direct_response_filter",
                 "deepleo",
@@ -201,7 +201,7 @@ class __ChatHubRequest:
         self.invocation_id += 1
 
 
-class __Conversation:
+class _Conversation:
     """
     Conversation API
     """
@@ -252,25 +252,25 @@ class __Conversation:
             raise Exception("Authentication failed")
         try:
             self.struct = response.json()
-        except (json.decoder.JSONDecodeError, __NotAllowedToAccess) as exc:
+        except (json.decoder.JSONDecodeError, _NotAllowedToAccess) as exc:
             raise Exception(
                 "Authentication failed. You have not been accepted into the beta.",
             ) from exc
         if self.struct["result"]["value"] == "UnauthorizedRequest":
-            raise __NotAllowedToAccess(self.struct["result"]["message"])
+            raise _NotAllowedToAccess(self.struct["result"]["message"])
 
 
-class __ChatHub:
+class _ChatHub:
     """
     Chat API
     """
 
-    def __init__(self, conversation: __Conversation) -> None:
+    def __init__(self, conversation: _Conversation) -> None:
         self.wss: websockets.WebSocketClientProtocol | None = None
-        self.request: __ChatHubRequest
+        self.request: _ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
-        self.request = __ChatHubRequest(
+        self.request = _ChatHubRequest(
             conversation_signature=conversation.struct["conversationSignature"],
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
@@ -359,8 +359,8 @@ class Chatbot:
         else:
             self.cookies = cookies
         self.proxy: str | None = proxy
-        self.chat_hub: __ChatHub = __ChatHub(
-            __Conversation(self.cookies, self.proxy),
+        self.chat_hub: _ChatHub = _ChatHub(
+            _Conversation(self.cookies, self.proxy),
         )
 
     async def ask(
@@ -415,7 +415,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = __ChatHub(__Conversation(self.cookies))
+        self.chat_hub = _ChatHub(_Conversation(self.cookies))
 
 
 async def get_input_async(
