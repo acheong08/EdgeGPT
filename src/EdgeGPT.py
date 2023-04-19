@@ -299,7 +299,9 @@ class __ChatHub:
         await self.__initial_handshake()
         # Construct a ChatHub request
         self.request.update(
-            prompt=prompt, conversation_style=conversation_style, options=options
+            prompt=prompt,
+            conversation_style=conversation_style,
+            options=options,
         )
         # Send request
         await self.wss.send(__append_identifier(self.request.struct))
@@ -341,7 +343,10 @@ class Chatbot:
     """
 
     def __init__(
-        self, cookies: dict = None, proxy: str | None = None, cookie_path: str = None
+        self,
+        cookies: dict = None,
+        proxy: str | None = None,
+        cookie_path: str = None,
     ) -> None:
         if cookies is None:
             cookies = {}

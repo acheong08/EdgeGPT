@@ -4,37 +4,17 @@
 
 Main.py
 
-<a id="EdgeGPT.append_identifier"></a>
+<a id="EdgeGPT.__ChatHubRequest"></a>
 
-#### append\_identifier
-
-```python
-def append_identifier(msg: dict) -> str
-```
-
-Appends special character to end of message to identify end of message
-
-<a id="EdgeGPT.get_ran_hex"></a>
-
-#### get\_ran\_hex
+## \_\_ChatHubRequest Objects
 
 ```python
-def get_ran_hex(length: int = 32) -> str
-```
-
-Returns random hex string
-
-<a id="EdgeGPT.ChatHubRequest"></a>
-
-## ChatHubRequest Objects
-
-```python
-class ChatHubRequest()
+class __ChatHubRequest()
 ```
 
 Request object for ChatHub
 
-<a id="EdgeGPT.ChatHubRequest.update"></a>
+<a id="EdgeGPT.__ChatHubRequest.update"></a>
 
 #### update
 
@@ -46,41 +26,31 @@ def update(prompt: str,
 
 Updates request object
 
-<a id="EdgeGPT.Conversation"></a>
+<a id="EdgeGPT.__ChatHub"></a>
 
-## Conversation Objects
-
-```python
-class Conversation()
-```
-
-Conversation API
-
-<a id="EdgeGPT.ChatHub"></a>
-
-## ChatHub Objects
+## \_\_ChatHub Objects
 
 ```python
-class ChatHub()
+class __ChatHub()
 ```
 
 Chat API
 
-<a id="EdgeGPT.ChatHub.ask_stream"></a>
+<a id="EdgeGPT.__ChatHub.ask_stream"></a>
 
 #### ask\_stream
 
 ```python
-async def ask_stream(
-    prompt: str,
-    wss_link: str,
-    conversation_style: CONVERSATION_STYLE_TYPE = None
-) -> Generator[str, None, None]
+async def ask_stream(prompt: str,
+                     wss_link: str,
+                     conversation_style: CONVERSATION_STYLE_TYPE = None,
+                     raw: bool = False,
+                     options: dict = None) -> Generator[str, None, None]
 ```
 
 Ask a question to the bot
 
-<a id="EdgeGPT.ChatHub.close"></a>
+<a id="EdgeGPT.__ChatHub.close"></a>
 
 #### close
 
@@ -107,7 +77,8 @@ Combines everything to make it seamless
 ```python
 async def ask(prompt: str,
               wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-              conversation_style: CONVERSATION_STYLE_TYPE = None) -> dict
+              conversation_style: CONVERSATION_STYLE_TYPE = None,
+              options: dict = None) -> dict
 ```
 
 Ask a question to the bot
@@ -117,11 +88,11 @@ Ask a question to the bot
 #### ask\_stream
 
 ```python
-async def ask_stream(
-    prompt: str,
-    wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-    conversation_style: CONVERSATION_STYLE_TYPE = None
-) -> Generator[str, None, None]
+async def ask_stream(prompt: str,
+                     wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+                     conversation_style: CONVERSATION_STYLE_TYPE = None,
+                     raw: bool = False,
+                     options: dict = None) -> Generator[str, None, None]
 ```
 
 Ask a question to the bot
