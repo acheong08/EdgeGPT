@@ -282,6 +282,7 @@ class ChatHub:
         wss_link: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
+        options: dict = None,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -297,7 +298,9 @@ class ChatHub:
         )
         await self.__initial_handshake()
         # Construct a ChatHub request
-        self.request.update(prompt=prompt, conversation_style=conversation_style)
+        self.request.update(
+            prompt=prompt, conversation_style=conversation_style, options=options
+        )
         # Send request
         await self.wss.send(append_identifier(self.request.struct))
         final = False
@@ -358,6 +361,7 @@ class Chatbot:
         prompt: str,
         wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
+        options: dict = None,
     ) -> dict:
         """
         Ask a question to the bot
@@ -366,6 +370,7 @@ class Chatbot:
             prompt=prompt,
             conversation_style=conversation_style,
             wss_link=wss_link,
+            options=options,
         ):
             if final:
                 return response
@@ -378,6 +383,7 @@ class Chatbot:
         wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
+        options: dict = None,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -387,6 +393,7 @@ class Chatbot:
             conversation_style=conversation_style,
             wss_link=wss_link,
             raw=raw,
+            options=options,
         ):
             yield response
 
