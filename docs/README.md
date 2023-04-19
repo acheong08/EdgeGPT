@@ -129,10 +129,10 @@ docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/coo
 Three ways to pass in cookies:
 
 - Environment variable: `export COOKIE_FILE=/path/to/cookies.json`.
-- Specify the path to `cookies.json` in the argument `cookiePath` like this:
+- Specify the path to `cookies.json` in the argument `cookie_path` like this:
 
   ```python
-  bot = Chatbot(cookiePath='./cookies.json')
+  bot = Chatbot(cookie_path='./cookies.json')
   ```
 
 - Pass in the cookies directly by the argument `cookies`, like this:
