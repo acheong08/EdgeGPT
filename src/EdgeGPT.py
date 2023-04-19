@@ -104,7 +104,7 @@ CONVERSATION_STYLE_TYPE = Optional[
 ]
 
 
-def __append_identifier(msg: dict) -> str:
+def _append_identifier(msg: dict) -> str:
     """
     Appends special character to end of message to identify end of message
     """
@@ -112,7 +112,7 @@ def __append_identifier(msg: dict) -> str:
     return json.dumps(msg) + DELIMITER
 
 
-def __get_ran_hex(length: int = 32) -> str:
+def _get_ran_hex(length: int = 32) -> str:
     """
     Returns random hex string
     """
@@ -179,7 +179,7 @@ class _ChatHubRequest:
                         "225cricinfo",
                         "224locals0",
                     ],
-                    "traceId": __get_ran_hex(32),
+                    "traceId": _get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
@@ -296,7 +296,7 @@ class _ChatHub:
             max_size=None,
             ssl=ssl_context,
         )
-        await self.__initial_handshake()
+        await self._initial_handshake()
         # Construct a ChatHub request
         self.request.update(
             prompt=prompt,
@@ -304,7 +304,7 @@ class _ChatHub:
             options=options,
         )
         # Send request
-        await self.wss.send(__append_identifier(self.request.struct))
+        await self.wss.send(_append_identifier(self.request.struct))
         final = False
         while not final:
             objects = str(await self.wss.recv()).split(DELIMITER)
@@ -325,8 +325,8 @@ class _ChatHub:
                     final = True
                     yield True, response
 
-    async def __initial_handshake(self) -> None:
-        await self.wss.send(__append_identifier({"protocol": "json", "version": 1}))
+    async def _initial_handshake(self) -> None:
+        await self.wss.send(_append_identifier({"protocol": "json", "version": 1}))
         await self.wss.recv()
 
     async def close(self) -> None:
@@ -418,7 +418,7 @@ class Chatbot:
         self.chat_hub = _ChatHub(_Conversation(self.cookies))
 
 
-async def get_input_async(
+async def _get_input_async(
     session: PromptSession = None,
     completer: WordCompleter = None,
 ) -> str:
@@ -432,7 +432,7 @@ async def get_input_async(
     )
 
 
-def __create_session() -> PromptSession:
+def _create_session() -> PromptSession:
     kb = KeyBindings()
 
     @kb.add("enter")
@@ -452,7 +452,7 @@ def __create_session() -> PromptSession:
     return PromptSession(key_bindings=kb, history=InMemoryHistory())
 
 
-def create_completer(commands: list, pattern_str: str = "$"):
+def _create_completer(commands: list, pattern_str: str = "$"):
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
 
@@ -463,8 +463,8 @@ async def async_main(args: argparse.Namespace) -> None:
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
     bot = Chatbot(proxy=args.proxy, cookies=args.cookies)
-    session = __create_session()
-    completer = create_completer(["!help", "!exit", "!reset"])
+    session = _create_session()
+    completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
     while True:
@@ -477,7 +477,7 @@ async def async_main(args: argparse.Namespace) -> None:
             question = (
                 input()
                 if args.enter_once
-                else await get_input_async(session=session, completer=completer)
+                else await _get_input_async(session=session, completer=completer)
             )
         print()
         if question == "!exit":
