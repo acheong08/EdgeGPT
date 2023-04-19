@@ -89,22 +89,22 @@ ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
 
 
-class NotAllowedToAccess(Exception):
+class __NotAllowedToAccess(Exception):
     pass
 
 
-class ConversationStyle(Enum):
+class __ConversationStyle(Enum):
     creative = "h3imaginative,clgalileo,gencontentv3"
     balanced = "galileo"
     precise = "h3precise,clgalileo"
 
 
 CONVERSATION_STYLE_TYPE = Optional[
-    Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
+    Union[__ConversationStyle, Literal["creative", "balanced", "precise"]]
 ]
 
 
-def append_identifier(msg: dict) -> str:
+def __append_identifier(msg: dict) -> str:
     """
     Appends special character to end of message to identify end of message
     """
@@ -112,14 +112,14 @@ def append_identifier(msg: dict) -> str:
     return json.dumps(msg) + DELIMITER
 
 
-def get_ran_hex(length: int = 32) -> str:
+def __get_ran_hex(length: int = 32) -> str:
     """
     Returns random hex string
     """
     return "".join(random.choice("0123456789abcdef") for _ in range(length))
 
 
-class ChatHubRequest:
+class __ChatHubRequest:
     """
     Request object for ChatHub
     """
@@ -155,8 +155,8 @@ class ChatHubRequest:
                 "enablemm",
             ]
         if conversation_style:
-            if not isinstance(conversation_style, ConversationStyle):
-                conversation_style = getattr(ConversationStyle, conversation_style)
+            if not isinstance(conversation_style, __ConversationStyle):
+                conversation_style = getattr(__ConversationStyle, conversation_style)
             options = [
                 "nlu_direct_response_filter",
                 "deepleo",
@@ -179,7 +179,7 @@ class ChatHubRequest:
                         "225cricinfo",
                         "224locals0",
                     ],
-                    "traceId": get_ran_hex(32),
+                    "traceId": __get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
                         "author": "user",
@@ -201,7 +201,7 @@ class ChatHubRequest:
         self.invocation_id += 1
 
 
-class Conversation:
+class __Conversation:
     """
     Conversation API
     """
@@ -252,25 +252,25 @@ class Conversation:
             raise Exception("Authentication failed")
         try:
             self.struct = response.json()
-        except (json.decoder.JSONDecodeError, NotAllowedToAccess) as exc:
+        except (json.decoder.JSONDecodeError, __NotAllowedToAccess) as exc:
             raise Exception(
                 "Authentication failed. You have not been accepted into the beta.",
             ) from exc
         if self.struct["result"]["value"] == "UnauthorizedRequest":
-            raise NotAllowedToAccess(self.struct["result"]["message"])
+            raise __NotAllowedToAccess(self.struct["result"]["message"])
 
 
-class ChatHub:
+class __ChatHub:
     """
     Chat API
     """
 
-    def __init__(self, conversation: Conversation) -> None:
+    def __init__(self, conversation: __Conversation) -> None:
         self.wss: websockets.WebSocketClientProtocol | None = None
-        self.request: ChatHubRequest
+        self.request: __ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
-        self.request = ChatHubRequest(
+        self.request = __ChatHubRequest(
             conversation_signature=conversation.struct["conversationSignature"],
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
@@ -302,7 +302,7 @@ class ChatHub:
             prompt=prompt, conversation_style=conversation_style, options=options
         )
         # Send request
-        await self.wss.send(append_identifier(self.request.struct))
+        await self.wss.send(__append_identifier(self.request.struct))
         final = False
         while not final:
             objects = str(await self.wss.recv()).split(DELIMITER)
@@ -324,7 +324,7 @@ class ChatHub:
                     yield True, response
 
     async def __initial_handshake(self) -> None:
-        await self.wss.send(append_identifier({"protocol": "json", "version": 1}))
+        await self.wss.send(__append_identifier({"protocol": "json", "version": 1}))
         await self.wss.recv()
 
     async def close(self) -> None:
@@ -340,20 +340,22 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(self, cookies: dict = None, proxy: str | None = None, cookiePath: str = None) -> None:
+    def __init__(
+        self, cookies: dict = None, proxy: str | None = None, cookie_path: str = None
+    ) -> None:
         if cookies is None:
             cookies = {}
-        if cookiePath is not None:
+        if cookie_path is not None:
             try:
-                with open(cookiePath, encoding="utf-8") as f:
+                with open(cookie_path, encoding="utf-8") as f:
                     self.cookies = json.load(f)
-            except FileNotFoundError as e:
-                raise FileNotFoundError("Cookie file not found") from e
+            except FileNotFoundError as exc:
+                raise FileNotFoundError("Cookie file not found") from exc
         else:
             self.cookies = cookies
         self.proxy: str | None = proxy
-        self.chat_hub: ChatHub = ChatHub(
-            Conversation(self.cookies, self.proxy),
+        self.chat_hub: __ChatHub = __ChatHub(
+            __Conversation(self.cookies, self.proxy),
         )
 
     async def ask(
@@ -408,7 +410,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = ChatHub(Conversation(self.cookies))
+        self.chat_hub = __ChatHub(__Conversation(self.cookies))
 
 
 async def get_input_async(
@@ -425,7 +427,7 @@ async def get_input_async(
     )
 
 
-def create_session() -> PromptSession:
+def __create_session() -> PromptSession:
     kb = KeyBindings()
 
     @kb.add("enter")
@@ -456,7 +458,7 @@ async def async_main(args: argparse.Namespace) -> None:
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
     bot = Chatbot(proxy=args.proxy, cookies=args.cookies)
-    session = create_session()
+    session = __create_session()
     completer = create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
