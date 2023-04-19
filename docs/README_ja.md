@@ -129,10 +129,10 @@ docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/coo
 Cookie を渡す 3 つの方法:
 
 - 環境変数: `export COOKIE_FILE=/path/to/cookies.json` 。
-- 引数 `cookiePath` には、次のように `cookies.json` へのパスを指定する:
+- 引数 `cookie_path` には、次のように `cookies.json` へのパスを指定する:
 
   ```python
-  bot = Chatbot(cookiePath='./cookies.json')
+  bot = Chatbot(cookie_path='./cookies.json')
   ```
 
 - 次のように、引数 `cookies` で直接クッキーを渡します:

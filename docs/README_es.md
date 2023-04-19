@@ -113,10 +113,10 @@ options:
 Es posible pasar las cookies a EdgeGPT de tres maneras:
 
 - Usando una variable de entorno: `export COOKIE_FILE=/path/to/cookies.json`.
-- Especificando la ruta a `cookies.json` en el argumento `cookiePath`:
+- Especificando la ruta a `cookies.json` en el argumento `cookie_path`:
 
   ```python
-  bot = Chatbot(cookiePath='./cookie.json')
+  bot = Chatbot(cookie_path='./cookie.json')
   ```
 
 - Pasando las cookies directamente mediante el argumento `cookies`:

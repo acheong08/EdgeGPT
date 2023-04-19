@@ -110,10 +110,10 @@ options:
 传入 cookie 的三种方式:
 
 - 设置环境变量: `export COOKIE_FILE=/path/to/cookies.json`.
-- 像这样把 `cookies.json` 的路径传入 `cookiePath` 参数中:
+- 像这样把 `cookies.json` 的路径传入 `cookie_path` 参数中:
 
   ```python
-  bot = Chatbot(cookiePath='./cookies.json')
+  bot = Chatbot(cookie_path='./cookies.json')
   ```
 
 - 通过参数 `cookie` 传入 cookie，如下所示:
