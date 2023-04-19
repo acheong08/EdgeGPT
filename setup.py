@@ -34,7 +34,7 @@ setup(
         "certifi",
         "prompt_toolkit",
         "requests",
-        "BingImageCreator>=0.1.1.1",
+        "BingImageCreator>=0.1.2.1",
     ],
     long_description=open(PATH, encoding="utf-8").read(),
     long_description_content_type="text/markdown",
