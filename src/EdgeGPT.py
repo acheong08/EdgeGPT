@@ -89,18 +89,18 @@ ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
 
 
-class _NotAllowedToAccess(Exception):
+class NotAllowedToAccess(Exception):
     pass
 
 
-class _ConversationStyle(Enum):
+class ConversationStyle(Enum):
     creative = "h3imaginative,clgalileo,gencontentv3"
     balanced = "galileo"
     precise = "h3precise,clgalileo"
 
 
 CONVERSATION_STYLE_TYPE = Optional[
-    Union[_ConversationStyle, Literal["creative", "balanced", "precise"]]
+    Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
 ]
 
 
@@ -155,8 +155,8 @@ class _ChatHubRequest:
                 "enablemm",
             ]
         if conversation_style:
-            if not isinstance(conversation_style, _ConversationStyle):
-                conversation_style = getattr(_ConversationStyle, conversation_style)
+            if not isinstance(conversation_style, ConversationStyle):
+                conversation_style = getattr(ConversationStyle, conversation_style)
             options = [
                 "nlu_direct_response_filter",
                 "deepleo",
@@ -252,12 +252,12 @@ class _Conversation:
             raise Exception("Authentication failed")
         try:
             self.struct = response.json()
-        except (json.decoder.JSONDecodeError, _NotAllowedToAccess) as exc:
+        except (json.decoder.JSONDecodeError, NotAllowedToAccess) as exc:
             raise Exception(
                 "Authentication failed. You have not been accepted into the beta.",
             ) from exc
         if self.struct["result"]["value"] == "UnauthorizedRequest":
-            raise _NotAllowedToAccess(self.struct["result"]["message"])
+            raise NotAllowedToAccess(self.struct["result"]["message"])
 
 
 class _ChatHub:
