@@ -60,4 +60,3 @@ async def reset() -> None
 Reset the conversation
 
 <a id="EdgeGPT.async_main"></a>
-
