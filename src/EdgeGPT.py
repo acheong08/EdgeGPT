@@ -18,7 +18,7 @@ from typing import Generator
 from typing import Literal
 from typing import Optional
 from typing import Union
-
+from BingImageCreator import ImageGenAsync
 import certifi
 import httpx
 import websockets.client as websockets
@@ -94,9 +94,46 @@ class NotAllowedToAccess(Exception):
 
 
 class ConversationStyle(Enum):
-    creative = "h3imaginative,clgalileo,gencontentv3"
-    balanced = "galileo"
-    precise = "h3precise,clgalileo"
+    creative = [
+                "nlu_direct_response_filter",
+                "deepleo",
+                "disable_emoji_spoken_text",
+                "responsible_ai_policy_235",
+                "enablemm",
+                "h3imaginative","travelansgnd","dv3sugg","clgalileo","gencontentv3",
+                "dv3sugg",
+                "responseos",
+                "e2ecachewrite",
+                "cachewriteext",
+                "nodlcpcwrite",
+                "travelansgnd"
+            ]
+    balanced = [
+                "nlu_direct_response_filter",
+                "deepleo",
+                "disable_emoji_spoken_text",
+                "responsible_ai_policy_235",
+                "enablemm",
+                "galileo",
+                "dv3sugg",
+                "responseos",
+                "e2ecachewrite",
+                "cachewriteext",
+                "nodlcpcwrite",
+                "travelansgnd"
+            ]
+    precise = ["nlu_direct_response_filter",
+                "deepleo",
+                "disable_emoji_spoken_text",
+                "responsible_ai_policy_235",
+                "enablemm",
+                "galileo",
+                "dv3sugg",
+                "responseos",
+                "e2ecachewrite",
+                "cachewriteext",
+                "nodlcpcwrite",
+                "travelansgnd","h3precise","clgalileo"]
 
 
 CONVERSATION_STYLE_TYPE = Optional[
@@ -157,27 +194,43 @@ class _ChatHubRequest:
         if conversation_style:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
-            options = [
-                "nlu_direct_response_filter",
-                "deepleo",
-                "disable_emoji_spoken_text",
-                "responsible_ai_policy_235",
-                "enablemm",
-                conversation_style.value,
-                "dtappid",
-                "cricinfo",
-                "cricinfov2",
-                "dv3sugg",
-            ]
+            options = conversation_style.value
         self.struct = {
             "arguments": [
                 {
                     "source": "cib",
                     "optionsSets": options,
+                    "allowedMessageTypes": [
+                        "Chat",
+                        "InternalSearchQuery",
+                        "InternalSearchResult",
+                        "Disengaged",
+                        "InternalLoaderMessage",
+                        "RenderCardRequest",
+                        "AdsQuery",
+                        "SemanticSerp",
+                        "GenerateContentQuery",
+                        "SearchQuery"
+                    ],
                     "sliceIds": [
-                        "222dtappid",
-                        "225cricinfo",
-                        "224locals0",
+                        "chk1cf",
+                        "nopreloadsscf",
+                        "winlongmsg2tf",
+                        "perfimpcomb",
+                        "sugdivdis",
+                        "sydnoinputt",
+                        "wpcssopt",
+                        "wintone2tf",
+                        "0404sydicnbs0",
+                        "405suggbs0",
+                        "scctl",
+                        "330uaugs0",
+                        "0329resp",
+                        "udscahrfon",
+                        "udstrblm5",
+                        "404e2ewrt",
+                        "408nodedups0",
+                        "403tvlansgnd"
                     ],
                     "traceId": _get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
@@ -280,6 +333,7 @@ class _ChatHub:
         self,
         prompt: str,
         wss_link: str,
+        cookies: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
         options: dict = None,
@@ -317,10 +371,22 @@ class _ChatHub:
                 elif response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):
-                    resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
-                        0
-                    ]["body"][0].get("text")
-                    yield False, resp_txt
+                    try:
+                        resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
+                            0
+                        ]["body"][0].get("text")
+                        yield False, resp_txt
+                    except:
+                        for item in cookies:
+                            if(item["name"] == "_U"):
+                                U = item["value"]
+                                continue
+                        async with ImageGenAsync(U, True) as image_generator:
+                            images = await image_generator.get_images(response["arguments"][0]["messages"][0]["text"])
+                        cache = resp_txt
+                        resp_txt = cache+"![image0]("+images[0]+")\n![image1]("+images[1]+")\n![image0]("+images[2]+")\n![image3]("+images[3]+")"
+                        yield False, resp_txt
+                        continue
                 elif response.get("type") == 2:
                     final = True
                     yield True, response
@@ -378,6 +444,7 @@ class Chatbot:
             conversation_style=conversation_style,
             wss_link=wss_link,
             options=options,
+            cookies=self.cookies
         ):
             if final:
                 return response
@@ -401,6 +468,7 @@ class Chatbot:
             wss_link=wss_link,
             raw=raw,
             options=options,
+            cookies=self.cookies
         ):
             yield response
 
