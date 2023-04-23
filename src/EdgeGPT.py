@@ -360,6 +360,7 @@ class _ChatHub:
         # Send request
         await self.wss.send(_append_identifier(self.request.struct))
         final = False
+        draw = False
         while not final:
             objects = str(await self.wss.recv()).split(DELIMITER)
             for obj in objects:
@@ -372,22 +373,25 @@ class _ChatHub:
                     "messages",
                 ):
                     try:
-                        resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
-                            0
-                        ]["body"][0].get("text")
+                        if not draw:
+                            resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
+                                0
+                            ]["body"][0].get("text")
                         yield False, resp_txt
                     except:
+                        draw = True
                         for item in cookies:
                             if(item["name"] == "_U"):
                                 U = item["value"]
-                                continue
                         async with ImageGenAsync(U, True) as image_generator:
                             images = await image_generator.get_images(response["arguments"][0]["messages"][0]["text"])
                         cache = resp_txt
-                        resp_txt = cache+"![image0]("+images[0]+")\n![image1]("+images[1]+")\n![image0]("+images[2]+")\n![image3]("+images[3]+")"
+                        resp_txt = cache+"\n![image0]("+images[0]+")\n![image1]("+images[1]+")\n![image0]("+images[2]+")\n![image3]("+images[3]+")"
                         yield False, resp_txt
-                        continue
                 elif response.get("type") == 2:
+                    if draw:
+                        cache = response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+                        response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"] = cache+resp_txt
                     final = True
                     yield True, response
 
