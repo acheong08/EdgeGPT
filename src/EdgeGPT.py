@@ -387,8 +387,10 @@ class _ChatHub:
                                 "adaptiveCards"
                             ][0]["body"][0].get("text")
                         yield False, resp_txt
-                    except:
-                        draw = True
+                    except Exception as exc:
+                        print(exc)
+                        if not draw:
+                            continue
                         for item in cookies:
                             if item["name"] == "_U":
                                 U = item["value"]
