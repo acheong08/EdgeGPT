@@ -685,7 +685,7 @@ def main() -> None:
         help="prompt to start with",
     )
     args = parser.parse_args()
-    if args.cookie_file == "":
+    if not args.cookie_file:
         parser.print_help()
         parser.exit(
             1,
