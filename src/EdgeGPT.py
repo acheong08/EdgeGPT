@@ -629,7 +629,10 @@ async def async_main(args: argparse.Namespace) -> None:
                     wss_link=args.wss_link,
                 ):
                     if not final:
-                        print(response[wrote:], end="", flush=True)
+                        if not wrote:
+                            print(response, end="", flush=True)
+                        else:
+                            print(response[wrote:], end="", flush=True)
                         wrote = len(response)
                 print()
     await bot.close()
