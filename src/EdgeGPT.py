@@ -18,10 +18,11 @@ from typing import Generator
 from typing import Literal
 from typing import Optional
 from typing import Union
-from BingImageCreator import ImageGenAsync
+
 import certifi
 import httpx
 import websockets.client as websockets
+from BingImageCreator import ImageGenAsync
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
@@ -95,45 +96,53 @@ class NotAllowedToAccess(Exception):
 
 class ConversationStyle(Enum):
     creative = [
-                "nlu_direct_response_filter",
-                "deepleo",
-                "disable_emoji_spoken_text",
-                "responsible_ai_policy_235",
-                "enablemm",
-                "h3imaginative","travelansgnd","dv3sugg","clgalileo","gencontentv3",
-                "dv3sugg",
-                "responseos",
-                "e2ecachewrite",
-                "cachewriteext",
-                "nodlcpcwrite",
-                "travelansgnd"
-            ]
+        "nlu_direct_response_filter",
+        "deepleo",
+        "disable_emoji_spoken_text",
+        "responsible_ai_policy_235",
+        "enablemm",
+        "h3imaginative",
+        "travelansgnd",
+        "dv3sugg",
+        "clgalileo",
+        "gencontentv3",
+        "dv3sugg",
+        "responseos",
+        "e2ecachewrite",
+        "cachewriteext",
+        "nodlcpcwrite",
+        "travelansgnd",
+    ]
     balanced = [
-                "nlu_direct_response_filter",
-                "deepleo",
-                "disable_emoji_spoken_text",
-                "responsible_ai_policy_235",
-                "enablemm",
-                "galileo",
-                "dv3sugg",
-                "responseos",
-                "e2ecachewrite",
-                "cachewriteext",
-                "nodlcpcwrite",
-                "travelansgnd"
-            ]
-    precise = ["nlu_direct_response_filter",
-                "deepleo",
-                "disable_emoji_spoken_text",
-                "responsible_ai_policy_235",
-                "enablemm",
-                "galileo",
-                "dv3sugg",
-                "responseos",
-                "e2ecachewrite",
-                "cachewriteext",
-                "nodlcpcwrite",
-                "travelansgnd","h3precise","clgalileo"]
+        "nlu_direct_response_filter",
+        "deepleo",
+        "disable_emoji_spoken_text",
+        "responsible_ai_policy_235",
+        "enablemm",
+        "galileo",
+        "dv3sugg",
+        "responseos",
+        "e2ecachewrite",
+        "cachewriteext",
+        "nodlcpcwrite",
+        "travelansgnd",
+    ]
+    precise = [
+        "nlu_direct_response_filter",
+        "deepleo",
+        "disable_emoji_spoken_text",
+        "responsible_ai_policy_235",
+        "enablemm",
+        "galileo",
+        "dv3sugg",
+        "responseos",
+        "e2ecachewrite",
+        "cachewriteext",
+        "nodlcpcwrite",
+        "travelansgnd",
+        "h3precise",
+        "clgalileo",
+    ]
 
 
 CONVERSATION_STYLE_TYPE = Optional[
@@ -210,7 +219,7 @@ class _ChatHubRequest:
                         "AdsQuery",
                         "SemanticSerp",
                         "GenerateContentQuery",
-                        "SearchQuery"
+                        "SearchQuery",
                     ],
                     "sliceIds": [
                         "chk1cf",
@@ -230,7 +239,7 @@ class _ChatHubRequest:
                         "udstrblm5",
                         "404e2ewrt",
                         "408nodedups0",
-                        "403tvlansgnd"
+                        "403tvlansgnd",
                     ],
                     "traceId": _get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
@@ -374,24 +383,41 @@ class _ChatHub:
                 ):
                     try:
                         if not draw:
-                            resp_txt = response["arguments"][0]["messages"][0]["adaptiveCards"][
-                                0
-                            ]["body"][0].get("text")
+                            resp_txt = response["arguments"][0]["messages"][0][
+                                "adaptiveCards"
+                            ][0]["body"][0].get("text")
                         yield False, resp_txt
                     except:
                         draw = True
                         for item in cookies:
-                            if(item["name"] == "_U"):
+                            if item["name"] == "_U":
                                 U = item["value"]
                         async with ImageGenAsync(U, True) as image_generator:
-                            images = await image_generator.get_images(response["arguments"][0]["messages"][0]["text"])
+                            images = await image_generator.get_images(
+                                response["arguments"][0]["messages"][0]["text"],
+                            )
                         cache = resp_txt
-                        resp_txt = cache+"\n![image0]("+images[0]+")\n![image1]("+images[1]+")\n![image0]("+images[2]+")\n![image3]("+images[3]+")"
+                        resp_txt = (
+                            cache
+                            + "\n![image0]("
+                            + images[0]
+                            + ")\n![image1]("
+                            + images[1]
+                            + ")\n![image0]("
+                            + images[2]
+                            + ")\n![image3]("
+                            + images[3]
+                            + ")"
+                        )
                         yield False, resp_txt
                 elif response.get("type") == 2:
                     if draw:
-                        cache = response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
-                        response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"] = cache+resp_txt
+                        cache = response["item"]["messages"][1]["adaptiveCards"][0][
+                            "body"
+                        ][0]["text"]
+                        response["item"]["messages"][1]["adaptiveCards"][0]["body"][0][
+                            "text"
+                        ] = (cache + resp_txt)
                     final = True
                     yield True, response
 
@@ -448,7 +474,7 @@ class Chatbot:
             conversation_style=conversation_style,
             wss_link=wss_link,
             options=options,
-            cookies=self.cookies
+            cookies=self.cookies,
         ):
             if final:
                 return response
@@ -472,7 +498,7 @@ class Chatbot:
             wss_link=wss_link,
             raw=raw,
             options=options,
-            cookies=self.cookies
+            cookies=self.cookies,
         ):
             yield response
 
