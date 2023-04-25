@@ -155,7 +155,7 @@ def _append_identifier(msg: dict) -> str:
     Appends special character to end of message to identify end of message
     """
     # Convert dict to json string
-    return json.dumps(msg) + DELIMITER
+    return json.dumps(msg, ensure_ascii=False) + DELIMITER
 
 
 def _get_ran_hex(length: int = 32) -> str:
