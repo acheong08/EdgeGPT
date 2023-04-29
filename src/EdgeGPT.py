@@ -211,11 +211,7 @@ class _ChatHubRequest:
                     "optionsSets": options,
                     "allowedMessageTypes": [
                         "Chat",
-                        "InternalSearchQuery",
-                        "InternalSearchResult",
                         "Disengaged",
-                        "InternalLoaderMessage",
-                        "RenderCardRequest",
                         "AdsQuery",
                         "SemanticSerp",
                         "GenerateContentQuery",
@@ -386,7 +382,7 @@ class _ChatHub:
                             resp_txt = response["arguments"][0]["messages"][0][
                                 "adaptiveCards"
                             ][0]["body"][0].get("text")
-                            if(resp_txt == None):
+                            if resp_txt is None:
                                 resp_txt = ""
                         yield False, resp_txt
                     except Exception as exc:
