@@ -77,7 +77,7 @@ jobs:
               const review = context.payload.review
               const pr = context.payload.pull_request
               const tags = ['Admin-Approved', 'Change-Needed']
-              const Reviewers = ['${{ github.repository_owner }}']
+              const Reviewers = ['${{ github.repository_owner }}', 'coolplaylinbot']
               function Labeler(state) {
                   let labels = pr.labels.map(function (obj) {
                       return obj.name
