@@ -130,3 +130,5 @@ dmypy.json
 cookies.json
 output/*
 README.md
+
+*.js

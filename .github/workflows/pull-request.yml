@@ -1,6 +1,10 @@
 name: Auto Label Issues
 
-on: [pull_request_target]
+on: 
+  pull_request:
+    types: [opened, reopened, edited]
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   pull-requests: write
@@ -11,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Remove invited labels
-        if: github.event.action != 'opened'
+        if: github.event.action != 'opened' && github.event_name != 'pull_request_review'
         uses: actions/github-script@v6.4.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -24,7 +28,8 @@ jobs:
               repo: context.repo.repo,
               issue_number: pr.number,
             });
-      - name: Add new labels
+      - name: Add new labels (Normal)
+        if: github.event_name != 'pull_request_review'
         uses: actions/github-script@v6.4.1
         with:
           script: |
@@ -65,9 +70,68 @@ jobs:
               labels: labelsToAdd
             })
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add new labels (Review)
+        if: github.event_name == 'pull_request_review' && (github.event.review.state == 'approved' || github.event.review.state == 'changes_requested')
+        uses: actions/github-script@v6.4.1
+        with:
+          script: |
+            const review = context.payload.review
+            const pr = context.payload.review
+            const tags = ['Admin-Approved', 'Change-Needed']
+            const Reviewers = ['${{ github.repository_owner }}']
+            function Labeler(state) {
+                let labels = pr.labels.map(function (obj) {
+                    return obj.name
+                })
+                switch (state) {
+                    case 'approved':
+                        if (labels.includes(tags[1])) {
+                            github.rest.issues.removeLabel({
+                                owner: context.repo.owner,
+                                repo: context.repo.repo,
+                                issue_number: pr.number,
+                                name: [tags[1]],
+                            });
+                        }
+                        github.rest.issues.addLabels({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: pr.number,
+                            labels: [tags[0]]
+                        })
+                        break
+                    case 'changes-requested':
+                        if (labels.includes(tags[0])) {
+                            github.rest.issues.removeLabel({
+                                owner: context.repo.owner,
+                                repo: context.repo.repo,
+                                issue_number: pr.number,
+                                name: [tags[0]],
+                            });
+                        }
+                        github.rest.issues.addLabels({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: pr.number,
+                            labels: [tags[1]]
+                        })
+                        break
+                    default:
+                        let error = TypeError('This tate type cannot be handled')
+                        throw error
+                }
+            }
+            if (Reviewers.includes(review.user)) {
+                console.log(`${review.user} has permission to approve this pr, which will pull up the Labeler function`)
+                Labeler(review.state)
+                console.log('Finish')
+            } else {
+              console.log(`${review.user} does not have permission to approve this pr and will not run`)
+            }
+        
   assignees:
     runs-on: ubuntu-latest
-    if: github.event.sender.login != github.repository_owner && github.event.action == 'opened'
+    if: github.event.sender.login != github.repository_owner && github.event.action == 'opened' && github.event_name != 'pull_request_review'
     steps:
       - name: Add assignees
         uses: actions/github-script@v6.4.1
@@ -75,7 +139,7 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
 
-            const assignees = ['acheong08'];
+            const assignees = ['${{ github.repository_owner }}'];
             const assignee = assignees[Math.floor(Math.random() * assignees.length)];
             console.log(`The question will assign to ${assignee}`)
 
