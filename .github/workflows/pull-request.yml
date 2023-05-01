@@ -73,6 +73,7 @@ jobs:
         if: github.event_name == 'pull_request_review' && (github.event.review.state == 'approved' || github.event.review.state == 'changes_requested')
         uses: actions/github-script@v6.4.1
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
               const review = context.payload.review
               const pr = context.payload.pull_request
