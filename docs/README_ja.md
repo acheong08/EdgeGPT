@@ -6,7 +6,8 @@
 _Bing の新バージョンのチャット機能のリバースエンジニアリング_
 
 <a href="./README.md">English</a> -
-<a href="./README_zh.md">中文</a> -
+<a href="./README_zh-cn.md">简体中文</a> -
+<a href="./README_zh-tw.md">繁體中文 (中國臺灣)</a> -
 <a href="./README_es.md">Español</a> -
 <a>日本語</a>
 

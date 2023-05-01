@@ -6,7 +6,8 @@
 _新必应的逆向工程_
 
 <a href="./README.md">English</a> -
-<a>中文</a> -
+<a>简体中文</a> -
+<a href="./README_zh-tw.md">繁體中文 (中國臺灣)</a> -
 <a href="./README_es.md">Español</a> -
 <a href="./README_ja.md">日本語</a>
 
