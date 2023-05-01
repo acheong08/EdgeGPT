@@ -366,6 +366,8 @@ class _ChatHub:
         await self.wss.send(_append_identifier(self.request.struct))
         final = False
         draw = False
+        resp_txt = ''
+        resp_txt_no_link = ''
         while not final:
             objects = str(await self.wss.recv()).split(DELIMITER)
             for obj in objects:
@@ -379,11 +381,11 @@ class _ChatHub:
                 ):
                     try:
                         if not draw:
-                            resp_txt = response["arguments"][0]["messages"][0][
-                                "adaptiveCards"
-                            ][0]["body"][0].get("text")
-                            if resp_txt is None:
-                                resp_txt = ""
+                            if response["arguments"][0]["messages"][0]["contentOrigin"] != "Apology":
+                                resp_txt = response["arguments"][0]["messages"][0][
+                                    "adaptiveCards"
+                                ][0]["body"][0].get("text", '')
+                                resp_txt_no_link = response["arguments"][0]["messages"][0].get("text", '')
                         yield False, resp_txt
                     except Exception as exc:
                         print(exc)
@@ -418,6 +420,10 @@ class _ChatHub:
                         response["item"]["messages"][1]["adaptiveCards"][0]["body"][0][
                             "text"
                         ] = (cache + resp_txt)
+                    if response["item"]["messages"][-1]["contentOrigin"] == "Apology" and resp_txt:
+                        response["item"]["messages"][-1]["text"] = resp_txt_no_link
+                        response["item"]["messages"][-1]["adaptiveCards"][0]["body"][0]["text"] = resp_txt
+                        print(f"Preserved the message from being deleted", file=sys.stderr)
                     final = True
                     yield True, response
 
