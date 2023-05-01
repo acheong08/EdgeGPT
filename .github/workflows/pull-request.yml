@@ -77,13 +77,7 @@ jobs:
               const review = context.payload.review
               const pr = context.payload.pull_request
               const tags = ['Admin-Approved', 'Change-Needed']
-              const admins = github.rest.repos.listCollaborators({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  affiliation: 'direct',
-                  role: 'admin',
-              }).then(({ data }) => data.map(collaborator => collaborator.login));
-              const Reviewers = ['${{ github.repository_owner }}'].concat(admins)
+              const Reviewers = ['${{ github.repository_owner }}', 'coolplaylinbot']
               function Labeler(state) {
                   let labels = pr.labels.map(function (obj) {
                       return obj.name
