@@ -21,6 +21,7 @@ jobs:
           stale-issue-message: "This issue is stale because it has been open for 2 days with no activity."
           close-issue-message: "This issue was closed because it has been inactive for 3 days since being marked as stale."
           stale-pr-label: "stale"
+          exempt-issue-labels: "awaiting-feedback,question,WIP"
           days-before-pr-stale: 25
           days-before-pr-close: 30
           stale-pr-message: "This issue is stale because it has been open for 5 days with no activity."
