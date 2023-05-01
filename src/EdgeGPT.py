@@ -112,6 +112,7 @@ class ConversationStyle(Enum):
         "cachewriteext",
         "nodlcpcwrite",
         "travelansgnd",
+        "nojbfedge",
     ]
     balanced = [
         "nlu_direct_response_filter",
@@ -126,6 +127,7 @@ class ConversationStyle(Enum):
         "cachewriteext",
         "nodlcpcwrite",
         "travelansgnd",
+        "nojbfedge",
     ]
     precise = [
         "nlu_direct_response_filter",
@@ -142,6 +144,7 @@ class ConversationStyle(Enum):
         "travelansgnd",
         "h3precise",
         "clgalileo",
+        "nojbfedge",
     ]
 
 
@@ -189,6 +192,7 @@ class _ChatHubRequest:
         prompt: str,
         conversation_style: CONVERSATION_STYLE_TYPE,
         options: list | None = None,
+        webpage_context: str | None = None
     ) -> None:
         """
         Updates request object
@@ -256,6 +260,14 @@ class _ChatHubRequest:
             "target": "chat",
             "type": 4,
         }
+        if webpage_context:
+            self.struct["arguments"][0]["previousMessages"] = [{
+                "author": 'user',
+                "description": webpage_context,
+                "contextType": 'WebPage',
+                "messageType": 'Context',
+                "messageId": 'discover-web--page-ping-mriduna-----',
+            }]
         self.invocation_id += 1
 
 
@@ -342,6 +354,7 @@ class _ChatHub:
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
         options: dict = None,
+        webpage_context: str | None = None
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -361,6 +374,7 @@ class _ChatHub:
             prompt=prompt,
             conversation_style=conversation_style,
             options=options,
+            webpage_context=webpage_context
         )
         # Send request
         await self.wss.send(_append_identifier(self.request.struct))
@@ -465,6 +479,7 @@ class Chatbot:
         wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         options: dict = None,
+        webpage_context: str | None = None,
     ) -> dict:
         """
         Ask a question to the bot
@@ -475,6 +490,7 @@ class Chatbot:
             wss_link=wss_link,
             options=options,
             cookies=self.cookies,
+            webpage_context=webpage_context
         ):
             if final:
                 return response
@@ -488,6 +504,7 @@ class Chatbot:
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
         options: dict = None,
+        webpage_context: str | None = None,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -499,6 +516,7 @@ class Chatbot:
             raw=raw,
             options=options,
             cookies=self.cookies,
+            webpage_context=webpage_context
         ):
             yield response
 
