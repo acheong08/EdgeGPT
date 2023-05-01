@@ -78,8 +78,8 @@ jobs:
               const pr = context.payload.pull_request
               const tags = ['Admin-Approved', 'Change-Needed']
               const admins = github.rest.repos.listCollaborators({
-                  owner: 'acheong08',
-                  repo: 'EdgeGPT',
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
                   affiliation: 'direct',
                   role: 'admin',
               }).then(({ data }) => data.map(collaborator => collaborator.login));
