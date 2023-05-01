@@ -77,7 +77,7 @@ jobs:
               const review = context.payload.review
               const pr = context.payload.pull_request
               const tags = ['Admin-Approved', 'Change-Needed']
-              const admins = github.repos.listCollaborators({
+              const admins = github.rest.repos.listCollaborators({
                   owner: 'acheong08',
                   repo: 'EdgeGPT',
                   affiliation: 'direct',
