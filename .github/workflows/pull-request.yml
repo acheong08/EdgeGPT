@@ -77,7 +77,7 @@ jobs:
               const review = context.payload.review
               const pr = context.payload.pull_request
               const tags = ['Admin-Approved', 'Change-Needed']
-              const Reviewers = ['${{ github.repository_owner }}', 'coolplaylinbot']
+              const Reviewers = ['${{ github.repository_owner }}']
               function Labeler(state) {
                   let labels = pr.labels.map(function (obj) {
                       return obj.name
@@ -120,7 +120,7 @@ jobs:
                           throw error
                   }
               }
-              if (Reviewers.includes(review.user)) {
+              if (Reviewers.includes(review.user.login)) {
                   Labeler(review.state)
               } else {
                   console.log(`${review.user} does not have permission to approve this pr and will not run`)
