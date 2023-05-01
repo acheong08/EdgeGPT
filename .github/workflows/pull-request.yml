@@ -121,6 +121,7 @@ jobs:
                   }
               }
               if (Reviewers.includes(review.user.login)) {
+                  console.log(review.state)
                   Labeler(review.state)
               } else {
                   console.log(`${review.user} does not have permission to approve this pr and will not run`)
