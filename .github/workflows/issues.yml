@@ -1,6 +1,11 @@
 name: Auto Label Issues
 
 on:
+  workflow_dispatch:
+    inputs:
+      number:
+        description: 'Type a issue number to label it'     
+        required: true
   issues:
     types: [opened, edited, reopened]
 
@@ -18,14 +23,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
           script: |
-            const issue = context.payload.issue
+            if ("${{ github.event_name }}" == "workflow_dispatch"){
+             var number = Number("${{ github.event.inputs.number }}")
+            } else {
+              var number = context.payload.issue.number
+            }
             // remove All of the labels
             github.rest.issues.removeAllLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issue.number,
+              issue_number: number,
             });
-      - name: Add new labels
+      - name: Add new labels (Automated)
+        if: github.event_name != 'workflow_dispatch'
         uses: actions/github-script@v6.4.1
         with:
           script: |
@@ -71,6 +81,58 @@ jobs:
               labels: labelsToAdd
             })
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add new labels (Manually)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v6.4.1
+        with:
+          script: |
+            function Labeler(issue) {
+              const labelsToAdd = []
+              const labelConditions = [
+              {label: 'bug', keywords: ['Bug', 'bug', 'error', 'Error']},
+              {label: 'vulnerability', keywords: ['vulnerability', 'Vulnerability', 'leak', 'Leak']},
+              {label: 'enhancement', keywords: ['suggestion', 'enhancement', 'feature request', 'Feature request', 'Feature Request']},
+              {label: 'documentation', keywords: ['docs', 'documentation', 'Wiki', 'wiki']},
+              {label: 'help wanted', keywords: ['help wanted']},
+              {label: 'question', keywords: ['question', 'Question', 'Why', 'why', 'How', 'how']},
+              {label: 'authentication', keywords: ['auth', 'Auth', 'token', 'Token', 'TOKEN', 'config', 'Config', 'CONFIG', 'Unauthorized', 'unauthorized', '401', '403', '502', '503', 'forbidden', 'Forbidden', 'Access', 'access', 'block', 'Block']},
+              {label: 'network', keywords: ['bing.com', 'ssl', 'SSL', 'HTTPS', 'Connection', 'connection', 'proxy', 'Proxy', 'PROXY', 'VPN']},
+              {label: 'CLI', keywords: ['command program', 'Command Program', 'CLI', 'keybindings', 'Keybindings']},
+              ]
+              // Add tags based on conditions
+              for (const {label, keywords} of labelConditions) {
+                  for (const keyword of keywords) {
+                      if (issue.title.includes(keyword)) {
+                          labelsToAdd.push(label)
+                          break
+                      }
+                  }
+              }
+          
+              if (labelsToAdd.length == 0) {
+                  labelsToAdd.push('triage-needed')
+              }
+          
+              console.log("All of tags:", labelsToAdd)
+          
+              // Add tags
+              github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: labelsToAdd
+              })
+            }
+            
+            github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: Number(${{ github.event.inputs.number }}),
+            }).then(res => {
+                Labeler(res.data)
+            }).catch(error => {
+                console.error(error);
+            });
   assignees:
     runs-on: ubuntu-latest
     if: github.event.sender.login != github.repository_owner && github.event.action == 'opened'
