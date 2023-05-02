@@ -192,7 +192,7 @@ class _ChatHubRequest:
         prompt: str,
         conversation_style: CONVERSATION_STYLE_TYPE,
         options: list | None = None,
-        webpage_context: str | None = None
+        webpage_context: str | None = None,
     ) -> None:
         """
         Updates request object
@@ -261,13 +261,15 @@ class _ChatHubRequest:
             "type": 4,
         }
         if webpage_context:
-            self.struct["arguments"][0]["previousMessages"] = [{
-                "author": 'user',
-                "description": webpage_context,
-                "contextType": 'WebPage',
-                "messageType": 'Context',
-                "messageId": 'discover-web--page-ping-mriduna-----',
-            }]
+            self.struct["arguments"][0]["previousMessages"] = [
+                {
+                    "author": "user",
+                    "description": webpage_context,
+                    "contextType": "WebPage",
+                    "messageType": "Context",
+                    "messageId": "discover-web--page-ping-mriduna-----",
+                }
+            ]
         self.invocation_id += 1
 
 
@@ -276,12 +278,68 @@ class _Conversation:
     Conversation API
     """
 
+    def __init__(
+        self,
+        cookies: dict | None = None,
+        proxy: str | None = None,
+        async_mode: bool = False,
+    ) -> None:
+        if async_mode:
+            return
+        self.struct: dict = {
+            "conversationId": None,
+            "clientId": None,
+            "conversationSignature": None,
+            "result": {"value": "Success", "message": None},
+        }
+        self.proxy = proxy
+        proxy = (
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
+        )
+        if proxy is not None and proxy.startswith("socks5h://"):
+            proxy = "socks5://" + proxy[len("socks5h://") :]
+        self.session = httpx.Client(
+            proxies=proxy,
+            timeout=30,
+            headers=HEADERS_INIT_CONVER,
+        )
+        for cookie in cookies:
+            self.session.cookies.set(cookie["name"], cookie["value"])
+
+        # Send GET request
+        response = self.session.get(
+            url=os.environ.get("BING_PROXY_URL")
+            or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
+        )
+        if response.status_code != 200:
+            response = self.session.get(
+                "https://edge.churchless.tech/edgesvc/turing/conversation/create",
+            )
+        if response.status_code != 200:
+            print(f"Status code: {response.status_code}")
+            print(response.text)
+            print(response.url)
+            raise Exception("Authentication failed")
+        try:
+            self.struct = response.json()
+        except (json.decoder.JSONDecodeError, NotAllowedToAccess) as exc:
+            raise Exception(
+                "Authentication failed. You have not been accepted into the beta.",
+            ) from exc
+        if self.struct["result"]["value"] == "UnauthorizedRequest":
+            raise NotAllowedToAccess(self.struct["result"]["message"])
+
     @staticmethod
     async def create(
         cookies: dict,
         proxy: str | None = None,
     ) -> None:
-        self = _Conversation()
+        self = _Conversation(async_mode=True)
         self.struct = {
             "conversationId": None,
             "clientId": None,
@@ -309,7 +367,7 @@ class _Conversation:
 
             # Send GET request
             response = await client.get(
-                url = os.environ.get("BING_PROXY_URL")
+                url=os.environ.get("BING_PROXY_URL")
                 or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
             )
             if response.status_code != 200:
@@ -356,7 +414,7 @@ class _ChatHub:
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
         options: dict = None,
-        webpage_context: str | None = None
+        webpage_context: str | None = None,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -382,24 +440,22 @@ class _ChatHub:
         else:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    'https://sydney.bing.com/sydney/UpdateConversation/',
+                    "https://sydney.bing.com/sydney/UpdateConversation/",
                     json={
                         "messages": [
                             {
                                 "author": "user",
                                 "description": webpage_context,
                                 "contextType": "WebPage",
-                                "messageType": "Context"
+                                "messageType": "Context",
                             }
                         ],
                         "conversationId": self.request.conversation_id,
                         "source": "cib",
                         "traceId": _get_ran_hex(32),
-                        "participant": {
-                            "id": self.request.client_id
-                        },
-                        "conversationSignature": self.request.conversation_signature
-                    }
+                        "participant": {"id": self.request.client_id},
+                        "conversationSignature": self.request.conversation_signature,
+                    },
                 )
             if response.status_code != 200:
                 print(f"Status code: {response.status_code}")
@@ -416,8 +472,8 @@ class _ChatHub:
         await self.wss.send(_append_identifier(self.request.struct))
         final = False
         draw = False
-        resp_txt = ''
-        resp_txt_no_link = ''
+        resp_txt = ""
+        resp_txt_no_link = ""
         while not final:
             objects = str(await self.wss.recv()).split(DELIMITER)
             for obj in objects:
@@ -431,11 +487,16 @@ class _ChatHub:
                 ):
                     try:
                         if not draw:
-                            if response["arguments"][0]["messages"][0]["contentOrigin"] != "Apology":
+                            if (
+                                response["arguments"][0]["messages"][0]["contentOrigin"]
+                                != "Apology"
+                            ):
                                 resp_txt = response["arguments"][0]["messages"][0][
                                     "adaptiveCards"
-                                ][0]["body"][0].get("text", '')
-                                resp_txt_no_link = response["arguments"][0]["messages"][0].get("text", '')
+                                ][0]["body"][0].get("text", "")
+                                resp_txt_no_link = response["arguments"][0]["messages"][
+                                    0
+                                ].get("text", "")
                         yield False, resp_txt
                     except Exception as exc:
                         print(exc)
@@ -470,10 +531,17 @@ class _ChatHub:
                         response["item"]["messages"][1]["adaptiveCards"][0]["body"][0][
                             "text"
                         ] = (cache + resp_txt)
-                    if response["item"]["messages"][-1]["contentOrigin"] == "Apology" and resp_txt:
+                    if (
+                        response["item"]["messages"][-1]["contentOrigin"] == "Apology"
+                        and resp_txt
+                    ):
                         response["item"]["messages"][-1]["text"] = resp_txt_no_link
-                        response["item"]["messages"][-1]["adaptiveCards"][0]["body"][0]["text"] = resp_txt
-                        print(f"Preserved the message from being deleted", file=sys.stderr)
+                        response["item"]["messages"][-1]["adaptiveCards"][0]["body"][0][
+                            "text"
+                        ] = resp_txt
+                        print(
+                            f"Preserved the message from being deleted", file=sys.stderr
+                        )
                     final = True
                     yield True, response
 
@@ -534,7 +602,7 @@ class Chatbot:
             wss_link=wss_link,
             options=options,
             cookies=self.cookies,
-            webpage_context=webpage_context
+            webpage_context=webpage_context,
         ):
             if final:
                 return response
@@ -560,7 +628,7 @@ class Chatbot:
             raw=raw,
             options=options,
             cookies=self.cookies,
-            webpage_context=webpage_context
+            webpage_context=webpage_context,
         ):
             yield response
 
