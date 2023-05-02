@@ -264,12 +264,13 @@ class _Conversation:
     Conversation API
     """
 
-    def __init__(
-        self,
+    @staticmethod
+    async def create(
         cookies: dict,
         proxy: str | None = None,
     ) -> None:
-        self.struct: dict = {
+        self = _Conversation()
+        self.struct = {
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
@@ -286,23 +287,23 @@ class _Conversation:
         )
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
-        self.session = httpx.Client(
+        async with httpx.AsyncClient(
             proxies=proxy,
             timeout=30,
             headers=HEADERS_INIT_CONVER,
-        )
-        for cookie in cookies:
-            self.session.cookies.set(cookie["name"], cookie["value"])
+        ) as client:
+            for cookie in cookies:
+                client.cookies.set(cookie["name"], cookie["value"])
 
-        # Send GET request
-        response = self.session.get(
-            url=os.environ.get("BING_PROXY_URL")
-            or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
-        )
-        if response.status_code != 200:
-            response = self.session.get(
-                "https://edge.churchless.tech/edgesvc/turing/conversation/create",
+            # Send GET request
+            response = await client.get(
+                url = os.environ.get("BING_PROXY_URL")
+                or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
             )
+            if response.status_code != 200:
+                response = await client.get(
+                    "https://edge.churchless.tech/edgesvc/turing/conversation/create",
+                )
         if response.status_code != 200:
             print(f"Status code: {response.status_code}")
             print(response.text)
@@ -316,6 +317,7 @@ class _Conversation:
             ) from exc
         if self.struct["result"]["value"] == "UnauthorizedRequest":
             raise NotAllowedToAccess(self.struct["result"]["message"])
+        return self
 
 
 class _ChatHub:
@@ -438,12 +440,13 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
-    def __init__(
-        self,
+    @staticmethod
+    async def create(
         cookies: dict = None,
         proxy: str | None = None,
         cookie_path: str = None,
-    ) -> None:
+    ):
+        self = Chatbot()
         if cookies is None:
             cookies = {}
         if cookie_path is not None:
@@ -454,10 +457,11 @@ class Chatbot:
                 raise FileNotFoundError("Cookie file not found") from exc
         else:
             self.cookies = cookies
-        self.proxy: str | None = proxy
-        self.chat_hub: _ChatHub = _ChatHub(
-            _Conversation(self.cookies, self.proxy),
+        self.proxy = proxy
+        self.chat_hub = _ChatHub(
+            await _Conversation.create(self.cookies, self.proxy),
         )
+        return self
 
     async def ask(
         self,
@@ -513,7 +517,7 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = _ChatHub(_Conversation(self.cookies))
+        self.chat_hub = _ChatHub(await _Conversation.create(self.cookies))
 
 
 async def _get_input_async(
@@ -560,7 +564,7 @@ async def async_main(args: argparse.Namespace) -> None:
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = Chatbot(proxy=args.proxy, cookies=args.cookies)
+    bot = await Chatbot.create(proxy=args.proxy, cookies=args.cookies)
     session = _create_session()
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
