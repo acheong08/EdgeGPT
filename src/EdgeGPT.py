@@ -589,7 +589,7 @@ class Chatbot:
         proxy: str | None = None,
         cookie_path: str = None,
     ):
-        self = Chatbot()
+        self = Chatbot.__new__(Chatbot)
         if cookies is None:
             cookies = {}
         if cookie_path is not None:
