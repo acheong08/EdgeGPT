@@ -562,6 +562,27 @@ class Chatbot:
     Combines everything to make it seamless
     """
 
+    def __init__(
+        self,
+        cookies: dict = None,
+        proxy: str | None = None,
+        cookie_path: str = None,
+    ) -> None:
+        if cookies is None:
+            cookies = {}
+        if cookie_path is not None:
+            try:
+                with open(cookie_path, encoding="utf-8") as f:
+                    self.cookies = json.load(f)
+            except FileNotFoundError as exc:
+                raise FileNotFoundError("Cookie file not found") from exc
+        else:
+            self.cookies = cookies
+        self.proxy: str | None = proxy
+        self.chat_hub: _ChatHub = _ChatHub(
+            _Conversation(self.cookies, self.proxy),
+        )
+
     @staticmethod
     async def create(
         cookies: dict = None,
