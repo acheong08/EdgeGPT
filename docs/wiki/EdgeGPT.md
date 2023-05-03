@@ -20,7 +20,9 @@ Combines everything to make it seamless
 async def ask(prompt: str,
               wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
               conversation_style: CONVERSATION_STYLE_TYPE = None,
-              options: dict = None) -> dict
+              options: dict = None,
+              webpage_context: str | None = None,
+              search_result: str = False) -> dict
 ```
 
 Ask a question to the bot
@@ -34,7 +36,9 @@ async def ask_stream(prompt: str,
                      wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
                      conversation_style: CONVERSATION_STYLE_TYPE = None,
                      raw: bool = False,
-                     options: dict = None) -> Generator[str, None, None]
+                     options: dict = None,
+                     webpage_context: str | None = None,
+                     search_result: str = False) -> Generator[str, None, None]
 ```
 
 Ask a question to the bot
