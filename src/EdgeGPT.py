@@ -193,7 +193,7 @@ class _ChatHubRequest:
         conversation_style: CONVERSATION_STYLE_TYPE,
         options: list | None = None,
         webpage_context: str | None = None,
-        search_result: bool = False 
+        search_result: bool = False
     ) -> None:
         """
         Updates request object
@@ -342,7 +342,7 @@ class _Conversation:
     async def create(
         cookies: dict,
         proxy: str | None = None,
-    ) -> None:
+    ) -> _Conversation:
         self = _Conversation(async_mode=True)
         self.struct = {
             "conversationId": None,
@@ -644,7 +644,7 @@ class Chatbot:
             if final:
                 return response
         await self.chat_hub.wss.close()
-        return None
+        return {}
 
     async def ask_stream(
         self,
@@ -654,7 +654,7 @@ class Chatbot:
         raw: bool = False,
         options: dict = None,
         webpage_context: str | None = None,
-        search_result: str = False
+        search_result: bool = False
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
