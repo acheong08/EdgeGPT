@@ -6,8 +6,10 @@
 _The reverse engineering the chat feature of the new version of Bing_
 
 <a>English</a> -
-<a href="./README_zh.md">中文</a> -
-<a href="./README_es.md">Español</a>
+<a href="./README_zh-cn.md">简体中文</a> -
+<a href="./README_zh-tw.md">繁體中文 (中國臺灣)</a> -
+<a href="./README_es.md">Español</a> -
+<a href="./README_ja.md">日本語</a>
 
 </div>
 
@@ -107,15 +109,31 @@ options:
 
 ---
 
+## Running with Docker
+
+This assumes you have a file cookies.json in your current working directory
+
+``` bash
+
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt
+```
+
+You can add any extra flags as following
+
+``` bash
+
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt --rich --style creative
+```
+
 ### Developer demo
 
 Three ways to pass in cookies:
 
 - Environment variable: `export COOKIE_FILE=/path/to/cookies.json`.
-- Specify the path to `cookies.json` in the argument `cookiePath` like this:
+- Specify the path to `cookies.json` in the argument `cookie_path` like this:
 
   ```python
-  bot = Chatbot(cookiePath='./cookies.json')
+  bot = await Chatbot.create(cookie_path='./cookies.json')
   ```
 
 - Pass in the cookies directly by the argument `cookies`, like this:
@@ -123,7 +141,7 @@ Three ways to pass in cookies:
   ```python
   with open('./cookies.json', 'r') as f:
       cookies = json.load(f)
-  bot = Chatbot(cookies=cookies)
+  bot = await Chatbot.create(cookies=cookies)
   ```
 
 Use Async for the best experience
@@ -135,7 +153,7 @@ import asyncio
 from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
-    bot = Chatbot()
+    bot = await Chatbot.create()
     print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, wss_link="wss://sydney.bing.com/sydney/ChatHub"))
     await bot.close()
 
