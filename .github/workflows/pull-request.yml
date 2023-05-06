@@ -1,6 +1,8 @@
 name: Auto Label Issues
 
-on: [pull_request_target]
+on:
+  pull_request_target:
+    types: [opened, reopened, edited]
 
 permissions:
   pull-requests: write
