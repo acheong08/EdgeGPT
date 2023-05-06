@@ -1,6 +1,6 @@
 [
   {
-    "label": "bugfix",
+    "tag": "bugfix",
     "keywords": [
       "Bug",
       "bug",
@@ -13,11 +13,11 @@
     ]
   },
   {
-    "label": "vulnerability",
+    "tag": "vulnerability",
     "keywords": ["vulnerability", "Vulnerability", "leak", "Leak"]
   },
   {
-    "label": "enhancement",
+    "tag": "enhancement",
     "keywords": [
       "enhancement",
       "Enhancement",
@@ -28,11 +28,11 @@
     ]
   },
   {
-    "label": "documentation",
+    "tag": "documentation",
     "keywords": ["docs", "documentation", "Wiki", "wiki"]
   },
   {
-    "label": "authentication",
+    "tag": "authentication",
     "keywords": [
       "auth",
       "Auth",
@@ -57,7 +57,7 @@
     ]
   },
   {
-    "label": "network",
+    "tag": "network",
     "keywords": [
       "bing.com",
       "ssl",
@@ -72,7 +72,7 @@
     ]
   },
   {
-    "label": "CLI",
+    "tag": "CLI",
     "keywords": [
       "command program",
       "Command Program",
@@ -81,5 +81,5 @@
       "Keybindings"
     ]
   },
-  { "label": "API", "keywords": ["api", "API"] }
+  { "tag": "API", "keywords": ["api", "API"] }
 ]
