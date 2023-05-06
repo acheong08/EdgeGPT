@@ -40,7 +40,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         uses: CoolPlayLin/Tagger@0.0.1.1
         with:
-          path: ./tagger.json
+          path: ./.github/tagger.json
       - name: Add new labels (Manually)
         if: github.event_name == 'workflow_dispatch'
         uses: actions/github-script@v6.4.1
