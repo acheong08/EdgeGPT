@@ -492,12 +492,34 @@ class _ChatHub:
                 elif response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):
-                    try:
-                        if not draw:
-                            if (
-                                response["arguments"][0]["messages"][0]["contentOrigin"]
-                                != "Apology"
-                            ):
+                    if not draw:
+                        if(response["arguments"][0]["messages"][0].get("messageType") == "GenerateContentQuery"):
+                            for item in cookies:
+                                if item["name"] == "_U":
+                                    U = item["value"]
+                            async with ImageGenAsync(U, True) as image_generator:
+                                images = await image_generator.get_images(
+                                    response["arguments"][0]["messages"][0]["text"],
+                                )
+                            cache = resp_txt
+                            resp_txt = (
+                                cache
+                                + "\n![image0]("
+                                + images[0]
+                                + ")\n![image1]("
+                                + images[1]
+                                + ")\n![image0]("
+                                + images[2]
+                                + ")\n![image3]("
+                                + images[3]
+                                + ")"
+                            )
+                            draw = True
+                        if (
+                            response["arguments"][0]["messages"][0]["contentOrigin"]
+                            != "Apology"
+                        ):
+                            if not draw:
                                 resp_txt = result_text+response["arguments"][0]["messages"][0][
                                     "adaptiveCards"
                                 ][0]["body"][0].get("text", "")
@@ -506,37 +528,13 @@ class _ChatHub:
                                 ].get("text", "")
                                 if(response["arguments"][0]["messages"][0].get("messageType")):
                                     resp_txt = resp_txt+response["arguments"][0]["messages"][0][
-                                    "adaptiveCards"
+                                        "adaptiveCards"
                                     ][0]["body"][0]["inlines"][0].get("text")+"\n"
                                     result_text = result_text+response["arguments"][0]["messages"][0][
-                                    "adaptiveCards"
+                                        "adaptiveCards"
                                     ][0]["body"][0]["inlines"][0].get("text")+"\n"
                         yield False, resp_txt
-                    except Exception as exc:
-                        print(exc)
-                        if not draw:
-                            continue
-                        for item in cookies:
-                            if item["name"] == "_U":
-                                U = item["value"]
-                        async with ImageGenAsync(U, True) as image_generator:
-                            images = await image_generator.get_images(
-                                response["arguments"][0]["messages"][0]["text"],
-                            )
-                        cache = resp_txt
-                        resp_txt = (
-                            cache
-                            + "\n![image0]("
-                            + images[0]
-                            + ")\n![image1]("
-                            + images[1]
-                            + ")\n![image0]("
-                            + images[2]
-                            + ")\n![image3]("
-                            + images[3]
-                            + ")"
-                        )
-                        yield False, resp_txt
+                        
                 elif response.get("type") == 2:
                     if draw:
                         cache = response["item"]["messages"][1]["adaptiveCards"][0][
