@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       number:
-        description: 'Type a issue number to label it'     
+        description: 'Type a issue number to label it'
         required: true
   issues:
     types: [opened, edited, reopened]
@@ -68,13 +68,13 @@ jobs:
                       }
                   }
               }
-          
+
               if (labelsToAdd.length == 0) {
                   labelsToAdd.push('triage-needed')
               }
-          
+
               console.log("All of tags:", labelsToAdd)
-          
+
               // Add tags
               github.rest.issues.addLabels({
               owner: context.repo.owner,
@@ -83,7 +83,7 @@ jobs:
               labels: labelsToAdd
               })
             }
-            
+
             github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
