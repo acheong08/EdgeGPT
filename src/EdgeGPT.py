@@ -526,31 +526,30 @@ class _ChatHub:
                         if (
                             response["arguments"][0]["messages"][0]["contentOrigin"]
                             != "Apology"
-                        ):
-                            if not draw:
-                                resp_txt = result_text + response["arguments"][0][
-                                    "messages"
-                                ][0]["adaptiveCards"][0]["body"][0].get("text", "")
-                                resp_txt_no_link = result_text + response["arguments"][
-                                    0
-                                ]["messages"][0].get("text", "")
-                                if response["arguments"][0]["messages"][0].get(
-                                    "messageType"
-                                ):
-                                    resp_txt = (
-                                        resp_txt
-                                        + response["arguments"][0]["messages"][0][
-                                            "adaptiveCards"
-                                        ][0]["body"][0]["inlines"][0].get("text")
-                                        + "\n"
-                                    )
-                                    result_text = (
-                                        result_text
-                                        + response["arguments"][0]["messages"][0][
-                                            "adaptiveCards"
-                                        ][0]["body"][0]["inlines"][0].get("text")
-                                        + "\n"
-                                    )
+                        ) and not draw:
+                            resp_txt = result_text + response["arguments"][0][
+                                "messages"
+                            ][0]["adaptiveCards"][0]["body"][0].get("text", "")
+                            resp_txt_no_link = result_text + response["arguments"][0][
+                                "messages"
+                            ][0].get("text", "")
+                            if response["arguments"][0]["messages"][0].get(
+                                "messageType"
+                            ):
+                                resp_txt = (
+                                    resp_txt
+                                    + response["arguments"][0]["messages"][0][
+                                        "adaptiveCards"
+                                    ][0]["body"][0]["inlines"][0].get("text")
+                                    + "\n"
+                                )
+                                result_text = (
+                                    result_text
+                                    + response["arguments"][0]["messages"][0][
+                                        "adaptiveCards"
+                                    ][0]["body"][0]["inlines"][0].get("text")
+                                    + "\n"
+                                )
                         yield False, resp_txt
 
                 elif response.get("type") == 2:
@@ -570,8 +569,7 @@ class _ChatHub:
                             "text"
                         ] = resp_txt
                         print(
-                            f"Preserved the message from being deleted",
-                            file=sys.stderr,
+                            "Preserved the message from being deleted", file=sys.stderr
                         )
                     final = True
                     yield True, response
