@@ -24,7 +24,7 @@ _新必應的逆向工程_
 
 ## 設置
 
-### 安裝模塊
+### 安裝模組
 
 ```bash
 python3 -m pip install EdgeGPT --upgrade
@@ -58,10 +58,10 @@ python3 -m pip install EdgeGPT --upgrade
   </summary>
 
 - 安裝 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 擴展
-- 異步到 `bing.com`
-- 打開擴展程序
-- 點擊右下角的"導出" (將會把內容保存到你的剪貼板上)
-- 把你剪貼板上的內容粘貼到 `cookies.json` 文件中
+- 轉到 `bing.com`
+- 打開擴展程式
+- 點擊右下角的"匯出" (將會把內容保存到你的剪貼簿上)
+- 把你剪貼簿上的內容粘貼到 `cookies.json` 文件中
 
 </details>
 
@@ -110,7 +110,7 @@ options:
 
 傳入 cookie 的三種方式:
 
-- 設置環境變量: `export COOKIE_FILE=/path/to/cookies.json`.
+- 設置環境變數: `export COOKIE_FILE=/path/to/cookies.json`.
 - 像這樣把 `cookies.json`  的路徑傳入`cookie_path` 參數中:
 
   ```python
@@ -127,7 +127,7 @@ options:
 
 使用 aysnc 獲得最佳體驗
 
-更高級用法示例的參考代碼：
+更高級用法範例的參考代碼：
 
 ```python
 import asyncio

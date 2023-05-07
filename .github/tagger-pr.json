@@ -1,0 +1,85 @@
+[
+  {
+    "tag": "bugfix",
+    "keywords": [
+      "Bug",
+      "bug",
+      "error",
+      "Error",
+      "fix",
+      "Fix",
+      "repair",
+      "Repair"
+    ]
+  },
+  {
+    "tag": "vulnerability",
+    "keywords": ["vulnerability", "Vulnerability", "leak", "Leak"]
+  },
+  {
+    "tag": "enhancement",
+    "keywords": [
+      "enhancement",
+      "Enhancement",
+      "Add",
+      "add",
+      "improve",
+      "Improve"
+    ]
+  },
+  {
+    "tag": "documentation",
+    "keywords": ["docs", "documentation", "Wiki", "wiki"]
+  },
+  {
+    "tag": "authentication",
+    "keywords": [
+      "auth",
+      "Auth",
+      "token",
+      "Token",
+      "TOKEN",
+      "config",
+      "Config",
+      "CONFIG",
+      "Unauthorized",
+      "unauthorized",
+      "401",
+      "403",
+      "502",
+      "503",
+      "forbidden",
+      "Forbidden",
+      "Access",
+      "access",
+      "block",
+      "Block"
+    ]
+  },
+  {
+    "tag": "network",
+    "keywords": [
+      "bing.com",
+      "ssl",
+      "SSL",
+      "HTTPS",
+      "Connection",
+      "connection",
+      "proxy",
+      "Proxy",
+      "PROXY",
+      "VPN"
+    ]
+  },
+  {
+    "tag": "CLI",
+    "keywords": [
+      "command program",
+      "Command Program",
+      "CLI",
+      "keybindings",
+      "Keybindings"
+    ]
+  },
+  { "tag": "API", "keywords": ["api", "API"] }
+]

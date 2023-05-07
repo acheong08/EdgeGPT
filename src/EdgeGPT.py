@@ -193,7 +193,7 @@ class _ChatHubRequest:
         conversation_style: CONVERSATION_STYLE_TYPE,
         options: list | None = None,
         webpage_context: str | None = None,
-        search_result: bool = False
+        search_result: bool = False,
     ) -> None:
         """
         Updates request object
@@ -262,8 +262,13 @@ class _ChatHubRequest:
             "type": 4,
         }
         if search_result:
-            have_search_result = ["InternalSearchQuery","InternalSearchResult","InternalLoaderMessage","RenderCardRequest"]
-            self.struct["arguments"][0]["allowedMessageTypes"]+=have_search_result
+            have_search_result = [
+                "InternalSearchQuery",
+                "InternalSearchResult",
+                "InternalLoaderMessage",
+                "RenderCardRequest",
+            ]
+            self.struct["arguments"][0]["allowedMessageTypes"] += have_search_result
         if webpage_context:
             self.struct["arguments"][0]["previousMessages"] = [
                 {
@@ -272,7 +277,7 @@ class _ChatHubRequest:
                     "contextType": "WebPage",
                     "messageType": "Context",
                     "messageId": "discover-web--page-ping-mriduna-----",
-                }
+                },
             ]
         self.invocation_id += 1
 
@@ -419,7 +424,7 @@ class _ChatHub:
         raw: bool = False,
         options: dict = None,
         webpage_context: str | None = None,
-        search_result : bool = False
+        search_result: bool = False,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -441,7 +446,7 @@ class _ChatHub:
                 conversation_style=conversation_style,
                 options=options,
                 webpage_context=webpage_context,
-                search_result=search_result
+                search_result=search_result,
             )
         else:
             async with httpx.AsyncClient() as client:
@@ -454,7 +459,7 @@ class _ChatHub:
                                 "description": webpage_context,
                                 "contextType": "WebPage",
                                 "messageType": "Context",
-                            }
+                            },
                         ],
                         "conversationId": self.request.conversation_id,
                         "source": "cib",
@@ -492,51 +497,62 @@ class _ChatHub:
                 elif response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):
-                    try:
-                        if not draw:
-                            if (
-                                response["arguments"][0]["messages"][0]["contentOrigin"]
-                                != "Apology"
-                            ):
-                                resp_txt = result_text+response["arguments"][0]["messages"][0][
-                                    "adaptiveCards"
-                                ][0]["body"][0].get("text", "")
-                                resp_txt_no_link = result_text+response["arguments"][0]["messages"][
-                                    0
-                                ].get("text", "")
-                                if(response["arguments"][0]["messages"][0].get("messageType")):
-                                    resp_txt = resp_txt+response["arguments"][0]["messages"][0][
-                                    "adaptiveCards"
-                                    ][0]["body"][0]["inlines"][0].get("text")+"\n"
-                                    result_text = result_text+response["arguments"][0]["messages"][0][
-                                    "adaptiveCards"
-                                    ][0]["body"][0]["inlines"][0].get("text")+"\n"
-                        yield False, resp_txt
-                    except Exception as exc:
-                        print(exc)
-                        if not draw:
-                            continue
-                        for item in cookies:
-                            if item["name"] == "_U":
-                                U = item["value"]
-                        async with ImageGenAsync(U, True) as image_generator:
-                            images = await image_generator.get_images(
-                                response["arguments"][0]["messages"][0]["text"],
+                    if not draw:
+                        if (
+                            response["arguments"][0]["messages"][0].get("messageType")
+                            == "GenerateContentQuery"
+                        ):
+                            for item in cookies:
+                                if item["name"] == "_U":
+                                    U = item["value"]
+                            async with ImageGenAsync(U, True) as image_generator:
+                                images = await image_generator.get_images(
+                                    response["arguments"][0]["messages"][0]["text"],
+                                )
+                            cache = resp_txt
+                            resp_txt = (
+                                cache
+                                + "\n![image0]("
+                                + images[0]
+                                + ")\n![image1]("
+                                + images[1]
+                                + ")\n![image0]("
+                                + images[2]
+                                + ")\n![image3]("
+                                + images[3]
+                                + ")"
                             )
-                        cache = resp_txt
-                        resp_txt = (
-                            cache
-                            + "\n![image0]("
-                            + images[0]
-                            + ")\n![image1]("
-                            + images[1]
-                            + ")\n![image0]("
-                            + images[2]
-                            + ")\n![image3]("
-                            + images[3]
-                            + ")"
-                        )
+                            draw = True
+                        if (
+                            response["arguments"][0]["messages"][0]["contentOrigin"]
+                            != "Apology"
+                        ):
+                            if not draw:
+                                resp_txt = result_text + response["arguments"][0][
+                                    "messages"
+                                ][0]["adaptiveCards"][0]["body"][0].get("text", "")
+                                resp_txt_no_link = result_text + response["arguments"][
+                                    0
+                                ]["messages"][0].get("text", "")
+                                if response["arguments"][0]["messages"][0].get(
+                                    "messageType"
+                                ):
+                                    resp_txt = (
+                                        resp_txt
+                                        + response["arguments"][0]["messages"][0][
+                                            "adaptiveCards"
+                                        ][0]["body"][0]["inlines"][0].get("text")
+                                        + "\n"
+                                    )
+                                    result_text = (
+                                        result_text
+                                        + response["arguments"][0]["messages"][0][
+                                            "adaptiveCards"
+                                        ][0]["body"][0]["inlines"][0].get("text")
+                                        + "\n"
+                                    )
                         yield False, resp_txt
+
                 elif response.get("type") == 2:
                     if draw:
                         cache = response["item"]["messages"][1]["adaptiveCards"][0][
@@ -554,7 +570,8 @@ class _ChatHub:
                             "text"
                         ] = resp_txt
                         print(
-                            f"Preserved the message from being deleted", file=sys.stderr
+                            f"Preserved the message from being deleted",
+                            file=sys.stderr,
                         )
                     final = True
                     yield True, response
@@ -627,7 +644,7 @@ class Chatbot:
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         options: dict = None,
         webpage_context: str | None = None,
-        search_result: bool = False
+        search_result: bool = False,
     ) -> dict:
         """
         Ask a question to the bot
@@ -639,7 +656,7 @@ class Chatbot:
             options=options,
             cookies=self.cookies,
             webpage_context=webpage_context,
-            search_result=search_result
+            search_result=search_result,
         ):
             if final:
                 return response
@@ -654,7 +671,7 @@ class Chatbot:
         raw: bool = False,
         options: dict = None,
         webpage_context: str | None = None,
-        search_result: bool = False
+        search_result: bool = False,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -667,7 +684,7 @@ class Chatbot:
             options=options,
             cookies=self.cookies,
             webpage_context=webpage_context,
-            search_result=search_result
+            search_result=search_result,
         ):
             yield response
 
