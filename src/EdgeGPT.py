@@ -536,7 +536,7 @@ class _ChatHub:
                                 "messages"
                             ][0].get("text", "")
                             if response["arguments"][0]["messages"][0].get(
-                                "messageType"
+                                "messageType",
                             ):
                                 resp_txt = (
                                     resp_txt
@@ -571,7 +571,8 @@ class _ChatHub:
                             "text"
                         ] = resp_txt
                         print(
-                            "Preserved the message from being deleted", file=sys.stderr
+                            "Preserved the message from being deleted",
+                            file=sys.stderr,
                         )
                     final = True
                     yield True, response
