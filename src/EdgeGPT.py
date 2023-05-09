@@ -366,10 +366,12 @@ class _Conversation:
         )
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
+        transport = httpx.AsyncHTTPTransport(retries=10)
         async with httpx.AsyncClient(
             proxies=proxy,
             timeout=30,
             headers=HEADERS_INIT_CONVER,
+            transport=transport,
         ) as client:
             for cookie in cookies:
                 client.cookies.set(cookie["name"], cookie["value"])
