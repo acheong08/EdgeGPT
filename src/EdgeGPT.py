@@ -511,19 +511,8 @@ class _ChatHub:
                                 images = await image_generator.get_images(
                                     response["arguments"][0]["messages"][0]["text"],
                                 )
-                            cache = resp_txt
-                            resp_txt = (
-                                cache
-                                + "\n![image0]("
-                                + images[0]
-                                + ")\n![image1]("
-                                + images[1]
-                                + ")\n![image0]("
-                                + images[2]
-                                + ")\n![image3]("
-                                + images[3]
-                                + ")"
-                            )
+                            for i, image in enumerate(images):
+                                resp_txt = resp_txt + f"\n![image{i}]({image})"
                             draw = True
                         if (
                             response["arguments"][0]["messages"][0]["contentOrigin"]
