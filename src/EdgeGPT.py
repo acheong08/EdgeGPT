@@ -874,5 +874,108 @@ def main() -> None:
     asyncio.run(async_main(args))
 
 
+COOKIES_PATH = './cookies.json'
+OUTPUT_PATH = "./"
+
+class Query:
+    """A Bing Chat query which encapsulates input, config, and output all together"""
+    index = []
+
+    def __init__(
+        self,
+        prompt,
+        style="precise",
+        cookies=None,
+        output_path=None,
+        echo=True,
+        echo_prompt=False,
+    ):
+        self.prompt = prompt
+        if cookies is None:
+            self.cookies_path = COOKIES_PATH
+        if output_path is None:
+            self.output_path = OUTPUT_PATH
+        with open(self.cookies_path, encoding="utf-8") as file:
+            self.cookies = json.load(file)
+        self.token = [x for x in self.cookies if x.get("name") == "_U"]
+        self.token = self.token[0].get("value")
+        self.__class__.index += [self]
+        self.style = style
+        self.response = asyncio.run(self.send_to_bing(prompt, style, echo, echo_prompt))
+
+    async def send_to_bing(self, prompt, style="precise", echo=True, echo_prompt=False):
+        """Creat, submit, then close a Chatbot instance.  Return the response"""
+        bot = await Chatbot.create(cookies=self.cookies)
+        if echo_prompt:
+            print(f"{prompt=}")
+        if echo:
+            print("Waiting for response...")
+        if style.lower() not in "creative balanced precise".split():
+            style = "precise"
+        response = await bot.ask(
+            prompt=prompt,
+            conversation_style=getattr(ConversationStyle, style),
+            # wss_link="wss://sydney.bing.com/sydney/ChatHub"
+            # What other values can this parameter take? It seems to be optional
+            )
+        await bot.close()
+        return response
+
+    @property
+    def output(self):
+        """The response from a completed Chatbot request"""
+        return self.response['item']['messages'][1]['text']
+
+    @property
+    def sources(self):
+        """The source names and details parsed from a completed Chatbot request"""
+        return self.response['item']['messages'][1]['sourceAttributions']
+
+    @property
+    def sources_dict(self):
+        """The source names and details as a dictionary"""
+        sources_dict = {}
+        name = 'providerDisplayName'
+        url = 'seeMoreUrl'
+        for source in self.sources:
+            if name in source.keys() and url in source.keys():
+                sources_dict[source[name]] = source[url]
+            else:
+                continue
+        return sources_dict
+
+    @property
+    def python(self):
+        """Extract and join any snippets of Python code in the response"""
+        codeblocks = self.output.split("```python\n")
+        codeblocks = [x.split("```")[0] for x in codeblocks if "```" in x]
+        return "\n".join(codeblocks)
+
+    @property
+    def suggestions(self):
+        """Follow-on questions suggested by the Chatbot"""
+        return [x['text'] for x in self.response['item']['messages'][1]['suggestedResponses']]
+
+    def __repr__(self):
+        return f"<Chatbot.Query: {self.prompt}>"
+
+    def __str__(self):
+        return self.output
+
+def demo():
+    q = Query("give an example of a nested list comprehension in Python and explain how to construct it in a memorable way")
+    print(f"{q=}")
+    print(f"{q.prompt=}")
+    print(f"{q.cookies=}")
+    print(f"{q.token=}")
+    print(f"{q.style=}")
+    print(f"{q.output=}")
+    print(f"{str(q)=}")
+    print(f"{q.python=}")
+    print(f"{q.sources=}")
+    print(f"{q.sources_dict=}")
+    print(f"{q.suggestions=}")
+    print(f"{q.index=}")  # Keeps an index of other Query objects created
+
 if __name__ == "__main__":
     main()
