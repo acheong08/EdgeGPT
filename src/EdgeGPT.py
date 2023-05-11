@@ -689,7 +689,9 @@ class Chatbot:
         Reset the conversation
         """
         await self.close()
-        self.chat_hub = _ChatHub(await _Conversation.create(self.cookies))
+        self.chat_hub = _ChatHub(
+            await _Conversation.create(self.cookies, self.proxy),
+        )
 
 
 async def _get_input_async(
