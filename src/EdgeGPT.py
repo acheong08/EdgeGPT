@@ -544,6 +544,8 @@ class _ChatHub:
                         yield False, resp_txt
 
                 elif response.get("type") == 2:
+                    if response["item"]["result"].get("error"):
+                        raise Exception(f"{response['item']['result']['value']}: {response['item']['result']['message']}")
                     if draw:
                         cache = response["item"]["messages"][1]["adaptiveCards"][0][
                             "body"
