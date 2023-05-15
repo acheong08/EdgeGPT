@@ -60,7 +60,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 Instead of following steps 5-9 you can also use the following experimental helper function which has been tested on Windows 11 and requires `Selenium` and the latest version of Microsoft Edge:
 
-```
+```python
 pip install selenium
 ```
 ```
