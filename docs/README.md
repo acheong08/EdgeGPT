@@ -269,7 +269,7 @@ q=ImageQuery("Meerkats at a garden party in Devon")
 ```
 Change the download directory for all future images in this session:
 
-```
+```python
 Query.image_dirpath = Path("./to_another_folder")
 ```
 
