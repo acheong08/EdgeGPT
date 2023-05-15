@@ -11,6 +11,7 @@ import random
 import re
 import ssl
 import sys
+import time
 import uuid
 from enum import Enum
 from pathlib import Path
@@ -873,53 +874,166 @@ def main() -> None:
 
     asyncio.run(async_main(args))
 
+class Cookie:
+    """
+    Convenience class for Bing Cookie files, data, and configuration. This Class
+    is updated dynamically by the Query class to allow cycling through >1
+    cookie/credentials file e.g. when daily request limits (current 200 per
+    account per day) are exceeded.
+    """
+    current_file_index = 0
+    dirpath = Path('./').resolve()
+    search_pattern = 'bing_cookies_*.json'
+    ignore_files = set()
 
-COOKIES_PATH = './cookies.json'
-OUTPUT_PATH = "./"
+    @classmethod
+    def fetch_default(cls, path=None):
+        from selenium import webdriver
+        from selenium.webdriver.common.by import By
+        driver = webdriver.Edge()
+        driver.get('https://bing.com/chat')
+        time.sleep(5)
+        xpath = '//button[@id="bnp_btn_accept"]'
+        driver.find_element(By.XPATH, xpath).click()
+        time.sleep(2)
+        xpath = '//a[@id="codexPrimaryButton"]'
+        driver.find_element(By.XPATH, xpath).click()
+        if path is None:
+            path = Path("./bing_cookies__default.json")
+            # Double underscore ensures this file is first when sorted
+        cookies = driver.get_cookies()
+        Path(path).write_text(json.dumps(cookies, indent=4))
+        # Path again in case supplied path is: str
+        print(f"Cookies saved to: {path}")
+        driver.quit()
+
+    @classmethod
+    def files(cls):
+        """Return a sorted list of all cookie files matching .search_pattern"""
+        all_files = set(cls.dirpath.glob(cls.search_pattern))
+        return sorted(list(all_files - cls.ignore_files))
+
+    @classmethod
+    def import_data(cls):
+        """
+        Read the active cookie file and populate the following attributes:
+
+          .current_filepath
+          .current_data
+          .image_token
+        """
+        cls.current_filepath = cls.files()[cls.current_file_index]
+        print(f"> Importing cookies from: {cls.current_filepath.name}")
+        with open(cls.current_filepath, encoding="utf-8") as file:
+            cls.current_data = json.load(file)
+        cls.image_token = [x for x in cls.current_data if x.get("name") == "_U"]
+        cls.image_token = cls.image_token[0].get("value")
+
+    @classmethod
+    def import_next(cls):
+        """
+        Cycle through to the next cookies file.  Import it.  Mark the previous
+        file to be ignored for the remainder of the current session.
+        """
+        cls.ignore_files.add(cls.current_filepath)
+        if Cookie.current_file_index >= len(cls.files()):
+            Cookie.current_file_index = 0
+        Cookie.import_data()
 
 class Query:
-    """A Bing Chat query which encapsulates input, config, and output all together"""
+    """
+    A convenience class that wraps around EdgeGPT.Chatbot to encapsulate input,
+    config, and output all together.  Relies on Cookie class for authentication
+    """
     index = []
+    request_count = {}
+    image_dirpath = Path('./').resolve()
+    Cookie.import_data()
 
     def __init__(
         self,
         prompt,
         style="precise",
-        cookies=None,
-        output_path=None,
+        content_type="text",
+        cookie_file=0,
         echo=True,
         echo_prompt=False,
     ):
-        self.prompt = prompt
-        if cookies is None:
-            self.cookies_path = COOKIES_PATH
-        if output_path is None:
-            self.output_path = OUTPUT_PATH
-        with open(self.cookies_path, encoding="utf-8") as file:
-            self.cookies = json.load(file)
-        self.token = [x for x in self.cookies if x.get("name") == "_U"]
-        self.token = self.token[0].get("value")
-        self.__class__.index += [self]
-        self.style = style
-        self.response = asyncio.run(self.send_to_bing(prompt, style, echo, echo_prompt))
+        """
+        Arguments:
 
-    async def send_to_bing(self, prompt, style="precise", echo=True, echo_prompt=False):
+        prompt: Text to enter into Bing Chat
+        style: creative, balanced, or precise
+        content_type: "text" for Bing Chat; "image" for Dall-e
+        cookie_file: Path, filepath string, or index (int) to list of cookie paths
+        echo: Print something to confirm request made
+        echo_prompt: Print confirmation of the evaluated prompt
+        """
+        self.__class__.index += [self]
+        self.prompt = prompt
+        files = Cookie.files()
+        if isinstance(cookie_file, int):
+            index = cookie_file if cookie_file < len(files) else 0
+        else:
+            if not isinstance(cookie_file, (str, Path)):
+                message = "'cookie_file' must be an int, str, or Path object"
+                raise TypeError(message)
+            cookie_file = Path(cookie_file)
+            if cookie_file in files():  # Supplied filepath IS in Cookie.dirpath
+                index = files.index(cookie_file)
+            else:  # Supplied filepath is NOT in Cookie.dirpath
+                if cookie_file.is_file():
+                    Cookie.dirpath = cookie_file.parent.resolve()
+                if cookie_file.is_dir():
+                    Cookie.dirpath = cookie_file.resolve()
+                index = 0
+        Cookie.current_file_index = index
+        if content_type == "text":
+            self.style = style
+            self.log_and_send_query(echo, echo_prompt)
+        if content_type == "image":
+            self.create_image()
+
+    def log_and_send_query(self, echo, echo_prompt):
+        self.response = asyncio.run(self.send_to_bing(echo, echo_prompt))
+        name = str(Cookie.current_filepath.name)
+        if not self.__class__.request_count.get(name):
+            self.__class__.request_count[name] = 1
+        else:
+            self.__class__.request_count[name] += 1
+
+    def create_image(self):
+        image_generator = ImageGen(Cookie.image_token)
+        image_generator.save_images(
+            image_generator.get_images(self.prompt),
+            output_dir=self.__class__.image_dirpath,
+        )
+
+    async def send_to_bing(self, echo=True, echo_prompt=False):
         """Creat, submit, then close a Chatbot instance.  Return the response"""
-        bot = await Chatbot.create(cookies=self.cookies)
-        if echo_prompt:
-            print(f"{prompt=}")
-        if echo:
-            print("Waiting for response...")
-        if style.lower() not in "creative balanced precise".split():
-            style = "precise"
-        response = await bot.ask(
-            prompt=prompt,
-            conversation_style=getattr(ConversationStyle, style),
-            # wss_link="wss://sydney.bing.com/sydney/ChatHub"
-            # What other values can this parameter take? It seems to be optional
-            )
-        await bot.close()
-        return response
+        retries = len(Cookie.files())
+        while retries:
+            try:
+                bot = await Chatbot.create(cookies=Cookie.current_data)
+                if echo_prompt:
+                    print(f"> {self.prompt=}")
+                if echo:
+                    print("> Waiting for response...")
+                if self.style.lower() not in "creative balanced precise".split():
+                    self.style = "precise"
+                response = await bot.ask(
+                    prompt=self.prompt,
+                    conversation_style=getattr(ConversationStyle, self.style),
+                    # wss_link="wss://sydney.bing.com/sydney/ChatHub"
+                    # What other values can this parameter take? It seems to be optional
+                    )
+                return response
+            except KeyError:
+                print(f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]")
+                Cookie.import_next()
+                retries -= 1
+            finally:
+                await bot.close()
 
     @property
     def output(self):
@@ -945,11 +1059,11 @@ class Query:
         return sources_dict
 
     @property
-    def python(self):
+    def code(self):
         """Extract and join any snippets of Python code in the response"""
-        codeblocks = self.output.split("```python\n")
-        codeblocks = [x.split("```")[0] for x in codeblocks if "```" in x]
-        return "\n".join(codeblocks)
+        code_blocks = self.output.split("```")[1:-1:2]
+        code_blocks = ["\n".join(x.splitlines()[1:]) for x in code_blocks]
+        return "\n\n".join(code_blocks)
 
     @property
     def suggestions(self):
@@ -957,25 +1071,18 @@ class Query:
         return [x['text'] for x in self.response['item']['messages'][1]['suggestedResponses']]
 
     def __repr__(self):
-        return f"<Chatbot.Query: {self.prompt}>"
+        return f"<EdgeGPT.Query: {self.prompt}>"
 
     def __str__(self):
         return self.output
 
-def demo():
-    q = Query("give an example of a nested list comprehension in Python and explain how to construct it in a memorable way")
-    print(f"{q=}")
-    print(f"{q.prompt=}")
-    print(f"{q.cookies=}")
-    print(f"{q.token=}")
-    print(f"{q.style=}")
-    print(f"{q.output=}")
-    print(f"{str(q)=}")
-    print(f"{q.python=}")
-    print(f"{q.sources=}")
-    print(f"{q.sources_dict=}")
-    print(f"{q.suggestions=}")
-    print(f"{q.index=}")  # Keeps an index of other Query objects created
+class ImageQuery(Query):
+    def __init__(self, prompt, **kwargs):
+        kwargs.update({"content_type": "image"})
+        super().__init__(prompt, **kwargs)
+
+    def __repr__(self):
+        return f"<EdgeGPT.ImageQuery: {self.prompt}>"
 
 if __name__ == "__main__":
     main()
