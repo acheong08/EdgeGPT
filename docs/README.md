@@ -27,10 +27,17 @@ _The reverse engineering the chat feature of the new version of Bing_
 
 <summary>
 
+<details>
+
+<summary>
+
+# Setup
+</summary>
 # Setup
 </summary>
 
 ### Install package
+
 
 
 ```bash
@@ -46,6 +53,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 
 ### Authentication (Required)
+### Authentication (Required)
 
 
 1. Install the latest version of Microsoft Edge
@@ -57,23 +65,32 @@ python3 -m pip install EdgeGPT --upgrade
 7. Open the extension
 8. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
 9. Paste your cookies into a file `cookies.json`
+1. Install the latest version of Microsoft Edge
+2. Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
+3. Open [bing.com/chat](https://bing.com/chat)
+4. If you see a chat feature, you are good to continue...
+5. Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
+6. Go to [bing.com](https://bing.com)
+7. Open the extension
+8. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
+9. Paste your cookies into a file `cookies.json`
 
-Instead of following steps 5-9 you can also use the following experimental helper function which has been tested on Windows 11 and requires `Selenium` and the latest version of Microsoft Edge:
-
-```python
-pip install selenium
-```
-```
-from EdgeGPT Cookie
-Cookie.fetch_default()
-```
-This will automatically create a file called `bing_cookies__default.json` in your current working directory.
-
-The double underscore in the name ensures it always gets used first if you have other cookie files e.g. `bing_cookies_pete.json` (see below regarding multiple cookie files).
-
-The `bing_` prefix in the name should avoid confusion with any other cookie files you might be using and is also used as a default by the `Cookie` helper class (see later).
-
-
+>Instead of following steps 5-9 you can also use the following experimental helper function which has been tested on Windows 11 and requires `Selenium` and the latest version of Microsoft Edge:
+>
+>```
+>pip install selenium
+>```
+>```
+>from EdgeGPT Cookie
+>Cookie.fetch_default()
+>```
+>This will automatically create a file called `bing_cookies__default.json` in your current working directory.
+>
+>The double underscore in the name ensures it always gets used first if you have other cookie files e.g. `bing_cookies_pete.json` (see below regarding multiple cookie files).
+>
+>The `bing_` prefix in the name should avoid confusion with any other cookie files you might be using and is also used as a default by the `Cookie` helper class (see later).
+>
+>
 </details>
 
 <details>
@@ -136,12 +153,11 @@ q = Query(
 )
 ```
 
-Quickly extract the text output, code snippets, programming languages used for those code snippets, list of sources/references, or suggested follow-on questions using the following attributes:
+Quickly extract the text output, code snippets, list of sources/references, or suggested follow-on questions using the following attributes:
 
 ```python
 q.output
 q.code
-q.languages
 q.suggestions
 q.sources       # for the full json output
 q.sources_dict  # for a dictionary of titles and urls
@@ -270,7 +286,7 @@ q=ImageQuery("Meerkats at a garden party in Devon")
 ```
 Change the download directory for all future images in this session:
 
-```python
+```
 Query.image_dirpath = Path("./to_another_folder")
 ```
 
