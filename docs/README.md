@@ -58,22 +58,22 @@ python3 -m pip install EdgeGPT --upgrade
 8. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
 9. Paste your cookies into a file `cookies.json`
 
->Instead of following steps 5-9 you can also use the following experimental helper function which has been tested on Windows 11 and requires `Selenium` and the latest version of Microsoft Edge:
->
->```
->pip install selenium
->```
->```
->from EdgeGPT Cookie
->Cookie.fetch_default()
->```
->This will automatically create a file called `bing_cookies__default.json` in your current working directory.
->
->The double underscore in the name ensures it always gets used first if you have other cookie files e.g. `bing_cookies_pete.json` (see below regarding multiple cookie files).
->
->The `bing_` prefix in the name should avoid confusion with any other cookie files you might be using and is also used as a default by the `Cookie` helper class (see later).
->
->
+Instead of following steps 5-9 you can also use the following experimental helper function which has been tested on Windows 11 and requires `Selenium` and the latest version of Microsoft Edge:
+
+```
+pip install selenium
+```
+```
+from EdgeGPT Cookie
+Cookie.fetch_default()
+```
+This will automatically create a file called `bing_cookies__default.json` in your current working directory.
+
+The double underscore in the name ensures it always gets used first if you have other cookie files e.g. `bing_cookies_pete.json` (see below regarding multiple cookie files).
+
+The `bing_` prefix in the name should avoid confusion with any other cookie files you might be using and is also used as a default by the `Cookie` helper class (see later).
+
+
 </details>
 
 <details>
