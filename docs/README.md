@@ -22,11 +22,6 @@ _The reverse engineering the chat feature of the new version of Bing_
 
 </p>
 
-
-<details>
-
-<summary>
-
 <details>
 
 <summary>
