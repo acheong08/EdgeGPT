@@ -1066,6 +1066,12 @@ class Query:
         return "\n\n".join(code_blocks)
 
     @property
+    def languages(self):
+        """Extract all programming languages given in code blocks"""
+        code_blocks = self.output.split("```")[1:-1:2]
+        return {x.splitlines()[0] for x in code_blocks}
+    
+    @property
     def suggestions(self):
         """Follow-on questions suggested by the Chatbot"""
         return [x['text'] for x in self.response['item']['messages'][1]['suggestedResponses']]
