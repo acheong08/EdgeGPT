@@ -136,11 +136,12 @@ q = Query(
 )
 ```
 
-Quickly extract the text output, code snippets, list of sources/references, or suggested follow-on questions using the following attributes:
+Quickly extract the text output, code snippets, programming languages used for those code snippets, list of sources/references, or suggested follow-on questions using the following attributes:
 
 ```python
 q.output
 q.code
+q.languages
 q.suggestions
 q.sources       # for the full json output
 q.sources_dict  # for a dictionary of titles and urls
