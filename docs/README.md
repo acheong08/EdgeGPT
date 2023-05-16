@@ -115,7 +115,45 @@ options:
 
 ## Running in Python
 
-### 1) The `Query` and `Cookie` helper classes
+### 1) The `Chatbot` class and `asyncio` for more granular control
+
+There are three main ways to pass in cookies:
+
+- Environment variable: `export COOKIE_FILE=/path/to/cookies.json`.
+- Specify the path to `cookies.json` in the argument `cookie_path` like this:
+
+  ```python
+  bot = await Chatbot.create(cookie_path='./cookies.json')
+  ```
+
+- Pass in the cookies directly by the argument `cookies`, like this:
+
+  ```python
+  with open('./cookies.json', 'r') as f:
+      cookies = json.load(f)
+  bot = await Chatbot.create(cookies=cookies)
+  ```
+
+Use Async for the best experience, for example:
+
+```python
+import asyncio
+from EdgeGPT import Chatbot, ConversationStyle
+
+async def main():
+    bot = await Chatbot.create()
+    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, wss_link="wss://sydney.bing.com/sydney/ChatHub"))
+    await bot.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+<detail>
+<summary>
+  
+### 2) The `Query` and `Cookie` helper classes
+  </summary>
+  
 Create a simple Bing Chat AI query (using the 'precise' conversation style by default) and see just the main text output rather than the whole API response:
 
 ```python
@@ -173,41 +211,8 @@ Cookie.import_next()
 Cookie.image_token
 Cookie.ignore_files
 ```
-
-### 2) The `Chatbot` class and `asyncio` for more granular control
-
-There are three main ways to pass in cookies:
-
-- Environment variable: `export COOKIE_FILE=/path/to/cookies.json`.
-- Specify the path to `cookies.json` in the argument `cookie_path` like this:
-
-  ```python
-  bot = await Chatbot.create(cookie_path='./cookies.json')
-  ```
-
-- Pass in the cookies directly by the argument `cookies`, like this:
-
-  ```python
-  with open('./cookies.json', 'r') as f:
-      cookies = json.load(f)
-  bot = await Chatbot.create(cookies=cookies)
-  ```
-
-Use Async for the best experience, for example:
-
-```python
-import asyncio
-from EdgeGPT import Chatbot, ConversationStyle
-
-async def main():
-    bot = await Chatbot.create()
-    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, wss_link="wss://sydney.bing.com/sydney/ChatHub"))
-    await bot.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
+</detail>
+  
 ---
 
 ## Running with Docker
