@@ -23,7 +23,7 @@ from typing import Union
 import certifi
 import httpx
 import websockets.client as websockets
-from BingImageCreator import ImageGenAsync
+from BingImageCreator import ImageGen, ImageGenAsync
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
@@ -546,7 +546,9 @@ class _ChatHub:
 
                 elif response.get("type") == 2:
                     if response["item"]["result"].get("error"):
-                        raise Exception(f"{response['item']['result']['value']}: {response['item']['result']['message']}")
+                        raise Exception(
+                            f"{response['item']['result']['value']}: {response['item']['result']['message']}",
+                        )
                     if draw:
                         cache = response["item"]["messages"][1]["adaptiveCards"][0][
                             "body"
@@ -1039,7 +1041,7 @@ class Query:
                 return response
             except KeyError:
                 print(
-                    f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]"
+                    f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]",
                 )
                 Cookie.import_next()
                 retries -= 1
