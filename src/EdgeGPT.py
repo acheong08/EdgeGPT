@@ -956,11 +956,6 @@ class Query:
     config, and output all together.  Relies on Cookie class for authentication
     """
 
-    index = []
-    request_count = {}
-    image_dirpath = Path("./").resolve()
-    Cookie.import_data()
-
     def __init__(
         self,
         prompt,
@@ -980,7 +975,11 @@ class Query:
         echo: Print something to confirm request made
         echo_prompt: Print confirmation of the evaluated prompt
         """
-        self.__class__.index += [self]
+        self.index = []
+        self.request_count = {}
+        self.image_dirpath = Path("./").resolve()
+        Cookie.import_data()
+        self.index += [self]
         self.prompt = prompt
         files = Cookie.files()
         if isinstance(cookie_file, int):
@@ -1008,16 +1007,16 @@ class Query:
     def log_and_send_query(self, echo, echo_prompt):
         self.response = asyncio.run(self.send_to_bing(echo, echo_prompt))
         name = str(Cookie.current_filepath.name)
-        if not self.__class__.request_count.get(name):
-            self.__class__.request_count[name] = 1
+        if not self.request_count.get(name):
+            self.request_count[name] = 1
         else:
-            self.__class__.request_count[name] += 1
+            self.request_count[name] += 1
 
     def create_image(self):
         image_generator = ImageGen(Cookie.image_token)
         image_generator.save_images(
             image_generator.get_images(self.prompt),
-            output_dir=self.__class__.image_dirpath,
+            output_dir=self.image_dirpath,
         )
 
     async def send_to_bing(self, echo=True, echo_prompt=False):
