@@ -874,6 +874,7 @@ def main() -> None:
 
     asyncio.run(async_main(args))
 
+
 class Cookie:
     """
     Convenience class for Bing Cookie files, data, and configuration. This Class
@@ -881,17 +882,19 @@ class Cookie:
     cookie/credentials file e.g. when daily request limits (current 200 per
     account per day) are exceeded.
     """
+
     current_file_index = 0
-    dirpath = Path('./').resolve()
-    search_pattern = 'bing_cookies_*.json'
+    dirpath = Path("./").resolve()
+    search_pattern = "bing_cookies_*.json"
     ignore_files = set()
 
     @classmethod
     def fetch_default(cls, path=None):
         from selenium import webdriver
         from selenium.webdriver.common.by import By
+
         driver = webdriver.Edge()
-        driver.get('https://bing.com/chat')
+        driver.get("https://bing.com/chat")
         time.sleep(5)
         xpath = '//button[@id="bnp_btn_accept"]'
         driver.find_element(By.XPATH, xpath).click()
@@ -940,14 +943,16 @@ class Cookie:
             Cookie.current_file_index = 0
         Cookie.import_data()
 
+
 class Query:
     """
     A convenience class that wraps around EdgeGPT.Chatbot to encapsulate input,
     config, and output all together.  Relies on Cookie class for authentication
     """
+
     index = []
     request_count = {}
-    image_dirpath = Path('./').resolve()
+    image_dirpath = Path("./").resolve()
     Cookie.import_data()
 
     def __init__(
@@ -1026,10 +1031,12 @@ class Query:
                     conversation_style=getattr(ConversationStyle, self.style),
                     # wss_link="wss://sydney.bing.com/sydney/ChatHub"
                     # What other values can this parameter take? It seems to be optional
-                    )
+                )
                 return response
             except KeyError:
-                print(f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]")
+                print(
+                    f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]"
+                )
                 Cookie.import_next()
                 retries -= 1
             finally:
@@ -1038,19 +1045,19 @@ class Query:
     @property
     def output(self):
         """The response from a completed Chatbot request"""
-        return self.response['item']['messages'][1]['text']
+        return self.response["item"]["messages"][1]["text"]
 
     @property
     def sources(self):
         """The source names and details parsed from a completed Chatbot request"""
-        return self.response['item']['messages'][1]['sourceAttributions']
+        return self.response["item"]["messages"][1]["sourceAttributions"]
 
     @property
     def sources_dict(self):
         """The source names and details as a dictionary"""
         sources_dict = {}
-        name = 'providerDisplayName'
-        url = 'seeMoreUrl'
+        name = "providerDisplayName"
+        url = "seeMoreUrl"
         for source in self.sources:
             if name in source.keys() and url in source.keys():
                 sources_dict[source[name]] = source[url]
@@ -1070,17 +1077,21 @@ class Query:
         """Extract all programming languages given in code blocks"""
         code_blocks = self.output.split("```")[1:-1:2]
         return {x.splitlines()[0] for x in code_blocks}
-    
+
     @property
     def suggestions(self):
         """Follow-on questions suggested by the Chatbot"""
-        return [x['text'] for x in self.response['item']['messages'][1]['suggestedResponses']]
+        return [
+            x["text"]
+            for x in self.response["item"]["messages"][1]["suggestedResponses"]
+        ]
 
     def __repr__(self):
         return f"<EdgeGPT.Query: {self.prompt}>"
 
     def __str__(self):
         return self.output
+
 
 class ImageQuery(Query):
     def __init__(self, prompt, **kwargs):
@@ -1089,6 +1100,7 @@ class ImageQuery(Query):
 
     def __repr__(self):
         return f"<EdgeGPT.ImageQuery: {self.prompt}>"
+
 
 if __name__ == "__main__":
     main()
