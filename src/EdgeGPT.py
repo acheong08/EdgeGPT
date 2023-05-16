@@ -935,6 +935,7 @@ class Cookie:
             cls.current_filepath = cls.files()[cls.current_file_index]
         except IndexError:
             print("> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()")
+            return
         print(f"> Importing cookies from: {cls.current_filepath.name}")
         with open(cls.current_filepath, encoding="utf-8") as file:
             cls.current_data = json.load(file)
