@@ -148,7 +148,7 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
-<detail>
+<details>
 <summary>
   
 ### 2) The `Query` and `Cookie` helper classes
@@ -211,7 +211,7 @@ Cookie.import_next()
 Cookie.image_token
 Cookie.ignore_files
 ```
-</detail>
+</details>
   
 ---
 
