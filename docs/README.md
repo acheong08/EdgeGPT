@@ -62,7 +62,7 @@ python3 -m pip install EdgeGPT --upgrade
 >pip install selenium
 >```
 >```
->from EdgeGPT Cookie
+>from EdgeGPT import Cookie
 >Cookie.fetch_default()
 >```
 >This will automatically create a file called `bing_cookies__default.json` in your current working directory.
