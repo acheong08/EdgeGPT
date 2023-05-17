@@ -444,6 +444,7 @@ class _ChatHub:
             headers=HEADERS,
             ssl=ssl_context,
             proxy=self.proxy,
+            ping_interval=None,
         )
         await self._initial_handshake()
         if self.request.invocation_id == 0:
