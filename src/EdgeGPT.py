@@ -20,9 +20,9 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
+import aiohttp
 import certifi
 import httpx
-import websockets.client as websockets
 from BingImageCreator import ImageGen, ImageGenAsync
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -407,8 +407,9 @@ class _ChatHub:
     Chat API
     """
 
-    def __init__(self, conversation: _Conversation) -> None:
-        self.wss: websockets.WebSocketClientProtocol | None = None
+    def __init__(self, conversation: _Conversation, proxy: str = None) -> None:
+        self.session: aiohttp.ClientSession | None = None
+        self.wss: aiohttp.ClientWebSocketResponse | None = None
         self.request: _ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -417,6 +418,7 @@ class _ChatHub:
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
+        self.proxy: str = proxy
 
     async def ask_stream(
         self,
@@ -432,14 +434,16 @@ class _ChatHub:
         """
         Ask a question to the bot
         """
+        timeout = aiohttp.ClientTimeout(total=30)
+        self.session = aiohttp.ClientSession(timeout=timeout)
         if self.wss and not self.wss.closed:
             await self.wss.close()
         # Check if websocket is closed
-        self.wss = await websockets.connect(
+        self.wss = await self.session.ws_connect(
             wss_link,
-            extra_headers=HEADERS,
-            max_size=None,
+            headers=HEADERS,
             ssl=ssl_context,
+            proxy=self.proxy,
         )
         await self._initial_handshake()
         if self.request.invocation_id == 0:
@@ -483,14 +487,15 @@ class _ChatHub:
                 options=options,
             )
         # Send request
-        await self.wss.send(_append_identifier(self.request.struct))
+        await self.wss.send_str(_append_identifier(self.request.struct))
         final = False
         draw = False
         resp_txt = ""
         result_text = ""
         resp_txt_no_link = ""
         while not final:
-            objects = str(await self.wss.recv()).split(DELIMITER)
+            msg = await self.wss.receive()
+            objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or not obj:
                     continue
@@ -546,6 +551,7 @@ class _ChatHub:
 
                 elif response.get("type") == 2:
                     if response["item"]["result"].get("error"):
+                        await self.close()
                         raise Exception(
                             f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                         )
@@ -569,11 +575,12 @@ class _ChatHub:
                             file=sys.stderr,
                         )
                     final = True
+                    await self.close()
                     yield True, response
 
     async def _initial_handshake(self) -> None:
-        await self.wss.send(_append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.recv()
+        await self.wss.send_str(_append_identifier({"protocol": "json", "version": 1}))
+        await self.wss.receive()
 
     async def close(self) -> None:
         """
@@ -581,6 +588,8 @@ class _ChatHub:
         """
         if self.wss and not self.wss.closed:
             await self.wss.close()
+        if self.session and not self.session.closed:
+            await self.session.close()
 
 
 class Chatbot:
@@ -607,6 +616,7 @@ class Chatbot:
         self.proxy: str | None = proxy
         self.chat_hub: _ChatHub = _ChatHub(
             _Conversation(self.cookies, self.proxy),
+            proxy=self.proxy,
         )
 
     @staticmethod
@@ -629,6 +639,7 @@ class Chatbot:
         self.proxy = proxy
         self.chat_hub = _ChatHub(
             await _Conversation.create(self.cookies, self.proxy),
+            proxy=self.proxy,
         )
         return self
 
@@ -696,6 +707,7 @@ class Chatbot:
         await self.close()
         self.chat_hub = _ChatHub(
             await _Conversation.create(self.cookies, self.proxy),
+            proxy=self.proxy,
         )
 
 
