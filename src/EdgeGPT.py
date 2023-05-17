@@ -408,6 +408,7 @@ class _ChatHub:
     """
 
     def __init__(self, conversation: _Conversation, proxy: str = None) -> None:
+        self.session: aiohttp.ClientSession | None = None
         self.wss: aiohttp.ClientWebSocketResponse | None = None
         self.request: _ChatHubRequest
         self.loop: bool
@@ -434,11 +435,11 @@ class _ChatHub:
         Ask a question to the bot
         """
         timeout = aiohttp.ClientTimeout(total=30)
-        session = aiohttp.ClientSession(timeout=timeout)
+        self.session = aiohttp.ClientSession(timeout=timeout)
         if self.wss and not self.wss.closed:
             await self.wss.close()
         # Check if websocket is closed
-        self.wss = await session.ws_connect(
+        self.wss = await self.session.ws_connect(
             wss_link,
             headers=HEADERS,
             ssl=ssl_context,
@@ -550,6 +551,7 @@ class _ChatHub:
 
                 elif response.get("type") == 2:
                     if response["item"]["result"].get("error"):
+                        await self.close()
                         raise Exception(
                             f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                         )
@@ -573,6 +575,7 @@ class _ChatHub:
                             file=sys.stderr,
                         )
                     final = True
+                    await self.close()
                     yield True, response
 
     async def _initial_handshake(self) -> None:
@@ -585,6 +588,8 @@ class _ChatHub:
         """
         if self.wss and not self.wss.closed:
             await self.wss.close()
+        if self.session and not self.session.closed:
+            await self.session.close()
 
 
 class Chatbot:
