@@ -4,4 +4,4 @@ httpx
 prompt_toolkit
 requests
 rich
-websockets
+aiohttp
