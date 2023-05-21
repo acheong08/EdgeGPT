@@ -23,7 +23,8 @@ from typing import Union
 import aiohttp
 import certifi
 import httpx
-from BingImageCreator import ImageGen, ImageGenAsync
+from BingImageCreator import ImageGen
+from BingImageCreator import ImageGenAsync
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
@@ -891,7 +892,7 @@ class Cookie:
             cls.current_filepath = cls.files()[cls.current_file_index]
         except IndexError:
             print(
-                "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()"
+                "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()",
             )
             return
         print(f"> Importing cookies from: {cls.current_filepath.name}")
