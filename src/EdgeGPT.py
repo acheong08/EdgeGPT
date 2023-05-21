@@ -23,7 +23,8 @@ from typing import Union
 import aiohttp
 import certifi
 import httpx
-from BingImageCreator import ImageGen, ImageGenAsync
+from BingImageCreator import ImageGen
+from BingImageCreator import ImageGenAsync
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
@@ -290,9 +291,9 @@ class _Conversation:
 
     def __init__(
         self,
-        cookies: dict | None = None,
         proxy: str | None = None,
         async_mode: bool = False,
+        cookies: list[dict] | None = None,
     ) -> None:
         if async_mode:
             return
@@ -318,9 +319,9 @@ class _Conversation:
             timeout=30,
             headers=HEADERS_INIT_CONVER,
         )
-        for cookie in cookies:
-            self.session.cookies.set(cookie["name"], cookie["value"])
-
+        if cookies:
+            for cookie in cookies:
+                self.session.cookies.set(cookie["name"], cookie["value"])
         # Send GET request
         response = self.session.get(
             url=os.environ.get("BING_PROXY_URL")
@@ -346,8 +347,8 @@ class _Conversation:
 
     @staticmethod
     async def create(
-        cookies: dict,
         proxy: str | None = None,
+        cookies: list[dict] | None = None,
     ) -> _Conversation:
         self = _Conversation(async_mode=True)
         self.struct = {
@@ -368,15 +369,19 @@ class _Conversation:
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
         transport = httpx.AsyncHTTPTransport(retries=10)
+        # Convert cookie format to httpx format
+        formatted_cookies = None
+        if cookies:
+            formatted_cookies = httpx.Cookies()
+            for cookie in cookies:
+                formatted_cookies.set(cookie["name"], cookie["value"])
         async with httpx.AsyncClient(
             proxies=proxy,
             timeout=30,
             headers=HEADERS_INIT_CONVER,
             transport=transport,
+            cookies=formatted_cookies,
         ) as client:
-            for cookie in cookies:
-                client.cookies.set(cookie["name"], cookie["value"])
-
             # Send GET request
             response = await client.get(
                 url=os.environ.get("BING_PROXY_URL")
@@ -407,7 +412,12 @@ class _ChatHub:
     Chat API
     """
 
-    def __init__(self, conversation: _Conversation, proxy: str = None) -> None:
+    def __init__(
+        self,
+        conversation: _Conversation,
+        proxy: str = None,
+        cookies: list[dict] | None = None,
+    ) -> None:
         self.session: aiohttp.ClientSession | None = None
         self.wss: aiohttp.ClientWebSocketResponse | None = None
         self.request: _ChatHubRequest
@@ -418,13 +428,13 @@ class _ChatHub:
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
+        self.cookies = cookies
         self.proxy: str = proxy
 
     async def ask_stream(
         self,
         prompt: str,
         wss_link: str,
-        cookies: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
         options: dict = None,
@@ -436,6 +446,7 @@ class _ChatHub:
         """
         timeout = aiohttp.ClientTimeout(total=30)
         self.session = aiohttp.ClientSession(timeout=timeout)
+
         if self.wss and not self.wss.closed:
             await self.wss.close()
         # Check if websocket is closed
@@ -511,10 +522,7 @@ class _ChatHub:
                             response["arguments"][0]["messages"][0].get("messageType")
                             == "GenerateContentQuery"
                         ):
-                            for item in cookies:
-                                if item["name"] == "_U":
-                                    U = item["value"]
-                            async with ImageGenAsync(U, True) as image_generator:
+                            async with ImageGenAsync("", True) as image_generator:
                                 images = await image_generator.get_images(
                                     response["arguments"][0]["messages"][0]["text"],
                                 )
@@ -600,47 +608,27 @@ class Chatbot:
 
     def __init__(
         self,
-        cookies: dict = None,
         proxy: str | None = None,
-        cookie_path: str = None,
+        cookies: list[dict] | None = None,
     ) -> None:
-        if cookies is None:
-            cookies = {}
-        if cookie_path is not None:
-            try:
-                with open(cookie_path, encoding="utf-8") as f:
-                    self.cookies = json.load(f)
-            except FileNotFoundError as exc:
-                raise FileNotFoundError("Cookie file not found") from exc
-        else:
-            self.cookies = cookies
         self.proxy: str | None = proxy
         self.chat_hub: _ChatHub = _ChatHub(
-            _Conversation(self.cookies, self.proxy),
+            _Conversation(self.proxy, cookies=cookies),
             proxy=self.proxy,
+            cookies=cookies,
         )
 
     @staticmethod
     async def create(
-        cookies: dict = None,
         proxy: str | None = None,
-        cookie_path: str = None,
+        cookies: list[dict] | None = None,
     ):
         self = Chatbot.__new__(Chatbot)
-        if cookies is None:
-            cookies = {}
-        if cookie_path is not None:
-            try:
-                with open(cookie_path, encoding="utf-8") as f:
-                    self.cookies = json.load(f)
-            except FileNotFoundError as exc:
-                raise FileNotFoundError("Cookie file not found") from exc
-        else:
-            self.cookies = cookies
         self.proxy = proxy
         self.chat_hub = _ChatHub(
-            await _Conversation.create(self.cookies, self.proxy),
+            await _Conversation.create(self.proxy, cookies=cookies),
             proxy=self.proxy,
+            cookies=cookies,
         )
         return self
 
@@ -661,7 +649,6 @@ class Chatbot:
             conversation_style=conversation_style,
             wss_link=wss_link,
             options=options,
-            cookies=self.cookies,
             webpage_context=webpage_context,
             search_result=search_result,
         ):
@@ -689,7 +676,6 @@ class Chatbot:
             wss_link=wss_link,
             raw=raw,
             options=options,
-            cookies=self.cookies,
             webpage_context=webpage_context,
             search_result=search_result,
         ):
@@ -707,7 +693,7 @@ class Chatbot:
         """
         await self.close()
         self.chat_hub = _ChatHub(
-            await _Conversation.create(self.cookies, self.proxy),
+            await _Conversation.create(self.proxy),
             proxy=self.proxy,
         )
 
@@ -756,7 +742,11 @@ async def async_main(args: argparse.Namespace) -> None:
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = await Chatbot.create(proxy=args.proxy, cookies=args.cookies)
+    # Read and parse cookies
+    cookies = None
+    if args.cookie_file:
+        cookies = json.loads(open(args.cookie_file, encoding="utf-8").read())
+    bot = await Chatbot.create(proxy=args.proxy, cookies=cookies)
     session = _create_session()
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
@@ -865,32 +855,20 @@ def main() -> None:
         default="balanced",
     )
     parser.add_argument(
-        "--cookie-file",
-        type=str,
-        default=os.environ.get("COOKIE_FILE", ""),
-        required=False,
-        help="Cookie file used for authentication (defaults to COOKIE_FILE environment variable)",
-    )
-    parser.add_argument(
         "--prompt",
         type=str,
         default="",
         required=False,
         help="prompt to start with",
     )
+    parser.add_argument(
+        "--cookie-file",
+        type=str,
+        default="",
+        required=False,
+        help="path to cookie file",
+    )
     args = parser.parse_args()
-    if not args.cookie_file:
-        parser.print_help()
-        parser.exit(
-            1,
-            "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
-        )
-    try:
-        args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
-    except OSError as exc:
-        print(f"Could not open cookie file: {exc}", file=sys.stderr)
-        sys.exit(1)
-
     asyncio.run(async_main(args))
 
 
@@ -924,7 +902,7 @@ class Cookie:
             path = Path("./bing_cookies__default.json")
             # Double underscore ensures this file is first when sorted
         cookies = driver.get_cookies()
-        Path(path).write_text(json.dumps(cookies, indent=4))
+        Path(path).write_text(json.dumps(cookies, indent=4), encoding="utf-8")
         # Path again in case supplied path is: str
         print(f"Cookies saved to: {path}")
         driver.quit()
@@ -947,7 +925,9 @@ class Cookie:
         try:
             cls.current_filepath = cls.files()[cls.current_file_index]
         except IndexError:
-            print("> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()")
+            print(
+                "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()",
+            )
             return
         print(f"> Importing cookies from: {cls.current_filepath.name}")
         with open(cls.current_filepath, encoding="utf-8") as file:
@@ -1041,7 +1021,7 @@ class Query:
         retries = len(Cookie.files())
         while retries:
             try:
-                bot = await Chatbot.create(cookies=Cookie.current_data)
+                bot = await Chatbot.create()
                 if echo_prompt:
                     print(f"> {self.prompt=}")
                 if echo:
