@@ -744,7 +744,7 @@ async def async_main(args: argparse.Namespace) -> None:
     # Read and parse cookies
     cookies = None
     if args.cookie_file:
-        cookies = json.loads(open(args.cookie_file).read())
+        cookies = json.loads(open(args.cookie_file, encoding="utf-8").read())
     bot = await Chatbot.create(proxy=args.proxy, cookies=cookies)
     session = _create_session()
     completer = _create_completer(["!help", "!exit", "!reset"])
@@ -901,7 +901,7 @@ class Cookie:
             path = Path("./bing_cookies__default.json")
             # Double underscore ensures this file is first when sorted
         cookies = driver.get_cookies()
-        Path(path).write_text(json.dumps(cookies, indent=4))
+        Path(path).write_text(json.dumps(cookies, indent=4), encoding="utf-8")
         # Path again in case supplied path is: str
         print(f"Cookies saved to: {path}")
         driver.quit()
