@@ -370,6 +370,7 @@ class _Conversation:
             proxy = "socks5://" + proxy[len("socks5h://") :]
         transport = httpx.AsyncHTTPTransport(retries=10)
         # Convert cookie format to httpx format
+        formatted_cookies = None
         if cookies:
             formatted_cookies = httpx.Cookies()
             for cookie in cookies:
