@@ -879,12 +879,12 @@ def main() -> None:
         help="prompt to start with",
     )
     args = parser.parse_args()
-    if not args.cookie_file:
-        parser.print_help()
-        parser.exit(
-            1,
-            "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
-        )
+    # if not args.cookie_file:
+    #     parser.print_help()
+    #     parser.exit(
+    #         1,
+    #         "ERROR: use --cookie-file or set the COOKIE_FILE environment variable",
+    #     )
     try:
         args.cookies = json.loads(Path(args.cookie_file).read_text(encoding="utf-8"))
     except OSError as exc:
@@ -947,7 +947,9 @@ class Cookie:
         try:
             cls.current_filepath = cls.files()[cls.current_file_index]
         except IndexError:
-            print("> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()")
+            print(
+                "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()"
+            )
             return
         print(f"> Importing cookies from: {cls.current_filepath.name}")
         with open(cls.current_filepath, encoding="utf-8") as file:
