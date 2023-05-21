@@ -293,6 +293,7 @@ class _Conversation:
         self,
         proxy: str | None = None,
         async_mode: bool = False,
+        cookies: list[dict] | None = None,
     ) -> None:
         if async_mode:
             return
@@ -318,6 +319,9 @@ class _Conversation:
             timeout=30,
             headers=HEADERS_INIT_CONVER,
         )
+        if cookies:
+            for cookie in cookies:
+                self.session.cookies.set(cookie["name"], cookie["value"])
         # Send GET request
         response = self.session.get(
             url=os.environ.get("BING_PROXY_URL")
@@ -344,6 +348,7 @@ class _Conversation:
     @staticmethod
     async def create(
         proxy: str | None = None,
+        cookies: list[dict] | None = None,
     ) -> _Conversation:
         self = _Conversation(async_mode=True)
         self.struct = {
@@ -364,11 +369,17 @@ class _Conversation:
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
         transport = httpx.AsyncHTTPTransport(retries=10)
+        # Convert cookie format to httpx format
+        if cookies:
+            formatted_cookies = httpx.Cookies()
+            for cookie in cookies:
+                formatted_cookies.set(cookie["name"], cookie["value"])
         async with httpx.AsyncClient(
             proxies=proxy,
             timeout=30,
             headers=HEADERS_INIT_CONVER,
             transport=transport,
+            cookies=formatted_cookies,
         ) as client:
             # Send GET request
             response = await client.get(
@@ -400,7 +411,12 @@ class _ChatHub:
     Chat API
     """
 
-    def __init__(self, conversation: _Conversation, proxy: str = None) -> None:
+    def __init__(
+        self,
+        conversation: _Conversation,
+        proxy: str = None,
+        cookies: list[dict] | None = None,
+    ) -> None:
         self.session: aiohttp.ClientSession | None = None
         self.wss: aiohttp.ClientWebSocketResponse | None = None
         self.request: _ChatHubRequest
@@ -411,6 +427,7 @@ class _ChatHub:
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
+        self.cookies = cookies
         self.proxy: str = proxy
 
     async def ask_stream(
@@ -428,6 +445,7 @@ class _ChatHub:
         """
         timeout = aiohttp.ClientTimeout(total=30)
         self.session = aiohttp.ClientSession(timeout=timeout)
+
         if self.wss and not self.wss.closed:
             await self.wss.close()
         # Check if websocket is closed
@@ -590,22 +608,26 @@ class Chatbot:
     def __init__(
         self,
         proxy: str | None = None,
+        cookies: list[dict] | None = None,
     ) -> None:
         self.proxy: str | None = proxy
         self.chat_hub: _ChatHub = _ChatHub(
-            _Conversation(self.proxy),
+            _Conversation(self.proxy, cookies=cookies),
             proxy=self.proxy,
+            cookies=cookies,
         )
 
     @staticmethod
     async def create(
         proxy: str | None = None,
+        cookies: list[dict] | None = None,
     ):
         self = Chatbot.__new__(Chatbot)
         self.proxy = proxy
         self.chat_hub = _ChatHub(
-            await _Conversation.create(self.proxy),
+            await _Conversation.create(self.proxy, cookies=cookies),
             proxy=self.proxy,
+            cookies=cookies,
         )
         return self
 
@@ -719,7 +741,11 @@ async def async_main(args: argparse.Namespace) -> None:
     """
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
-    bot = await Chatbot.create(proxy=args.proxy)
+    # Read and parse cookies
+    cookies = None
+    if args.cookie_file:
+        cookies = json.loads(open(args.cookie_file, "r").read())
+    bot = await Chatbot.create(proxy=args.proxy, cookies=cookies)
     session = _create_session()
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
@@ -833,6 +859,13 @@ def main() -> None:
         default="",
         required=False,
         help="prompt to start with",
+    )
+    parser.add_argument(
+        "--cookie-file",
+        type=str,
+        default="",
+        required=False,
+        help="path to cookie file",
     )
     args = parser.parse_args()
     asyncio.run(async_main(args))
