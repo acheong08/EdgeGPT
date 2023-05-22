@@ -125,7 +125,7 @@ if __name__ == "__main__":
 ```python
 from EdgeGPT import Query, Cookie
 
-q = Query("你是谁？用python语言给出回答")
+q = Query("你是谁？用python代码给出回答")
 print(q)
 ```
 
@@ -133,7 +133,7 @@ print(q)
 
 ```python
 q = Query(
-  "你是谁？用python语言给出回答",
+  "你是谁？用python代码给出回答",
   style="creative",  # 或者平衡模式 'balanced'
   cookies="./bing_cookies_alternative.json"
 )
