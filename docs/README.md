@@ -94,6 +94,7 @@ options:
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
   --style {creative,balanced,precise}
+  --cookie-file [path/to/cookies.json]
 ```
 
 ## Running in Python
