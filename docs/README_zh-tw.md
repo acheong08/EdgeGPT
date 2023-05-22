@@ -240,7 +240,7 @@ from EdgeGPT import ImageQuery
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
 
-在此工作階段中修改所有後續影像的下載目錄：
+在此工作階段中修改所有後續圖像的下載目錄：
 
 ```
 Query.image_dirpath = Path("./to_another_folder")
