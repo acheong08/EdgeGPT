@@ -270,7 +270,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--output-dir",
-        help="输出目录",
+        help="輸出目錄",
         type=str,
         default="./output",
     )
