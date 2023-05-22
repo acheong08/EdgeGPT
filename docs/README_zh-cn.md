@@ -66,7 +66,7 @@ python3 -m pip install EdgeGPT --upgrade
 5. 安装 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 扩展
 6. 移步到 [bing.com](https://bing.com)
 7. 打开扩展程序
-8. 点击右下角的"导出" (将会把内容保存到你的剪贴板上)
+8. 点击右下角的"导出" ，然后点击"导出为 JSON" (将会把内容保存到你的剪贴板上)
 9. 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
 
 ## 从命令行运行
