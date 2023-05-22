@@ -695,6 +695,7 @@ class Chatbot:
         self.chat_hub = _ChatHub(
             await _Conversation.create(self.proxy),
             proxy=self.proxy,
+            cookies=self.chat_hub.cookies,
         )
 
 
