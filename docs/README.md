@@ -40,7 +40,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 - python 3.8+
 - A Microsoft Account with early access to <https://bing.com/chat> (Required)
-- Required in a supported country with New Bing (Chinese mainland VPN required)
+- Required in a supported country or region with New Bing (Chinese mainland VPN required)
 - [Selenium](https://pypi.org/project/selenium/) (for automatic cookie setup)
 
 <details>
