@@ -18,11 +18,17 @@ _新必应的逆向工程_
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
+  <img alt="Total downloads" src="https://static.pepy.tech/badge/edgegpt">
+
 </p>
 
----
+<details>
 
-## 设置
+<summary>
+
+# 设置
+
+</summary>
 
 ### 安装模块
 
@@ -33,49 +39,37 @@ python3 -m pip install EdgeGPT --upgrade
 ### 要求
 
 - python 3.8+
-- 一个已经通过候补名单的微软账户 <https://bing.com/chat> (必填)
-- 需要在 New Bing 支持的国家（中国大陆需使用VPN）
-
-<details>
-  <summary>
-
-### 检查访问权限 (必需)
-
-  </summary>
-
-- 安装最新版本的 Microsoft Edge
-- 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如`Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager" [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作.
-- 打开 [bing.com/chat](https://bing.com/chat)
-- 如果您看到聊天功能，就准备就绪
-
-</details>
-
-<details>
-  <summary>
-
-### 获取身份验证 (必需)
-
-  </summary>
-
-- 安装 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 扩展
-- 移步到 `bing.com`
-- 打开扩展程序
-- 点击右下角的"导出" (将会把内容保存到你的剪贴板上)
-- 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
-
-</details>
+- 需要在 New Bing 支持的国家或地区（中国大陆需使用VPN）
+- [Selenium](https://pypi.org/project/selenium/) (对于需要自动配置cookie的情况)
 
 <details>
 
 <summary>
 
-## Chatbot
+# 聊天机器人
 
 </summary>
 
-## 使用方法
+## 身份验证
 
-### 快速开始
+不用，不需要了。微软已将聊天功能开放给所有人，这一步可以省略了。
+  
+1. 安装最新版本的 Microsoft Edge
+<details>
+  
+2. 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作.
+
+</details>
+  
+3. 打开 [bing.com/chat](https://bing.com/chat)
+4. 如果您看到聊天功能，就接着下面的步骤...
+5. 安装 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 扩展
+6. 移步到 [bing.com](https://bing.com)
+7. 打开扩展程序
+8. 点击右下角的"导出" ，然后点击"导出为 JSON" (将会把内容保存到你的剪贴板上)
+9. 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
+
+## 从命令行运行
 
 ```
  $ python3 -m EdgeGPT -h
@@ -89,8 +83,7 @@ python3 -m pip install EdgeGPT --upgrade
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK] [--style {creative,balanced,precise}]
-                  [--cookie-file COOKIE_FILE]
+usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--style {creative,balanced,precise}]
 
 options:
   -h, --help            show this help message and exit
@@ -98,36 +91,14 @@ options:
   --no-stream
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
-  --wss-link WSS_LINK   WSS URL(e.g. wss://sydney.bing.com/sydney/ChatHub)
   --style {creative,balanced,precise}
-  --cookie-file COOKIE_FILE
-                        needed if environment variable COOKIE_FILE is not set
 ```
 
----
+## 在 Python 运行
 
-### 开发演示
+### 1. 使用 `Chatbot` 类和 `asyncio` 类以进行更精细的控制
 
-传入 cookie 的三种方式:
-
-- 设置环境变量: `export COOKIE_FILE=/path/to/cookies.json`.
-- 像这样把 `cookies.json` 的路径传入 `cookie_path` 参数中:
-
-  ```python
-  bot = Chatbot(cookie_path='./cookies.json')
-  ```
-
-- 通过参数 `cookie` 传入 cookie，如下所示:
-
-  ```python
-  with open('./cookies.json', 'r') as f:
-      cookies = json.load(f)
-  bot = Chatbot(cookies=cookies)
-  ```
-
-使用 aysnc 获得最佳体验
-
-更高级用法示例的参考代码：
+使用 async 获得最佳体验，例如:
 
 ```python
 import asyncio
@@ -135,13 +106,98 @@ from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = await Chatbot.create()
-    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative,wss_link="wss://sydney.bing.com/sydney/ChatHub"))
+    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative))
     await bot.close()
-
 
 if __name__ == "__main__":
     asyncio.run(main())
+```
 
+<details>
+<summary>
+
+### 2)  `Query` 和 `Cookie` 助手类
+
+  </summary>
+
+创建一个简易的必应聊天 AI 查询（默认使用精确模式），这样可以只查看主要的文字输出，而不会打出整个 API 响应内容：
+
+```python
+from EdgeGPT import Query, Cookie
+
+q = Query("你是谁？用python代码给出回答")
+print(q)
+```
+
+也可以修改对话模式，或者指定要使用的 cookie 文件：
+
+```python
+q = Query(
+  "你是谁？用python代码给出回答",
+  style="creative",  # 或者平衡模式 'balanced'
+  cookies="./bing_cookies_alternative.json"
+)
+```
+
+使用以下属性快速提取文本输出、代码片段、来源/参考列表或建议的后续问题：
+
+```python
+q.output
+q.code
+q.suggestions
+q.sources       # 用于完整的 JSON 输出
+q.sources_dict  # 用于标题和 URL 的字典
+```
+
+获得原始 prompt 和指定的对话模式：
+
+```python
+q.prompt
+q.style
+repr(q)
+```
+
+通过 import `Query` 获取之前的查询:
+
+```python
+Query.index  # 一个查询对象的列表；是动态更新的
+Query.request_count  # 使用每个 cookie 文件发出的请求数
+```
+
+最后，`Cookie` 类支持多个 Cookie 文件，因此，如果您使用命名约定 `bing_cookies_*.json` 创建其他 Cookie 文件，那么如果超过了每日请求配额（目前设置为200），查询将自动尝试使用下一个文件（按字母顺序）。
+
+这些是可以访问的主要属性:
+
+```python
+Cookie.current_file_index
+Cookie.dirpath
+Cookie.search_pattern  # 默认为 `bing_cookies_*.json`
+Cookie.files()  # 匹配 .search_pattern 的文件列表
+Cookie.current_filepath
+Cookie.current_data
+Cookie.import_next()
+Cookie.image_token
+Cookie.ignore_files
+```
+
+</details>
+
+---
+
+## 使用 Docker 运行
+
+假设当前工作目录有一个文件 `cookies.json`
+
+```bash
+
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt
+```
+
+可以像这样添加任意参数
+
+```bash
+
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt --rich --style creative
 ```
 
 </details>
@@ -150,9 +206,11 @@ if __name__ == "__main__":
 
 <summary>
 
-## 图片生成
+# 图片生成
 
 </summary>
+
+## 从命令行运行
 
 ```bash
 $ python3 -m ImageGen -h
@@ -170,7 +228,25 @@ optional arguments:
   --asyncio             Run ImageGen using asyncio
 ```
 
-### 开发演示
+## 在 Python 运行
+
+### 1)  `ImageQuery` 助手类
+
+使用一个简易提示生成图像，并下载到当前工作目录：
+
+```python
+from EdgeGPT import ImageQuery
+
+q=ImageQuery("Meerkats at a garden party in Devon")
+```
+
+在此会话中修改所有后续图像的下载目录：
+
+```
+Query.image_dirpath = Path("./to_another_folder")
+```
+
+### 2) 使用 `ImageGen` 类和 `asyncio` 类以进行更精细的控制
 
 ```python
 from ImageGen import ImageGen
@@ -184,19 +260,25 @@ async def async_image_gen(args) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-U", help="Auth cookie from browser", type=str)
-    parser.add_argument("--cookie-file", help="File containing auth cookie", type=str)
+    parser.add_argument("-U", help="从浏览器获取的身份认证 cookie", type=str)
+    parser.add_argument("--cookie-file", help="包含认证 cookie 的文件", type=str)
     parser.add_argument(
         "--prompt",
-        help="Prompt to generate images for",
+        help="用于生成图片的 prompt",
         type=str,
         required=True,
     )
     parser.add_argument(
         "--output-dir",
-        help="Output directory",
+        help="输出目录",
         type=str,
         default="./output",
+    )
+    parser.add_argument(
+        "--quiet", help="禁用管道消息", action="store_true"
+    )
+    parser.add_argument(
+        "--asyncio", help="使用 asyncio 运行 ImageGen", action="store_true"
     )
     args = parser.parse_args()
     # Load auth cookie
@@ -208,7 +290,7 @@ if __name__ == "__main__":
                 break
 
     if args.U is None:
-        raise Exception("Could not find auth cookie")
+        raise Exception("未能找到认证 Cookie")
 
     if not args.asyncio:
         # Create image generator
@@ -224,11 +306,11 @@ if __name__ == "__main__":
 
 </details>
 
-## Star历史
+# Star 历史
 
-[![Star历史](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
 
-## 贡献者
+# 贡献者
 
 这个项目的存在要归功于所有做出贡献的人。
 
