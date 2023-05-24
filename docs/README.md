@@ -71,6 +71,12 @@ Microsoft has made the chat feature available to everyone, so you can skip this 
 8. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
 9. Paste your cookies into a file `cookies.json`
 
+### In code:
+```python
+cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())
+bot = await Chatbot.create(cookies=cookies)
+```
+
 ## Running from the Command Line
 
 ```
