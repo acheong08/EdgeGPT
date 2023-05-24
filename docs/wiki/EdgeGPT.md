@@ -75,6 +75,13 @@ class Chatbot()
 
 Combines everything to make it seamless
 
+```python
+@staticmethod
+async def create(
+        proxy: str | None = None,
+        cookies: list[dict] | None = None,
+):
+```
 <a id="EdgeGPT.Chatbot.ask"></a>
 
 #### ask
