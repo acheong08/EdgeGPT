@@ -39,7 +39,7 @@ python3 -m pip install EdgeGPT --upgrade
 ### 要求
 
 - python 3.8+
-- 一个已经通过候补名单的微软账户 <https://bing.com/chat> (必填)
+- 一个可以访问必应聊天的微软账户 <https://bing.com/chat> (可选)
 - 需要在 New Bing 支持的国家或地区（中国大陆需使用VPN）
 - [Selenium](https://pypi.org/project/selenium/) (对于需要自动配置cookie的情况)
 
