@@ -53,14 +53,14 @@ python3 -m pip install EdgeGPT --upgrade
 ## 認證
 
 不用，不需要了。微軟已向所有人提供聊天功能，因此这一步可以跳過了。
-  
+
 1. 安裝最新版本的 Microsoft Edge
 <details>
-  
+
 2. 或者, 您可以使用任何瀏覽器並將用戶代理設置為Edge的用戶代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 這樣的擴展輕鬆完成此操作.
 
 </details>
-  
+
 3. 打開 [bing.com/chat](https://bing.com/chat)
 4. 如果您看到聊天功能，就接著下面的步驟...
 5. 安裝 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 擴展
@@ -121,7 +121,7 @@ if __name__ == "__main__":
   </summary>
 
 創建一個簡單的必應聊天 AI 查詢（預設情況下使用“精確”對話樣式），這樣可以僅查看主要文本輸出，而不是整個 API 回應：
-  
+
 ```python
 from EdgeGPT import Query, Cookie
 
