@@ -16,7 +16,10 @@ import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Generator
-from typing import Literal
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from typing import Optional
 from typing import Union
 
@@ -1024,7 +1027,7 @@ class Query:
             try:
                 bot = await Chatbot.create()
                 if echo_prompt:
-                    print(f"> {self.prompt=}")
+                    print(f"> {self.prompt}=")
                 if echo:
                     print("> Waiting for response...")
                 if self.style.lower() not in "creative balanced precise".split():
