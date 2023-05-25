@@ -39,7 +39,7 @@ python3 -m pip install EdgeGPT --upgrade
 ### Requirements
 
 - python 3.8+
-- A Microsoft Account with early access to <https://bing.com/chat> (Required)
+- A Microsoft Account with access to <https://bing.com/chat> (Optional)
 - Required in a supported country or region with New Bing (Chinese mainland VPN required)
 - [Selenium](https://pypi.org/project/selenium/) (for automatic cookie setup)
 
@@ -55,14 +55,14 @@ python3 -m pip install EdgeGPT --upgrade
 
 !!! NOT REQUIRED ANYMORE !!!
 Microsoft has made the chat feature available to everyone, so you can skip this step.
-  
+
 1. Install the latest version of Microsoft Edge
 <details>
-  
+
 2. Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
 
 </details>
-  
+
 3. Open [bing.com/chat](https://bing.com/chat)
 4. If you see a chat feature, you are good to continue...
 5. Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
@@ -70,6 +70,12 @@ Microsoft has made the chat feature available to everyone, so you can skip this 
 7. Open the extension
 8. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
 9. Paste your cookies into a file `cookies.json`
+
+### In code:
+```python
+cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())
+bot = await Chatbot.create(cookies=cookies)
+```
 
 ## Running from the Command Line
 
@@ -108,7 +114,7 @@ import asyncio
 from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
-    bot = await Chatbot.create()
+    bot = await Chatbot.create() # Passing cookies is optional
     print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative))
     await bot.close()
 

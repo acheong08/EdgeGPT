@@ -16,7 +16,10 @@ import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Generator
-from typing import Literal
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from typing import Optional
 from typing import Union
 
@@ -506,7 +509,7 @@ class _ChatHub:
         result_text = ""
         resp_txt_no_link = ""
         while not final:
-            msg = await self.wss.receive()
+            msg = await self.wss.receive(timeout=10)
             objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or not obj:
@@ -589,7 +592,7 @@ class _ChatHub:
 
     async def _initial_handshake(self) -> None:
         await self.wss.send_str(_append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.receive()
+        await self.wss.receive(timeout=10)
 
     async def close(self) -> None:
         """
@@ -693,7 +696,7 @@ class Chatbot:
         """
         await self.close()
         self.chat_hub = _ChatHub(
-            await _Conversation.create(self.proxy),
+            await _Conversation.create(self.proxy, cookies=self.chat_hub.cookies),
             proxy=self.proxy,
             cookies=self.chat_hub.cookies,
         )
@@ -1024,7 +1027,7 @@ class Query:
             try:
                 bot = await Chatbot.create()
                 if echo_prompt:
-                    print(f"> {self.prompt=}")
+                    print(f"> {self.prompt}=")
                 if echo:
                     print("> Waiting for response...")
                 if self.style.lower() not in "creative balanced precise".split():

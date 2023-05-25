@@ -39,6 +39,7 @@ python3 -m pip install EdgeGPT --upgrade
 ### 要求
 
 - python 3.8+
+- 一个可以访问必应聊天的微软账户 <https://bing.com/chat> (可选)
 - 需要在 New Bing 支持的国家或地区（中国大陆需使用VPN）
 - [Selenium](https://pypi.org/project/selenium/) (对于需要自动配置cookie的情况)
 
@@ -53,14 +54,14 @@ python3 -m pip install EdgeGPT --upgrade
 ## 身份验证
 
 不用，不需要了。微软已将聊天功能开放给所有人，这一步可以省略了。
-  
+
 1. 安装最新版本的 Microsoft Edge
 <details>
-  
+
 2. 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作.
 
 </details>
-  
+
 3. 打开 [bing.com/chat](https://bing.com/chat)
 4. 如果您看到聊天功能，就接着下面的步骤...
 5. 安装 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 扩展
@@ -68,6 +69,12 @@ python3 -m pip install EdgeGPT --upgrade
 7. 打开扩展程序
 8. 点击右下角的"导出" ，然后点击"导出为 JSON" (将会把内容保存到你的剪贴板上)
 9. 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
+  
+### 在代码中：
+```python
+cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())
+bot = await Chatbot.create(cookies=cookies)
+```
 
 ## 从命令行运行
 
