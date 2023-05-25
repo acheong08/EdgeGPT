@@ -744,6 +744,15 @@ async def async_main(args: argparse.Namespace) -> None:
     """
     Main function
     """
+    # Log chat history
+    log = None
+    if args.history_file:
+        if os.path.exists(args.history_file):
+            log = open(args.history_file, 'a')
+            log.write("\n\n================================================================================\n\n")
+            log.flush()
+        else:
+            log = open(args.history_file, 'w')
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
     # Read and parse cookies
@@ -757,6 +766,9 @@ async def async_main(args: argparse.Namespace) -> None:
 
     while True:
         print("\nYou:")
+        if log:
+            log.write("You:\n")
+            log.flush()
         if initial_prompt:
             question = initial_prompt
             print(question)
@@ -783,16 +795,22 @@ async def async_main(args: argparse.Namespace) -> None:
             await bot.reset()
             continue
         print("Bot:")
+        if log:
+            log.write(question + "\n")
+            log.write("\nBot:\n")
+            log.flush()
         if args.no_stream:
-            print(
-                (
+            response=(
                     await bot.ask(
                         prompt=question,
                         conversation_style=args.style,
                         wss_link=args.wss_link,
                     )
-                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"],
-            )
+                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+            print(response)
+            if log:
+                log.write(response + "\n")
+                log.flush()
         else:
             wrote = 0
             if args.rich:
@@ -804,6 +822,13 @@ async def async_main(args: argparse.Namespace) -> None:
                         wss_link=args.wss_link,
                     ):
                         if not final:
+                            if log:
+                                if not wrote:
+                                    log.write(response)
+                                    log.flush()
+                                else:
+                                    log.write(response[wrote:])
+                                    log.flush()
                             if wrote > len(response):
                                 print(md)
                                 print(Markdown("***Bing revoked the response.***"))
@@ -819,10 +844,19 @@ async def async_main(args: argparse.Namespace) -> None:
                     if not final:
                         if not wrote:
                             print(response, end="", flush=True)
+                            if log:
+                                log.write(response)
+                                log.flush()
                         else:
                             print(response[wrote:], end="", flush=True)
+                            if log:
+                                log.write(response[wrote:])
+                                log.flush()
                         wrote = len(response)
                 print()
+                if log:
+                    log.write("\n\n")
+                    log.flush()
     await bot.close()
 
 
@@ -871,6 +905,13 @@ def main() -> None:
         default="",
         required=False,
         help="path to cookie file",
+    )
+    parser.add_argument(
+        "--history-file",
+        type=str,
+        default="",
+        required=False,
+        help="path to history file",
     )
     args = parser.parse_args()
     asyncio.run(async_main(args))
