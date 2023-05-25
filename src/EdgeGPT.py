@@ -696,7 +696,7 @@ class Chatbot:
         """
         await self.close()
         self.chat_hub = _ChatHub(
-            await _Conversation.create(self.proxy),
+            await _Conversation.create(self.proxy, cookies=self.chat_hub.cookies),
             proxy=self.proxy,
             cookies=self.chat_hub.cookies,
         )
