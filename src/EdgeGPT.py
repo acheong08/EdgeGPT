@@ -509,7 +509,7 @@ class _ChatHub:
         result_text = ""
         resp_txt_no_link = ""
         while not final:
-            msg = await self.wss.receive()
+            msg = await self.wss.receive(timeout=10)
             objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or not obj:
@@ -592,7 +592,7 @@ class _ChatHub:
 
     async def _initial_handshake(self) -> None:
         await self.wss.send_str(_append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.receive()
+        await self.wss.receive(timeout=10)
 
     async def close(self) -> None:
         """
