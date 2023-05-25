@@ -739,20 +739,18 @@ def _create_session() -> PromptSession:
 def _create_completer(commands: list, pattern_str: str = "$"):
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
+def _create_history_logger(f):
+    def logger(*args, **kwargs):
+        tmp = sys.stdout
+        sys.stdout = f
+        print(*args, **kwargs, flush=True)
+        sys.stdout = tmp
+    return logger
 
 async def async_main(args: argparse.Namespace) -> None:
     """
     Main function
     """
-    # Log chat history
-    log = None
-    if args.history_file:
-        if os.path.exists(args.history_file):
-            log = open(args.history_file, 'a')
-            log.write("\n\n================================================================================\n\n")
-            log.flush()
-        else:
-            log = open(args.history_file, 'w')
     print("Initializing...")
     print("Enter `alt+enter` or `escape+enter` to send a message")
     # Read and parse cookies
@@ -764,11 +762,16 @@ async def async_main(args: argparse.Namespace) -> None:
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
+    # Log chat history
+    def p_hist():
+        pass
+    if args.history_file:
+        f = open(args.history_file, 'a+')
+        p_hist = _create_history_logger(f)
+
     while True:
         print("\nYou:")
-        if log:
-            log.write("You:\n")
-            log.flush()
+        p_hist("\nYou:")
         if initial_prompt:
             question = initial_prompt
             print(question)
@@ -780,6 +783,7 @@ async def async_main(args: argparse.Namespace) -> None:
                 else await _get_input_async(session=session, completer=completer)
             )
         print()
+        p_hist(question + "\n")
         if question == "!exit":
             break
         if question == "!help":
@@ -795,10 +799,7 @@ async def async_main(args: argparse.Namespace) -> None:
             await bot.reset()
             continue
         print("Bot:")
-        if log:
-            log.write(question + "\n")
-            log.write("\nBot:\n")
-            log.flush()
+        p_hist("Bot:")
         if args.no_stream:
             response=(
                     await bot.ask(
@@ -808,9 +809,7 @@ async def async_main(args: argparse.Namespace) -> None:
                     )
                 )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
             print(response)
-            if log:
-                log.write(response + "\n")
-                log.flush()
+            p_hist(response)
         else:
             wrote = 0
             if args.rich:
@@ -822,13 +821,10 @@ async def async_main(args: argparse.Namespace) -> None:
                         wss_link=args.wss_link,
                     ):
                         if not final:
-                            if log:
-                                if not wrote:
-                                    log.write(response)
-                                    log.flush()
-                                else:
-                                    log.write(response[wrote:])
-                                    log.flush()
+                            if not wrote:
+                                p_hist(response, end="")
+                            else:
+                                p_hist(response[wrote:], end="")
                             if wrote > len(response):
                                 print(md)
                                 print(Markdown("***Bing revoked the response.***"))
@@ -844,19 +840,15 @@ async def async_main(args: argparse.Namespace) -> None:
                     if not final:
                         if not wrote:
                             print(response, end="", flush=True)
-                            if log:
-                                log.write(response)
-                                log.flush()
+                            p_hist(response, end="")
                         else:
                             print(response[wrote:], end="", flush=True)
-                            if log:
-                                log.write(response[wrote:])
-                                log.flush()
+                            p_hist(response[wrote:], end="")
                         wrote = len(response)
                 print()
-                if log:
-                    log.write("\n\n")
-                    log.flush()
+                p_hist()
+    if args.history_file:
+        f.close()
     await bot.close()
 
 
