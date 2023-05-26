@@ -319,7 +319,7 @@ class _Conversation:
             proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.Client(
             proxies=proxy,
-            timeout=30,
+            timeout=900,
             headers=HEADERS_INIT_CONVER,
         )
         if cookies:
@@ -371,7 +371,7 @@ class _Conversation:
         )
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
-        transport = httpx.AsyncHTTPTransport(retries=10)
+        transport = httpx.AsyncHTTPTransport(retries=900)
         # Convert cookie format to httpx format
         formatted_cookies = None
         if cookies:
@@ -447,7 +447,7 @@ class _ChatHub:
         """
         Ask a question to the bot
         """
-        timeout = aiohttp.ClientTimeout(total=30)
+        timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
 
         if self.wss and not self.wss.closed:
@@ -509,7 +509,7 @@ class _ChatHub:
         result_text = ""
         resp_txt_no_link = ""
         while not final:
-            msg = await self.wss.receive(timeout=10)
+            msg = await self.wss.receive(timeout=900)
             objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or not obj:
@@ -592,7 +592,7 @@ class _ChatHub:
 
     async def _initial_handshake(self) -> None:
         await self.wss.send_str(_append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.receive(timeout=10)
+        await self.wss.receive(timeout=900)
 
     async def close(self) -> None:
         """
