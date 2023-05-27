@@ -16,6 +16,7 @@ import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Generator
+
 try:
     from typing import Literal
 except ImportError:
@@ -107,17 +108,15 @@ class ConversationStyle(Enum):
         "responsible_ai_policy_235",
         "enablemm",
         "h3imaginative",
-        "travelansgnd",
+        "cachewriteext",
+        "e2ecachewrite",
+        "nodlcpcwrite",
+        "nointernalsugg",
+        "saharasugg",
+        "enablenewsfc",
         "dv3sugg",
         "clgalileo",
         "gencontentv3",
-        "dv3sugg",
-        "responseos",
-        "e2ecachewrite",
-        "cachewriteext",
-        "nodlcpcwrite",
-        "travelansgnd",
-        "nojbfedge",
     ]
     balanced = [
         "nlu_direct_response_filter",
@@ -126,13 +125,13 @@ class ConversationStyle(Enum):
         "responsible_ai_policy_235",
         "enablemm",
         "galileo",
-        "dv3sugg",
-        "responseos",
-        "e2ecachewrite",
         "cachewriteext",
+        "e2ecachewrite",
         "nodlcpcwrite",
-        "travelansgnd",
-        "nojbfedge",
+        "nointernalsugg",
+        "saharasugg",
+        "enablenewsfc",
+        "dv3sugg",
     ]
     precise = [
         "nlu_direct_response_filter",
@@ -140,16 +139,16 @@ class ConversationStyle(Enum):
         "disable_emoji_spoken_text",
         "responsible_ai_policy_235",
         "enablemm",
-        "galileo",
-        "dv3sugg",
-        "responseos",
-        "e2ecachewrite",
-        "cachewriteext",
-        "nodlcpcwrite",
-        "travelansgnd",
         "h3precise",
+        "cachewriteext",
+        "e2ecachewrite",
+        "nodlcpcwrite",
+        "nointernalsugg",
+        "saharasugg",
+        "enablenewsfc",
+        "dv3sugg",
         "clgalileo",
-        "nojbfedge",
+        "gencontentv3",
     ]
 
 
