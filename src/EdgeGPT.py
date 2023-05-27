@@ -738,6 +738,13 @@ def _create_session() -> PromptSession:
 def _create_completer(commands: list, pattern_str: str = "$"):
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
+def _create_history_logger(f):
+    def logger(*args, **kwargs):
+        tmp = sys.stdout
+        sys.stdout = f
+        print(*args, **kwargs, flush=True)
+        sys.stdout = tmp
+    return logger
 
 async def async_main(args: argparse.Namespace) -> None:
     """
@@ -754,8 +761,16 @@ async def async_main(args: argparse.Namespace) -> None:
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
+    # Log chat history
+    def p_hist():
+        pass
+    if args.history_file:
+        f = open(args.history_file, 'a+')
+        p_hist = _create_history_logger(f)
+
     while True:
         print("\nYou:")
+        p_hist("\nYou:")
         if initial_prompt:
             question = initial_prompt
             print(question)
@@ -767,6 +782,7 @@ async def async_main(args: argparse.Namespace) -> None:
                 else await _get_input_async(session=session, completer=completer)
             )
         print()
+        p_hist(question + "\n")
         if question == "!exit":
             break
         if question == "!help":
@@ -782,16 +798,17 @@ async def async_main(args: argparse.Namespace) -> None:
             await bot.reset()
             continue
         print("Bot:")
+        p_hist("Bot:")
         if args.no_stream:
-            print(
-                (
+            response=(
                     await bot.ask(
                         prompt=question,
                         conversation_style=args.style,
                         wss_link=args.wss_link,
                     )
-                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"],
-            )
+                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+            print(response)
+            p_hist(response)
         else:
             wrote = 0
             if args.rich:
@@ -803,6 +820,10 @@ async def async_main(args: argparse.Namespace) -> None:
                         wss_link=args.wss_link,
                     ):
                         if not final:
+                            if not wrote:
+                                p_hist(response, end="")
+                            else:
+                                p_hist(response[wrote:], end="")
                             if wrote > len(response):
                                 print(md)
                                 print(Markdown("***Bing revoked the response.***"))
@@ -818,10 +839,15 @@ async def async_main(args: argparse.Namespace) -> None:
                     if not final:
                         if not wrote:
                             print(response, end="", flush=True)
+                            p_hist(response, end="")
                         else:
                             print(response[wrote:], end="", flush=True)
+                            p_hist(response[wrote:], end="")
                         wrote = len(response)
                 print()
+                p_hist()
+    if args.history_file:
+        f.close()
     await bot.close()
 
 
@@ -870,6 +896,13 @@ def main() -> None:
         default="",
         required=False,
         help="path to cookie file",
+    )
+    parser.add_argument(
+        "--history-file",
+        type=str,
+        default="",
+        required=False,
+        help="path to history file",
     )
     args = parser.parse_args()
     asyncio.run(async_main(args))
