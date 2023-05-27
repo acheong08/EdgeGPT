@@ -762,7 +762,7 @@ async def async_main(args: argparse.Namespace) -> None:
     initial_prompt = args.prompt
 
     # Log chat history
-    def p_hist():
+    def p_hist(*args, **kwargs):
         pass
     if args.history_file:
         f = open(args.history_file, 'a+')
