@@ -927,7 +927,7 @@ class Cookie:
     dirpath = Path("./").resolve()
     search_pattern = "bing_cookies_*.json"
     ignore_files = set()
-    current_filepath: dict|None = None
+    current_filepath: dict | None = None
 
     @classmethod
     def fetch_default(cls, path=None):
@@ -968,11 +968,11 @@ class Cookie:
         """
         try:
             cls.current_filepath = cls.files()[cls.current_file_index]
-        except IndexError:
+        except IndexError as exc:
             print(
                 "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()",
             )
-            return
+            raise "No valid cookie file found." from exc
         print(f"> Importing cookies from: {cls.current_filepath.name}")
         with open(cls.current_filepath, encoding="utf-8") as file:
             cls.current_data = json.load(file)
