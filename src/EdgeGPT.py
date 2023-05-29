@@ -927,6 +927,7 @@ class Cookie:
     dirpath = Path("./").resolve()
     search_pattern = "bing_cookies_*.json"
     ignore_files = set()
+    current_filepath: dict|None = None
 
     @classmethod
     def fetch_default(cls, path=None):
@@ -977,7 +978,6 @@ class Cookie:
             cls.current_data = json.load(file)
         cls.image_token = [x for x in cls.current_data if x.get("name") == "_U"]
         cls.image_token = cls.image_token[0].get("value")
-        return cls.current_data
 
     @classmethod
     def import_next(cls):
@@ -1068,8 +1068,9 @@ class Query:
         while retries:
             try:
                 # Read the cookies file
-                cookie_data = Cookie.import_data()
-                bot = await Chatbot.create(proxy=self.proxy, cookies=cookie_data)
+                bot = await Chatbot.create(
+                    proxy=self.proxy, cookies=Cookie.current_data
+                )
                 if echo_prompt:
                     print(f"> {self.prompt}=")
                 if echo:
