@@ -741,13 +741,16 @@ def _create_session() -> PromptSession:
 def _create_completer(commands: list, pattern_str: str = "$"):
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
+
 def _create_history_logger(f):
     def logger(*args, **kwargs):
         tmp = sys.stdout
         sys.stdout = f
         print(*args, **kwargs, flush=True)
         sys.stdout = tmp
+
     return logger
+
 
 async def async_main(args: argparse.Namespace) -> None:
     """
@@ -767,8 +770,9 @@ async def async_main(args: argparse.Namespace) -> None:
     # Log chat history
     def p_hist(*args, **kwargs):
         pass
+
     if args.history_file:
-        f = open(args.history_file, 'a+',encoding="utf-8")
+        f = open(args.history_file, "a+", encoding="utf-8")
         p_hist = _create_history_logger(f)
 
     while True:
@@ -803,13 +807,13 @@ async def async_main(args: argparse.Namespace) -> None:
         print("Bot:")
         p_hist("Bot:")
         if args.no_stream:
-            response=(
-                    await bot.ask(
-                        prompt=question,
-                        conversation_style=args.style,
-                        wss_link=args.wss_link,
-                    )
-                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+            response = (
+                await bot.ask(
+                    prompt=question,
+                    conversation_style=args.style,
+                    wss_link=args.wss_link,
+                )
+            )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
             print(response)
             p_hist(response)
         else:
@@ -1025,7 +1029,7 @@ class Query:
                 message = "'cookie_file' must be an int, str, or Path object"
                 raise TypeError(message)
             cookie_file = Path(cookie_file)
-            if cookie_file in files():  # Supplied filepath IS in Cookie.dirpath
+            if cookie_file in files:  # Supplied filepath IS in Cookie.dirpath
                 index = files.index(cookie_file)
             else:  # Supplied filepath is NOT in Cookie.dirpath
                 if cookie_file.is_file():
