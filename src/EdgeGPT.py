@@ -16,6 +16,7 @@ import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Generator
+
 try:
     from typing import Literal
 except ImportError:
@@ -107,16 +108,15 @@ class ConversationStyle(Enum):
         "responsible_ai_policy_235",
         "enablemm",
         "h3imaginative",
-        "travelansgnd",
+        "cachewriteext",
+        "e2ecachewrite",
+        "nodlcpcwrite",
+        "nointernalsugg",
+        "saharasugg",
+        "enablenewsfc",
         "dv3sugg",
         "clgalileo",
         "gencontentv3",
-        "dv3sugg",
-        "responseos",
-        "e2ecachewrite",
-        "cachewriteext",
-        "nodlcpcwrite",
-        "travelansgnd",
         "nojbfedge",
     ]
     balanced = [
@@ -125,13 +125,14 @@ class ConversationStyle(Enum):
         "disable_emoji_spoken_text",
         "responsible_ai_policy_235",
         "enablemm",
-        "galileo",
-        "dv3sugg",
-        "responseos",
-        "e2ecachewrite",
+        "harmonyv3",
         "cachewriteext",
+        "e2ecachewrite",
         "nodlcpcwrite",
-        "travelansgnd",
+        "nointernalsugg",
+        "saharasugg",
+        "enablenewsfc",
+        "dv3sugg",
         "nojbfedge",
     ]
     precise = [
@@ -140,15 +141,16 @@ class ConversationStyle(Enum):
         "disable_emoji_spoken_text",
         "responsible_ai_policy_235",
         "enablemm",
-        "galileo",
-        "dv3sugg",
-        "responseos",
-        "e2ecachewrite",
-        "cachewriteext",
-        "nodlcpcwrite",
-        "travelansgnd",
         "h3precise",
+        "cachewriteext",
+        "e2ecachewrite",
+        "nodlcpcwrite",
+        "nointernalsugg",
+        "saharasugg",
+        "enablenewsfc",
+        "dv3sugg",
         "clgalileo",
+        "gencontentv3",
         "nojbfedge",
     ]
 
@@ -319,7 +321,7 @@ class _Conversation:
             proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.Client(
             proxies=proxy,
-            timeout=30,
+            timeout=900,
             headers=HEADERS_INIT_CONVER,
         )
         if cookies:
@@ -371,7 +373,7 @@ class _Conversation:
         )
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
-        transport = httpx.AsyncHTTPTransport(retries=10)
+        transport = httpx.AsyncHTTPTransport(retries=900)
         # Convert cookie format to httpx format
         formatted_cookies = None
         if cookies:
@@ -447,7 +449,7 @@ class _ChatHub:
         """
         Ask a question to the bot
         """
-        timeout = aiohttp.ClientTimeout(total=30)
+        timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
 
         if self.wss and not self.wss.closed:
@@ -509,7 +511,7 @@ class _ChatHub:
         result_text = ""
         resp_txt_no_link = ""
         while not final:
-            msg = await self.wss.receive(timeout=10)
+            msg = await self.wss.receive(timeout=900)
             objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or not obj:
@@ -592,7 +594,7 @@ class _ChatHub:
 
     async def _initial_handshake(self) -> None:
         await self.wss.send_str(_append_identifier({"protocol": "json", "version": 1}))
-        await self.wss.receive(timeout=10)
+        await self.wss.receive(timeout=900)
 
     async def close(self) -> None:
         """
@@ -740,6 +742,16 @@ def _create_completer(commands: list, pattern_str: str = "$"):
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
 
+def _create_history_logger(f):
+    def logger(*args, **kwargs):
+        tmp = sys.stdout
+        sys.stdout = f
+        print(*args, **kwargs, flush=True)
+        sys.stdout = tmp
+
+    return logger
+
+
 async def async_main(args: argparse.Namespace) -> None:
     """
     Main function
@@ -755,8 +767,17 @@ async def async_main(args: argparse.Namespace) -> None:
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
+    # Log chat history
+    def p_hist(*args, **kwargs):
+        pass
+
+    if args.history_file:
+        f = open(args.history_file, "a+", encoding="utf-8")
+        p_hist = _create_history_logger(f)
+
     while True:
         print("\nYou:")
+        p_hist("\nYou:")
         if initial_prompt:
             question = initial_prompt
             print(question)
@@ -768,6 +789,7 @@ async def async_main(args: argparse.Namespace) -> None:
                 else await _get_input_async(session=session, completer=completer)
             )
         print()
+        p_hist(question + "\n")
         if question == "!exit":
             break
         if question == "!help":
@@ -783,16 +805,17 @@ async def async_main(args: argparse.Namespace) -> None:
             await bot.reset()
             continue
         print("Bot:")
+        p_hist("Bot:")
         if args.no_stream:
-            print(
-                (
-                    await bot.ask(
-                        prompt=question,
-                        conversation_style=args.style,
-                        wss_link=args.wss_link,
-                    )
-                )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"],
-            )
+            response = (
+                await bot.ask(
+                    prompt=question,
+                    conversation_style=args.style,
+                    wss_link=args.wss_link,
+                )
+            )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
+            print(response)
+            p_hist(response)
         else:
             wrote = 0
             if args.rich:
@@ -804,6 +827,10 @@ async def async_main(args: argparse.Namespace) -> None:
                         wss_link=args.wss_link,
                     ):
                         if not final:
+                            if not wrote:
+                                p_hist(response, end="")
+                            else:
+                                p_hist(response[wrote:], end="")
                             if wrote > len(response):
                                 print(md)
                                 print(Markdown("***Bing revoked the response.***"))
@@ -819,10 +846,15 @@ async def async_main(args: argparse.Namespace) -> None:
                     if not final:
                         if not wrote:
                             print(response, end="", flush=True)
+                            p_hist(response, end="")
                         else:
                             print(response[wrote:], end="", flush=True)
+                            p_hist(response[wrote:], end="")
                         wrote = len(response)
                 print()
+                p_hist()
+    if args.history_file:
+        f.close()
     await bot.close()
 
 
@@ -872,6 +904,13 @@ def main() -> None:
         required=False,
         help="path to cookie file",
     )
+    parser.add_argument(
+        "--history-file",
+        type=str,
+        default="",
+        required=False,
+        help="path to history file",
+    )
     args = parser.parse_args()
     asyncio.run(async_main(args))
 
@@ -888,6 +927,7 @@ class Cookie:
     dirpath = Path("./").resolve()
     search_pattern = "bing_cookies_*.json"
     ignore_files = set()
+    current_filepath: dict | None = None
 
     @classmethod
     def fetch_default(cls, path=None):
@@ -928,11 +968,11 @@ class Cookie:
         """
         try:
             cls.current_filepath = cls.files()[cls.current_file_index]
-        except IndexError:
+        except IndexError as exc:
             print(
                 "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()",
             )
-            return
+            raise "No valid cookie file found." from exc
         print(f"> Importing cookies from: {cls.current_filepath.name}")
         with open(cls.current_filepath, encoding="utf-8") as file:
             cls.current_data = json.load(file)
@@ -965,6 +1005,7 @@ class Query:
         cookie_file=0,
         echo=True,
         echo_prompt=False,
+        proxy: str | None = None,
     ):
         """
         Arguments:
@@ -976,6 +1017,7 @@ class Query:
         echo: Print something to confirm request made
         echo_prompt: Print confirmation of the evaluated prompt
         """
+        self.proxy = proxy
         self.index = []
         self.request_count = {}
         self.image_dirpath = Path("./").resolve()
@@ -990,7 +1032,7 @@ class Query:
                 message = "'cookie_file' must be an int, str, or Path object"
                 raise TypeError(message)
             cookie_file = Path(cookie_file)
-            if cookie_file in files():  # Supplied filepath IS in Cookie.dirpath
+            if cookie_file in files:  # Supplied filepath IS in Cookie.dirpath
                 index = files.index(cookie_file)
             else:  # Supplied filepath is NOT in Cookie.dirpath
                 if cookie_file.is_file():
@@ -1025,7 +1067,10 @@ class Query:
         retries = len(Cookie.files())
         while retries:
             try:
-                bot = await Chatbot.create()
+                # Read the cookies file
+                bot = await Chatbot.create(
+                    proxy=self.proxy, cookies=Cookie.current_data
+                )
                 if echo_prompt:
                     print(f"> {self.prompt}=")
                 if echo:
