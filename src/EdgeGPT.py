@@ -1004,6 +1004,7 @@ class Query:
         cookie_file=0,
         echo=True,
         echo_prompt=False,
+        proxy: str | None = None,
     ):
         """
         Arguments:
@@ -1015,6 +1016,7 @@ class Query:
         echo: Print something to confirm request made
         echo_prompt: Print confirmation of the evaluated prompt
         """
+        self.proxy = proxy
         self.index = []
         self.request_count = {}
         self.image_dirpath = Path("./").resolve()
@@ -1064,7 +1066,7 @@ class Query:
         retries = len(Cookie.files())
         while retries:
             try:
-                bot = await Chatbot.create()
+                bot = await Chatbot.create(proxy=self.proxy)
                 if echo_prompt:
                     print(f"> {self.prompt}=")
                 if echo:
