@@ -3,7 +3,7 @@
 
 # Edge GPT
 
-_新必應的逆向工程_
+_新必應聊天功能的逆向工程_
 
 <a href="./README.md">English</a> -
 <a href="./README_zh-cn.md">简体中文</a> -
@@ -90,7 +90,9 @@ bot = await Chatbot.create(cookies=cookies)
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--style {creative,balanced,precise}]
+usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
+                  [--style {creative,balanced,precise}] [--prompt PROMPT] [--cookie-file COOKIE_FILE]
+                  [--history-file HISTORY_FILE]
 
 options:
   -h, --help            show this help message and exit
@@ -98,7 +100,13 @@ options:
   --no-stream
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
+  --wss-link WSS_LINK   WSS URL(e.g. wss://sydney.bing.com/sydney/ChatHub)
   --style {creative,balanced,precise}
+  --prompt PROMPT       prompt to start with
+  --cookie-file COOKIE_FILE
+                        path to cookie file
+  --history-file HISTORY_FILE
+                        path to history file
 ```
 
 ## 在 Python 運行
