@@ -1187,7 +1187,7 @@ class Query:
         else:
             self.request_count[name] += 1
 
-    def create_image(self):
+    def create_image(self) -> None:
         image_generator = ImageGen(Cookie.image_token)
         image_generator.save_images(
             image_generator.get_images(self.prompt),
