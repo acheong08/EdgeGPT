@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import aiofiles
 import json
 import os
 import random
@@ -636,6 +637,20 @@ class Chatbot:
             cookies=cookies,
         )
         return self
+
+    async def save_conversation(self, filename: str) -> None:
+        """
+        Save the conversation to a file
+        """
+        async with aiofiles.open(filename, "w") as f:
+            f.write(json.dumps(self.chat_hub.struct))
+
+    async def load_conversation(self, filename: str) -> None:
+        """
+        Load the conversation from a file
+        """
+        async with aiofiles.open(filename, "r") as f:
+            self.chat_hub.struct = json.loads(await f.read())
 
     async def ask(
         self,
