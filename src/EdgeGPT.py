@@ -23,7 +23,6 @@ try:
 except ImportError:
     from typing_extensions import Literal
 from typing import Optional
-from typing import Union
 
 import aiohttp
 import certifi
@@ -117,7 +116,7 @@ class LocationHint(Enum):
                 },
                 "RegionType": 2,
                 "SourceType": 1,
-            }
+            },
         ],
     }
     CHINA = {
@@ -135,7 +134,7 @@ class LocationHint(Enum):
                 },
                 "RegionType": 2,
                 "SourceType": 1,
-            }
+            },
         ],
     }
     EU = {
@@ -153,7 +152,7 @@ class LocationHint(Enum):
                 },
                 "RegionType": 2,
                 "SourceType": 1,
-            }
+            },
         ],
     }
     UK = {
@@ -176,21 +175,18 @@ class LocationHint(Enum):
     }
 
 
-LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU", "UK"]]]
+LOCATION_HINT_TYPES = Optional[LocationHint | Literal["USA", "CHINA", "EU", "UK"]]
 
 
 def get_location_hint_from_locale(locale: str) -> dict | None:
     locale = locale.lower()
     if locale == "en-us":
         return LocationHint.USA.value
-    elif locale == "zh-cn":
+    if locale == "zh-cn":
         return LocationHint.CHINA.value
-    elif locale == "en-gb":
+    if locale == "en-gb":
         return LocationHint.UK.value
-    elif locale == "en-ie":
-        return LocationHint.EU.value
-    else:
-        return None
+    return LocationHint.EU.value if locale == "en-ie" else None
 
 
 class ConversationStyle(Enum):
@@ -249,7 +245,7 @@ class ConversationStyle(Enum):
 
 
 CONVERSATION_STYLE_TYPE = Optional[
-    Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
+    ConversationStyle | Literal["creative", "balanced", "precise"]
 ]
 
 
@@ -636,7 +632,7 @@ class _ChatHub:
                                     response["arguments"][0]["messages"][0]["text"],
                                 )
                             for i, image in enumerate(images):
-                                resp_txt = resp_txt + f"\n![image{i}]({image})"
+                                resp_txt = f"{resp_txt}\n![image{i}]({image})"
                             draw = True
                         if (
                             response["arguments"][0]["messages"][0]["contentOrigin"]
@@ -731,7 +727,7 @@ class Chatbot:
     async def create(
         proxy: str | None = None,
         cookies: list[dict] | None = None,
-    ):
+    ) -> Chatbot:
         self = Chatbot.__new__(Chatbot)
         self.proxy = proxy
         self.chat_hub = _ChatHub(
@@ -745,14 +741,14 @@ class Chatbot:
         """
         Save the conversation to a file
         """
-        async with aiofiles.open(filename, "w") as f:
+        async with aiofiles.Path.open(filename, "w") as f:
             f.write(json.dumps(self.chat_hub.struct))
 
     async def load_conversation(self, filename: str) -> None:
         """
         Load the conversation from a file
         """
-        async with aiofiles.open(filename, "r") as f:
+        async with aiofiles.Path.open(filename, "r") as f:
             self.chat_hub.struct = json.loads(await f.read())
 
     async def ask(
@@ -844,7 +840,7 @@ def _create_session() -> PromptSession:
     kb = KeyBindings()
 
     @kb.add("enter")
-    def _(event):
+    def _(event) -> None:
         buffer_text = event.current_buffer.text
         if buffer_text.startswith("!"):
             event.current_buffer.validate_and_handle()
@@ -852,7 +848,7 @@ def _create_session() -> PromptSession:
             event.current_buffer.insert_text("\n")
 
     @kb.add("escape")
-    def _(event):
+    def _(event) -> None:
         if event.current_buffer.complete_state:
             # event.current_buffer.cancel_completion()
             event.current_buffer.text = ""
@@ -860,12 +856,12 @@ def _create_session() -> PromptSession:
     return PromptSession(key_bindings=kb, history=InMemoryHistory())
 
 
-def _create_completer(commands: list, pattern_str: str = "$"):
+def _create_completer(commands: list, pattern_str: str = "$") -> WordCompleter:
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
 
 def _create_history_logger(f):
-    def logger(*args, **kwargs):
+    def logger(*args, **kwargs) -> None:
         tmp = sys.stdout
         sys.stdout = f
         print(*args, **kwargs, flush=True)
@@ -883,18 +879,18 @@ async def async_main(args: argparse.Namespace) -> None:
     # Read and parse cookies
     cookies = None
     if args.cookie_file:
-        cookies = json.loads(open(args.cookie_file, encoding="utf-8").read())
+        cookies = json.loads(Path.open(args.cookie_file, encoding="utf-8").read())
     bot = await Chatbot.create(proxy=args.proxy, cookies=cookies)
     session = _create_session()
     completer = _create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
     # Log chat history
-    def p_hist(*args, **kwargs):
+    def p_hist(*args, **kwargs) -> None:
         pass
 
     if args.history_file:
-        f = open(args.history_file, "a+", encoding="utf-8")
+        f = Path.open(args.history_file, "a+", encoding="utf-8")
         p_hist = _create_history_logger(f)
 
     while True:
@@ -1066,7 +1062,7 @@ class Cookie:
     current_filepath: dict | None = None
 
     @classmethod
-    def fetch_default(cls, path=None):
+    def fetch_default(cls, path: Path | None = None) -> None:
         from selenium import webdriver
         from selenium.webdriver.common.by import By
 
@@ -1088,13 +1084,13 @@ class Cookie:
         driver.quit()
 
     @classmethod
-    def files(cls):
+    def files(cls) -> list[Path]:
         """Return a sorted list of all cookie files matching .search_pattern"""
         all_files = set(cls.dirpath.glob(cls.search_pattern))
-        return sorted(list(all_files - cls.ignore_files))
+        return sorted(all_files - cls.ignore_files)
 
     @classmethod
-    def import_data(cls):
+    def import_data(cls) -> None:
         """
         Read the active cookie file and populate the following attributes:
 
@@ -1110,13 +1106,13 @@ class Cookie:
             )
             raise "No valid cookie file found." from exc
         print(f"> Importing cookies from: {cls.current_filepath.name}")
-        with open(cls.current_filepath, encoding="utf-8") as file:
+        with Path.open(cls.current_filepath, encoding="utf-8") as file:
             cls.current_data = json.load(file)
         cls.image_token = [x for x in cls.current_data if x.get("name") == "_U"]
         cls.image_token = cls.image_token[0].get("value")
 
     @classmethod
-    def import_next(cls):
+    def import_next(cls) -> None:
         """
         Cycle through to the next cookies file.  Import it.  Mark the previous
         file to be ignored for the remainder of the current session.
@@ -1135,14 +1131,14 @@ class Query:
 
     def __init__(
         self,
-        prompt,
-        style="precise",
-        content_type="text",
-        cookie_file=0,
-        echo=True,
-        echo_prompt=False,
+        prompt: str,
+        style: str = "precise",
+        content_type: str = "text",
+        cookie_file: int = 0,
+        echo: bool = True,
+        echo_prompt: bool = True,
         proxy: str | None = None,
-    ):
+    ) -> None:
         """
         Arguments:
 
@@ -1164,7 +1160,7 @@ class Query:
         if isinstance(cookie_file, int):
             index = cookie_file if cookie_file < len(files) else 0
         else:
-            if not isinstance(cookie_file, (str, Path)):
+            if not isinstance(cookie_file, str | Path):
                 message = "'cookie_file' must be an int, str, or Path object"
                 raise TypeError(message)
             cookie_file = Path(cookie_file)
@@ -1183,7 +1179,7 @@ class Query:
         if content_type == "image":
             self.create_image()
 
-    def log_and_send_query(self, echo, echo_prompt):
+    def log_and_send_query(self, echo: bool, echo_prompt: bool) -> None:
         self.response = asyncio.run(self.send_to_bing(echo, echo_prompt))
         name = str(Cookie.current_filepath.name)
         if not self.request_count.get(name):
@@ -1198,14 +1194,15 @@ class Query:
             output_dir=self.image_dirpath,
         )
 
-    async def send_to_bing(self, echo=True, echo_prompt=False):
+    async def send_to_bing(self, echo: bool = True, echo_prompt: bool = False) -> str:
         """Creat, submit, then close a Chatbot instance.  Return the response"""
         retries = len(Cookie.files())
         while retries:
             try:
                 # Read the cookies file
                 bot = await Chatbot.create(
-                    proxy=self.proxy, cookies=Cookie.current_data
+                    proxy=self.proxy,
+                    cookies=Cookie.current_data,
                 )
                 if echo_prompt:
                     print(f"> {self.prompt}=")
@@ -1213,13 +1210,12 @@ class Query:
                     print("> Waiting for response...")
                 if self.style.lower() not in "creative balanced precise".split():
                     self.style = "precise"
-                response = await bot.ask(
+                return await bot.ask(
                     prompt=self.prompt,
                     conversation_style=getattr(ConversationStyle, self.style),
                     # wss_link="wss://sydney.bing.com/sydney/ChatHub"
                     # What other values can this parameter take? It seems to be optional
                 )
-                return response
             except KeyError:
                 print(
                     f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]",
@@ -1228,64 +1224,65 @@ class Query:
                 retries -= 1
             finally:
                 await bot.close()
+        return None
 
     @property
-    def output(self):
+    def output(self) -> str:
         """The response from a completed Chatbot request"""
         return self.response["item"]["messages"][1]["text"]
 
     @property
-    def sources(self):
+    def sources(self) -> str:
         """The source names and details parsed from a completed Chatbot request"""
         return self.response["item"]["messages"][1]["sourceAttributions"]
 
     @property
-    def sources_dict(self):
+    def sources_dict(self) -> dict[str, str]:
         """The source names and details as a dictionary"""
         sources_dict = {}
         name = "providerDisplayName"
         url = "seeMoreUrl"
         for source in self.sources:
-            if name in source.keys() and url in source.keys():
+            if name in source and url in source:
                 sources_dict[source[name]] = source[url]
             else:
                 continue
         return sources_dict
 
     @property
-    def code(self):
+    def code(self) -> str:
         """Extract and join any snippets of Python code in the response"""
         code_blocks = self.output.split("```")[1:-1:2]
         code_blocks = ["\n".join(x.splitlines()[1:]) for x in code_blocks]
         return "\n\n".join(code_blocks)
 
     @property
-    def languages(self):
+    def languages(self) -> set[str]:
         """Extract all programming languages given in code blocks"""
         code_blocks = self.output.split("```")[1:-1:2]
         return {x.splitlines()[0] for x in code_blocks}
 
     @property
-    def suggestions(self):
+    def suggestions(self) -> list[str]:
         """Follow-on questions suggested by the Chatbot"""
         return [
             x["text"]
             for x in self.response["item"]["messages"][1]["suggestedResponses"]
         ]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<EdgeGPT.Query: {self.prompt}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.output
 
 
 class ImageQuery(Query):
-    def __init__(self, prompt, **kwargs):
-        kwargs.update({"content_type": "image"})
+    def __init__(self, prompt: str, **kwargs) -> None:
+        kwargs["content_type"] = "image"
         super().__init__(prompt, **kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<EdgeGPT.ImageQuery: {self.prompt}>"
 
 
