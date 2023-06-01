@@ -6,8 +6,8 @@ from setuptools import setup
 DOCS_PATH = Path(__file__).parents[0] / "docs/README.md"
 PATH = Path("README.md")
 if not PATH.exists():
-    with open(DOCS_PATH, encoding="utf-8") as f1:
-        with open(PATH, "w+", encoding="utf-8") as f2:
+    with Path.open(DOCS_PATH, encoding="utf-8") as f1:
+        with Path.open(PATH, "w+", encoding="utf-8") as f2:
             f2.write(f1.read())
 
 setup(
@@ -37,7 +37,7 @@ setup(
         "aiofiles",
         "BingImageCreator>=0.3.0",
     ],
-    long_description=open(PATH, encoding="utf-8").read(),
+    long_description=Path.open(PATH, encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     py_modules=["EdgeGPT", "ImageGen"],
     classifiers=[
