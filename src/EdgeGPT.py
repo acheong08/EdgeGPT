@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import aiofiles
 import json
 import os
 import random
@@ -17,6 +16,8 @@ import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Generator
+
+import aiofiles
 
 try:
     from typing import Literal
