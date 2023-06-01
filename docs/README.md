@@ -108,8 +108,9 @@ options:
                         path to cookie file
   --history-file HISTORY_FILE
                         path to history file
-  --locale LOCALE       your locale
+  --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
+(China/US/UK/Norway has enhanced support for locale)
 
 ## Running in Python
 
