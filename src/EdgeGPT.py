@@ -101,6 +101,84 @@ class NotAllowedToAccess(Exception):
     pass
 
 
+class LocationHint(Enum):
+    USA = {
+        "locale": "en-US",
+        "LocationHint": [
+            {
+                "country": "United States",
+                "state": "California",
+                "city": "Los Angeles",
+                "timezoneoffset": 8,
+                "countryConfidence": 8,
+                "Center": {
+                    "Latitude": 34.0536909,
+                    "Longitude": -118.242766,
+                },
+                "RegionType": 2,
+                "SourceType": 1,
+            }
+        ],
+    }
+    CHINA = {
+        "locale": "zh-CN",
+        "LocationHint": [
+            {
+                "country": "China",
+                "state": "",
+                "city": "Beijing",
+                "timezoneoffset": 8,
+                "countryConfidence": 8,
+                "Center": {
+                    "Latitude": 39.9042,
+                    "Longitude": 116.4074,
+                },
+                "RegionType": 2,
+                "SourceType": 1,
+            }
+        ],
+    }
+    EU = {
+        "locale": "en-GB",
+        "LocationHint": [
+            {
+                "country": "Norway",
+                "state": "",
+                "city": "Oslo",
+                "timezoneoffset": 1,
+                "countryConfidence": 8,
+                "Center": {
+                    "Latitude": 59.9139,
+                    "Longitude": 10.7522,
+                },
+                "RegionType": 2,
+                "SourceType": 1,
+            }
+        ],
+    }
+    UK = {
+        "locale": "en-GB",
+        "LocationHint": [
+            {
+                "country": "United Kingdom",
+                "state": "",
+                "city": "London",
+                "timezoneoffset": 0,
+                "countryConfidence": 8,
+                "Center": {
+                    "Latitude": 51.5074,
+                    "Longitude": -0.1278,
+                },
+                "RegionType": 2,
+                "SourceType": 1,
+            },
+        ],
+    }
+
+
+LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU", "UK"]]]
+
+
 class ConversationStyle(Enum):
     creative = [
         "nlu_direct_response_filter",
@@ -202,7 +280,8 @@ class _ChatHubRequest:
         options: list | None = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: bool = False,
+        locale: str = None,
+        region: LOCATION_HINT_TYPES = "USA",
     ) -> None:
         """
         Updates request object
@@ -218,6 +297,19 @@ class _ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value
+        if region:
+            if not isinstance(region, LocationHint):
+                region = getattr(LocationHint, region).value
+            else:
+                region = {
+                    "locale": locale or "en-US",
+                    "LocationHint": [LocationHint.USA.value.get("LocationHint")],
+                }
+        else:
+            region = {
+                "locale": locale or "en-US",
+                "LocationHint": [LocationHint.USA.value.get("LocationHint")],
+            }
         self.struct = {
             "arguments": [
                 {
@@ -258,25 +350,10 @@ class _ChatHubRequest:
                     "traceId": _get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
-                        "locale": locale,
-                        "market": "en-US",
-                        "region": "US",
-                        "location": "lat:47.639557;long:-122.128159;re=1000m;",
-                        "locationHints": [
-                            {
-                                "country": "United States",
-                                "state": "California",
-                                "city": "Los Angeles",
-                                "timezoneoffset": 8,
-                                "countryConfidence": 8,
-                                "Center": {
-                                    "Latitude": 34.0536909,
-                                    "Longitude": -118.242766
-                                },
-                                "RegionType": 2,
-                                "SourceType": 1
-                            }
-                        ],
+                        "locale": locale or region.get("locale"),
+                        "market": locale or region.get("locale"),
+                        "region": (locale or region.get("locale"))[-2:],  # en-US -> US
+                        "locationHints": region.get("LocationHint"),
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
@@ -497,7 +574,7 @@ class _ChatHub:
                 options=options,
                 webpage_context=webpage_context,
                 search_result=search_result,
-                locale=locale
+                locale=locale,
             )
         else:
             async with httpx.AsyncClient() as client:
@@ -698,7 +775,7 @@ class Chatbot:
             options=options,
             webpage_context=webpage_context,
             search_result=search_result,
-            locale=locale
+            locale=locale,
         ):
             if final:
                 return response
@@ -727,7 +804,7 @@ class Chatbot:
             options=options,
             webpage_context=webpage_context,
             search_result=search_result,
-            locale=locale
+            locale=locale,
         ):
             yield response
 
@@ -858,7 +935,7 @@ async def async_main(args: argparse.Namespace) -> None:
                     conversation_style=args.style,
                     wss_link=args.wss_link,
                     search_result=args.search_result,
-                    locale=args.locale
+                    locale=args.locale,
                 )
             )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
             print(response)
@@ -892,7 +969,7 @@ async def async_main(args: argparse.Namespace) -> None:
                     conversation_style=args.style,
                     wss_link=args.wss_link,
                     search_result=args.search_result,
-                    locale=args.locale
+                    locale=args.locale,
                 ):
                     if not final:
                         if not wrote:

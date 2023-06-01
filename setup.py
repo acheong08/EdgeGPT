@@ -34,6 +34,7 @@ setup(
         "certifi",
         "prompt_toolkit",
         "requests",
+        "aiofiles",
         "BingImageCreator>=0.3.0",
     ],
     long_description=open(PATH, encoding="utf-8").read(),
