@@ -1136,7 +1136,7 @@ class Query:
         content_type: str = "text",
         cookie_file: int = 0,
         echo: bool = True,
-        echo_prompt: bool = True,
+        echo_prompt: bool = False,
         proxy: str | None = None,
     ) -> None:
         """
