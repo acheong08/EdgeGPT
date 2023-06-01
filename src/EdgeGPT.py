@@ -251,25 +251,15 @@ CONVERSATION_STYLE_TYPE = Optional[
 
 
 def _append_identifier(msg: dict) -> str:
-    """
-    Appends special character to end of message to identify end of message
-    """
     # Convert dict to json string
     return json.dumps(msg, ensure_ascii=False) + DELIMITER
 
 
 def _get_ran_hex(length: int = 32) -> str:
-    """
-    Returns random hex string
-    """
     return "".join(random.choice("0123456789abcdef") for _ in range(length))
 
 
 class _ChatHubRequest:
-    """
-    Request object for ChatHub
-    """
-
     def __init__(
         self,
         conversation_signature: str,
@@ -293,9 +283,6 @@ class _ChatHubRequest:
         search_result: bool = False,
         locale: str = "en-US",
     ) -> None:
-        """
-        Updates request object
-        """
         if options is None:
             options = [
                 "deepleo",
@@ -389,10 +376,6 @@ class _ChatHubRequest:
 
 
 class _Conversation:
-    """
-    Conversation API
-    """
-
     def __init__(
         self,
         proxy: str | None = None,
@@ -512,10 +495,6 @@ class _Conversation:
 
 
 class _ChatHub:
-    """
-    Chat API
-    """
-
     def __init__(
         self,
         conversation: _Conversation,
@@ -546,9 +525,6 @@ class _ChatHub:
         search_result: bool = False,
         locale: str = "en-US",
     ) -> Generator[str, None, None]:
-        """
-        Ask a question to the bot
-        """
         timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
 
@@ -698,9 +674,6 @@ class _ChatHub:
         await self.wss.receive(timeout=900)
 
     async def close(self) -> None:
-        """
-        Close the connection
-        """
         if self.wss and not self.wss.closed:
             await self.wss.close()
         if self.session and not self.session.closed:
