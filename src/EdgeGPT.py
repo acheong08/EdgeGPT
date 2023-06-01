@@ -202,6 +202,7 @@ class _ChatHubRequest:
         options: list | None = None,
         webpage_context: str | None = None,
         search_result: bool = False,
+        locale: bool = False,
     ) -> None:
         """
         Updates request object
@@ -229,30 +230,53 @@ class _ChatHubRequest:
                         "SemanticSerp",
                         "GenerateContentQuery",
                         "SearchQuery",
+                        "ActionRequest",
+                        "Context",
+                        "Progress",
+                        "AdsQuery",
+                        "SemanticSerp",
                     ],
                     "sliceIds": [
-                        "chk1cf",
-                        "nopreloadsscf",
-                        "winlongmsg2tf",
-                        "perfimpcomb",
-                        "sugdivdis",
-                        "sydnoinputt",
-                        "wpcssopt",
-                        "wintone2tf",
-                        "0404sydicnbs0",
-                        "405suggbs0",
-                        "scctl",
-                        "330uaugs0",
-                        "0329resp",
-                        "udscahrfon",
-                        "udstrblm5",
-                        "404e2ewrt",
-                        "408nodedups0",
-                        "403tvlansgnd",
+                        "winmuid3tf",
+                        "osbsdusgreccf",
+                        "ttstmout",
+                        "crchatrev",
+                        "winlongmsgtf",
+                        "ctrlworkpay",
+                        "norespwtf",
+                        "tempcacheread",
+                        "temptacache",
+                        "505scss0",
+                        "508jbcars0",
+                        "515enbotdets0",
+                        "5082tsports",
+                        "515vaoprvs",
+                        "424dagslnv1s0",
+                        "kcimgattcf",
+                        "427startpms0",
                     ],
                     "traceId": _get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
+                        "locale": locale,
+                        "market": "en-US",
+                        "region": "US",
+                        "location": "lat:47.639557;long:-122.128159;re=1000m;",
+                        "locationHints": [
+                            {
+                                "country": "United States",
+                                "state": "California",
+                                "city": "Los Angeles",
+                                "timezoneoffset": 8,
+                                "countryConfidence": 8,
+                                "Center": {
+                                    "Latitude": 34.0536909,
+                                    "Longitude": -118.242766
+                                },
+                                "RegionType": 2,
+                                "SourceType": 1
+                            }
+                        ],
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
@@ -446,6 +470,7 @@ class _ChatHub:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
+        locale: bool = False,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -472,6 +497,7 @@ class _ChatHub:
                 options=options,
                 webpage_context=webpage_context,
                 search_result=search_result,
+                locale=locale
             )
         else:
             async with httpx.AsyncClient() as client:
@@ -660,6 +686,7 @@ class Chatbot:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
+        locale: bool = False,
     ) -> dict:
         """
         Ask a question to the bot
@@ -671,6 +698,7 @@ class Chatbot:
             options=options,
             webpage_context=webpage_context,
             search_result=search_result,
+            locale=locale
         ):
             if final:
                 return response
@@ -686,6 +714,7 @@ class Chatbot:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
+        locale: bool = False,
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -698,6 +727,7 @@ class Chatbot:
             options=options,
             webpage_context=webpage_context,
             search_result=search_result,
+            locale=locale
         ):
             yield response
 
@@ -827,6 +857,8 @@ async def async_main(args: argparse.Namespace) -> None:
                     prompt=question,
                     conversation_style=args.style,
                     wss_link=args.wss_link,
+                    search_result=args.search_result,
+                    locale=args.locale
                 )
             )["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
             print(response)
@@ -840,6 +872,8 @@ async def async_main(args: argparse.Namespace) -> None:
                         prompt=question,
                         conversation_style=args.style,
                         wss_link=args.wss_link,
+                        search_result=args.search_result,
+                        locale=args.locale,
                     ):
                         if not final:
                             if not wrote:
@@ -857,6 +891,8 @@ async def async_main(args: argparse.Namespace) -> None:
                     prompt=question,
                     conversation_style=args.style,
                     wss_link=args.wss_link,
+                    search_result=args.search_result,
+                    locale=args.locale
                 ):
                     if not final:
                         if not wrote:
@@ -887,6 +923,7 @@ def main() -> None:
     )
     parser = argparse.ArgumentParser()
     parser.add_argument("--enter-once", action="store_true")
+    parser.add_argument("--search-result", action="store_true")
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--rich", action="store_true")
     parser.add_argument(
@@ -925,6 +962,13 @@ def main() -> None:
         default="",
         required=False,
         help="path to history file",
+    )
+    parser.add_argument(
+        "--locale",
+        type=str,
+        default="en-US",
+        required=False,
+        help="your locale",
     )
     args = parser.parse_args()
     asyncio.run(async_main(args))
