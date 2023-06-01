@@ -89,15 +89,15 @@ bot = await Chatbot.create(cookies=cookies)
         !help for help
 
         Type !exit to exit
-        Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
+usage: EdgeGPT.py [-h] [--enter-once] [--search-result] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
                   [--style {creative,balanced,precise}] [--prompt PROMPT] [--cookie-file COOKIE_FILE]
-                  [--history-file HISTORY_FILE]
+                  [--history-file HISTORY_FILE] [--locale LOCALE]
 
 options:
   -h, --help            show this help message and exit
   --enter-once
+  --search-result
   --no-stream
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
@@ -108,6 +108,7 @@ options:
                         path to cookie file
   --history-file HISTORY_FILE
                         path to history file
+  --locale LOCALE       your locale
 ```
 
 ## Running in Python
