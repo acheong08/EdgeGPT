@@ -139,7 +139,7 @@ class LocationHint(Enum):
         ],
     }
     EU = {
-        "locale": "en-GB",
+        "locale": "en-IE",
         "LocationHint": [
             {
                 "country": "Norway",
@@ -177,6 +177,19 @@ class LocationHint(Enum):
 
 
 LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU", "UK"]]]
+
+
+def get_location_hint_from_locale(locale: str) -> dict | None:
+    if locale == "en-US":
+        return LocationHint.USA.value
+    elif locale == "zh-CN":
+        return LocationHint.CHINA.value
+    elif locale == "en-GB":
+        return LocationHint.UK.value
+    elif locale == "en-IE":
+        return LocationHint.EU.value
+    else:
+        return None
 
 
 class ConversationStyle(Enum):
@@ -280,8 +293,7 @@ class _ChatHubRequest:
         options: list | None = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: str = None,
-        region: LOCATION_HINT_TYPES = "USA",
+        locale: str = "en-US",
     ) -> None:
         """
         Updates request object
@@ -297,19 +309,6 @@ class _ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value
-        if region:
-            if not isinstance(region, LocationHint):
-                region = getattr(LocationHint, region).value
-            else:
-                region = {
-                    "locale": locale or "en-US",
-                    "LocationHint": [LocationHint.USA.value.get("LocationHint")],
-                }
-        else:
-            region = {
-                "locale": locale or "en-US",
-                "LocationHint": [LocationHint.USA.value.get("LocationHint")],
-            }
         self.struct = {
             "arguments": [
                 {
@@ -350,10 +349,10 @@ class _ChatHubRequest:
                     "traceId": _get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 0,
                     "message": {
-                        "locale": locale or region.get("locale"),
-                        "market": locale or region.get("locale"),
-                        "region": (locale or region.get("locale"))[-2:],  # en-US -> US
-                        "locationHints": region.get("LocationHint"),
+                        "locale": locale,
+                        "market": locale,
+                        "region": locale[-2:],  # en-US -> US
+                        "locationHints": get_location_hint_from_locale(locale),
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
