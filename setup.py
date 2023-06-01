@@ -28,7 +28,7 @@ setup(
         ],
     },
     install_requires=[
-        "httpx",
+        "httpx[socks]>=0.24.0",
         "websockets",
         "rich",
         "certifi",
