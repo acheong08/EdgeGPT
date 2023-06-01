@@ -180,13 +180,14 @@ LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU",
 
 
 def get_location_hint_from_locale(locale: str) -> dict | None:
-    if locale == "en-US":
+    locale = locale.lower()
+    if locale == "en-us":
         return LocationHint.USA.value
-    elif locale == "zh-CN":
+    elif locale == "zh-cn":
         return LocationHint.CHINA.value
-    elif locale == "en-GB":
+    elif locale == "en-gb":
         return LocationHint.UK.value
-    elif locale == "en-IE":
+    elif locale == "en-ie":
         return LocationHint.EU.value
     else:
         return None
@@ -546,7 +547,7 @@ class _ChatHub:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: bool = False,
+        locale: str = "en-US",
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -762,7 +763,7 @@ class Chatbot:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: bool = False,
+        locale: str = "en-US",
     ) -> dict:
         """
         Ask a question to the bot
@@ -790,7 +791,7 @@ class Chatbot:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: bool = False,
+        locale: str = "en-US",
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
