@@ -14,7 +14,7 @@ _The reverse engineering the chat feature of the new version of Bing_
 </div>
 
 <p align="center">
-  <a href="https://githubfast.com/acheong08/EdgeGPT">
+  <a href="https://github.com/acheong08/EdgeGPT">
     <img alt="PyPI version" src="https://img.shields.io/pypi/v/EdgeGPT">
   </a>
   <img alt="Python version" src="https://img.shields.io/badge/python-3.8+-blue.svg">
@@ -333,6 +333,6 @@ if __name__ == "__main__":
 
 This project exists thanks to all the people who contribute.
 
- <a href="https://githubfast.com/acheong08/EdgeGPT/graphs/contributors">
+ <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
  </a>
