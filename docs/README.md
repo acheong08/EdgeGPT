@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
 Create a simple Bing Chat AI query (using the 'precise' conversation style by default) and see just the main text output rather than the whole API response:
 
-Remeber to store your cookies in a specific format: `bing_cookie_*.json`.
+Remeber to store your cookies in a specific format: `bing_cookies_*.json`.
 
 ```python
 from EdgeGPT import Query, Cookie
