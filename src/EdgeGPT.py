@@ -182,12 +182,16 @@ LOCATION_HINT_TYPES = Optional[LocationHint | Literal["USA", "CHINA", "EU", "UK"
 def get_location_hint_from_locale(locale: str) -> dict | None:
     locale = locale.lower()
     if locale == "en-us":
-        return LocationHint.USA.value
+        hint = LocationHint.USA.value
     if locale == "zh-cn":
-        return LocationHint.CHINA.value
+        hint = LocationHint.CHINA.value
     if locale == "en-gb":
-        return LocationHint.UK.value
-    return LocationHint.EU.value if locale == "en-ie" else None
+        hint = LocationHint.UK.value
+    if locale == "en-ie":
+        hint = LocationHint.EU.value
+    else:
+        hint = LocationHint.USA.value
+    return hint.get("LocationHint")
 
 
 class ConversationStyle(Enum):
@@ -337,7 +341,7 @@ class _ChatHubRequest:
                         "locale": locale,
                         "market": locale,
                         "region": locale[-2:],  # en-US -> US
-                        "locationHints": [get_location_hint_from_locale(locale)],
+                        "locationHints": get_location_hint_from_locale(locale),
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
