@@ -16,6 +16,7 @@ import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Generator
+from typing import Union
 
 import aiofiles
 
@@ -176,7 +177,7 @@ class LocationHint(Enum):
     }
 
 
-LOCATION_HINT_TYPES = Optional[LocationHint | Literal["USA", "CHINA", "EU", "UK"]]
+LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU", "UK"]]]
 
 
 def get_location_hint_from_locale(locale: str) -> dict | None:
@@ -250,7 +251,7 @@ class ConversationStyle(Enum):
 
 
 CONVERSATION_STYLE_TYPE = Optional[
-    ConversationStyle | Literal["creative", "balanced", "precise"]
+    Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
 ]
 
 
@@ -1138,7 +1139,7 @@ class Query:
         if isinstance(cookie_file, int):
             index = cookie_file if cookie_file < len(files) else 0
         else:
-            if not isinstance(cookie_file, str | Path):
+            if not isinstance(cookie_file, (str, Path)):
                 message = "'cookie_file' must be an int, str, or Path object"
                 raise TypeError(message)
             cookie_file = Path(cookie_file)
