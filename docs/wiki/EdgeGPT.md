@@ -4,67 +4,6 @@
 
 Main.py
 
-<a id="EdgeGPT._ChatHubRequest"></a>
-
-## \_ChatHubRequest Objects
-
-```python
-class _ChatHubRequest()
-```
-
-Request object for ChatHub
-
-<a id="EdgeGPT._ChatHubRequest.update"></a>
-
-#### update
-
-```python
-def update(prompt: str,
-           conversation_style: CONVERSATION_STYLE_TYPE,
-           options: list | None = None,
-           webpage_context: str | None = None,
-           search_result: bool = False) -> None
-```
-
-Updates request object
-
-<a id="EdgeGPT._ChatHub"></a>
-
-## \_ChatHub Objects
-
-```python
-class _ChatHub()
-```
-
-Chat API
-
-<a id="EdgeGPT._ChatHub.ask_stream"></a>
-
-#### ask\_stream
-
-```python
-async def ask_stream(
-        prompt: str,
-        wss_link: str,
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        raw: bool = False,
-        options: dict = None,
-        webpage_context: str | None = None,
-        search_result: bool = False) -> Generator[str, None, None]
-```
-
-Ask a question to the bot
-
-<a id="EdgeGPT._ChatHub.close"></a>
-
-#### close
-
-```python
-async def close() -> None
-```
-
-Close the connection
-
 <a id="EdgeGPT.Chatbot"></a>
 
 ## Chatbot Objects
@@ -75,13 +14,26 @@ class Chatbot()
 
 Combines everything to make it seamless
 
+<a id="EdgeGPT.Chatbot.save_conversation"></a>
+
+#### save\_conversation
+
 ```python
-@staticmethod
-async def create(
-        proxy: str | None = None,
-        cookies: list[dict] | None = None,
-):
+async def save_conversation(filename: str) -> None
 ```
+
+Save the conversation to a file
+
+<a id="EdgeGPT.Chatbot.load_conversation"></a>
+
+#### load\_conversation
+
+```python
+async def load_conversation(filename: str) -> None
+```
+
+Load the conversation from a file
+
 <a id="EdgeGPT.Chatbot.ask"></a>
 
 #### ask
@@ -92,7 +44,8 @@ async def ask(prompt: str,
               conversation_style: CONVERSATION_STYLE_TYPE = None,
               options: dict = None,
               webpage_context: str | None = None,
-              search_result: bool = False) -> dict
+              search_result: bool = False,
+              locale: str = "en-US") -> dict
 ```
 
 Ask a question to the bot
@@ -102,14 +55,14 @@ Ask a question to the bot
 #### ask\_stream
 
 ```python
-async def ask_stream(
-        prompt: str,
-        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        raw: bool = False,
-        options: dict = None,
-        webpage_context: str | None = None,
-        search_result: bool = False) -> Generator[str, None, None]
+async def ask_stream(prompt: str,
+                     wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+                     conversation_style: CONVERSATION_STYLE_TYPE = None,
+                     raw: bool = False,
+                     options: dict = None,
+                     webpage_context: str | None = None,
+                     search_result: bool = False,
+                     locale: str = "en-US") -> Generator[str, None, None]
 ```
 
 Ask a question to the bot
@@ -163,7 +116,7 @@ account per day) are exceeded.
 
 ```python
 @classmethod
-def files(cls)
+def files(cls) -> list[Path]
 ```
 
 Return a sorted list of all cookie files matching .search_pattern
@@ -174,7 +127,7 @@ Return a sorted list of all cookie files matching .search_pattern
 
 ```python
 @classmethod
-def import_data(cls)
+def import_data(cls) -> None
 ```
 
 Read the active cookie file and populate the following attributes:
@@ -189,7 +142,7 @@ Read the active cookie file and populate the following attributes:
 
 ```python
 @classmethod
-def import_next(cls)
+def import_next(cls) -> None
 ```
 
 Cycle through to the next cookies file.  Import it.  Mark the previous
@@ -211,12 +164,13 @@ config, and output all together.  Relies on Cookie class for authentication
 #### \_\_init\_\_
 
 ```python
-def __init__(prompt,
-             style="precise",
-             content_type="text",
-             cookie_file=0,
-             echo=True,
-             echo_prompt=False)
+def __init__(prompt: str,
+             style: str = "precise",
+             content_type: str = "text",
+             cookie_file: int = 0,
+             echo: bool = True,
+             echo_prompt: bool = False,
+             proxy: str | None = None) -> None
 ```
 
 **Arguments**:
@@ -234,7 +188,7 @@ def __init__(prompt,
 #### send\_to\_bing
 
 ```python
-async def send_to_bing(echo=True, echo_prompt=False)
+async def send_to_bing(echo: bool = True, echo_prompt: bool = False) -> str
 ```
 
 Creat, submit, then close a Chatbot instance.  Return the response
@@ -245,7 +199,7 @@ Creat, submit, then close a Chatbot instance.  Return the response
 
 ```python
 @property
-def output()
+def output() -> str
 ```
 
 The response from a completed Chatbot request
@@ -256,7 +210,7 @@ The response from a completed Chatbot request
 
 ```python
 @property
-def sources()
+def sources() -> str
 ```
 
 The source names and details parsed from a completed Chatbot request
@@ -267,7 +221,7 @@ The source names and details parsed from a completed Chatbot request
 
 ```python
 @property
-def sources_dict()
+def sources_dict() -> dict[str, str]
 ```
 
 The source names and details as a dictionary
@@ -278,7 +232,7 @@ The source names and details as a dictionary
 
 ```python
 @property
-def code()
+def code() -> str
 ```
 
 Extract and join any snippets of Python code in the response
@@ -289,7 +243,7 @@ Extract and join any snippets of Python code in the response
 
 ```python
 @property
-def languages()
+def languages() -> set[str]
 ```
 
 Extract all programming languages given in code blocks
@@ -300,7 +254,7 @@ Extract all programming languages given in code blocks
 
 ```python
 @property
-def suggestions()
+def suggestions() -> list[str]
 ```
 
 Follow-on questions suggested by the Chatbot

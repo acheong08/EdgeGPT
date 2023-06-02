@@ -6,13 +6,13 @@ from setuptools import setup
 DOCS_PATH = Path(__file__).parents[0] / "docs/README.md"
 PATH = Path("README.md")
 if not PATH.exists():
-    with open(DOCS_PATH, encoding="utf-8") as f1:
-        with open(PATH, "w+", encoding="utf-8") as f2:
+    with Path.open(DOCS_PATH, encoding="utf-8") as f1:
+        with Path.open(PATH, "w+", encoding="utf-8") as f2:
             f2.write(f1.read())
 
 setup(
     name="EdgeGPT",
-    version="0.6.10",
+    version="0.7.1",
     license="GNU General Public License v2.0",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
@@ -28,15 +28,16 @@ setup(
         ],
     },
     install_requires=[
-        "httpx",
+        "httpx[socks]>=0.24.0",
         "websockets",
         "rich",
         "certifi",
         "prompt_toolkit",
         "requests",
+        "aiofiles",
         "BingImageCreator>=0.3.0",
     ],
-    long_description=open(PATH, encoding="utf-8").read(),
+    long_description=Path.open(PATH, encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     py_modules=["EdgeGPT", "ImageGen"],
     classifiers=[
