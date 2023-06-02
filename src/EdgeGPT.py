@@ -337,7 +337,7 @@ class _ChatHubRequest:
                         "locale": locale,
                         "market": locale,
                         "region": locale[-2:],  # en-US -> US
-                        "locationHints": get_location_hint_from_locale(locale),
+                        "locationHints": [get_location_hint_from_locale(locale)],
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
