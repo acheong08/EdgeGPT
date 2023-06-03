@@ -1,4 +1,4 @@
-from EdggeGPT import *
+from EdgeGPT import *
 from ImageGen import *
 
 class Cookie:
