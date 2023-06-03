@@ -54,7 +54,7 @@ python3 -m pip install EdgeGPT --upgrade
 ## Authentication
 
 !!! NOT REQUIRED ANYMORE !!!
-Microsoft has made the chat feature available to everyone, so you can skip this step.
+Microsoft has made the chat feature available to everyone, so you don't need to use cookies from a logged-in Microsoft account any more.  However, if you wish to cycle through multiple cookies/accounts, please look at the `EdgeUtils.Cookie` methods.
 
 1. Install the latest version of Microsoft Edge
 <details>
