@@ -54,7 +54,7 @@ python3 -m pip install EdgeGPT --upgrade
 ## Authentication
 
 !!! NOT REQUIRED ANYMORE !!!
-Microsoft has made the chat feature available to everyone, so you can skip this step.
+Microsoft has made the chat feature available to everyone, so you don't need to use cookies from a logged-in Microsoft account any more.  However, if you wish to cycle through multiple cookies/accounts, please look at the `EdgeUtils.Cookie` methods.
 
 1. Install the latest version of Microsoft Edge
 <details>
@@ -143,7 +143,7 @@ Create a simple Bing Chat AI query (using the 'precise' conversation style by de
 Remeber to store your cookies in a specific format: `bing_cookies_*.json`.
 
 ```python
-from EdgeGPT import Query, Cookie
+from EdgeUtils import Query, Cookie
 
 q = Query("What are you? Give your answer as Python code")
 print(q)
@@ -255,7 +255,7 @@ optional arguments:
 Generate images based on a simple prompt and download to the current working directory:
 
 ```python
-from EdgeGPT import ImageQuery
+from EdgeUtils import ImageQuery
 
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
