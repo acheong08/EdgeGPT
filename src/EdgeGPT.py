@@ -21,7 +21,7 @@ from typing import Union
 import aiofiles
 
 try:
-    from typing import Literal
+    from typing import Literal, Union
 except ImportError:
     from typing_extensions import Literal
 from typing import Optional
