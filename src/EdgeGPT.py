@@ -11,7 +11,7 @@ import random
 import re
 import ssl
 import sys
-import time
+import locale as loc_util
 import uuid
 from enum import Enum
 from pathlib import Path
@@ -195,6 +195,13 @@ def get_location_hint_from_locale(locale: str) -> dict | None:
     return hint.get("LocationHint")
 
 
+def guess_locale() -> str:
+    locale, _ = loc_util.getlocale()
+    if not locale:
+        locale = "en-US"
+    return locale.replace("_", "-")
+
+
 class ConversationStyle(Enum):
     creative = [
         "nlu_direct_response_filter",
@@ -286,7 +293,7 @@ class _ChatHubRequest:
         options: list | None = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: str = "en-US",
+        locale: str = guess_locale(),
     ) -> None:
         if options is None:
             options = [
@@ -528,7 +535,7 @@ class _ChatHub:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: str = "en-US",
+        locale: str = guess_locale(),
     ) -> Generator[str, None, None]:
         timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
@@ -738,7 +745,7 @@ class Chatbot:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: str = "en-US",
+        locale: str = guess_locale(),
     ) -> dict:
         """
         Ask a question to the bot
@@ -766,7 +773,7 @@ class Chatbot:
         options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
-        locale: str = "en-US",
+        locale: str = guess_locale(),
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
