@@ -720,15 +720,15 @@ class Chatbot:
         """
         Save the conversation to a file
         """
-        async with aiofiles.Path.open(filename, "w") as f:
+        with open(filename, "w") as f:
             f.write(json.dumps(self.chat_hub.struct))
 
     async def load_conversation(self, filename: str) -> None:
         """
         Load the conversation from a file
         """
-        async with aiofiles.Path.open(filename, "r") as f:
-            self.chat_hub.struct = json.loads(await f.read())
+        with open(filename, "r") as f:
+            self.chat_hub.struct = json.loads(f.read())
 
     async def ask(
         self,
@@ -1024,6 +1024,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     asyncio.run(async_main(args))
+
 
 if __name__ == "__main__":
     main()
