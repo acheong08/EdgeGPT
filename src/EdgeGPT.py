@@ -182,7 +182,13 @@ LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU",
 
 def get_location_hint_from_locale(locale: str) -> dict | None:
     locale = locale.lower()
-    if locale == "en-ie":
+    if locale == "en-us":
+        hint = LocationHint.USA.value
+    elif locale == "zh-cn":
+        hint = LocationHint.CHINA.value
+    elif locale == "en-gb":
+        hint = LocationHint.UK.value
+    elif locale == "en-ie":
         hint = LocationHint.EU.value
     else:
         hint = LocationHint.USA.value
