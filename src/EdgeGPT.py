@@ -24,7 +24,6 @@ from src.helpers.chathub.chathub import ChatHub
 from src.helpers.chathub.request import ChatHubRequest
 from src.helpers.conversation import Conversation
 from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
-from src.helpers.utilities import get_ran_hex
 from src.helpers.utilities import guess_locale
 
 
