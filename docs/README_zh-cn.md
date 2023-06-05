@@ -53,7 +53,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## 身份验证
 
-不用，不需要了。微软已将聊天功能开放给所有人，不需要再从已登录的微软账户使用 cookie 了。不过，如果希望在多个账号 / cookie 中循环使用的话，请留意方法 ```EdgeUtils.Cookie```。
+不用，不需要了。微软已将聊天功能开放给所有人，不需要再从已登录的微软账户使用 cookie 了。不过，如果希望在多个账户 / cookie 中循环使用的话，请留意方法 ```EdgeUtils.Cookie```。
 
 1. 安装最新版本的 Microsoft Edge
 <details>
