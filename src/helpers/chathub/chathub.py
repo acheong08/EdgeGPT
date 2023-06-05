@@ -1,5 +1,5 @@
 import httpx, asyncio, aiohttp, ssl, certifi, json, sys
-from typing import Generator
+from typing import Generator, Union
 
 from ..conversation import Conversation
 from .request import ChatHubRequest
@@ -42,7 +42,8 @@ class ChatHub:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
-    ) -> Generator[str, None, None]:
+    ) -> Generator[bool, Union[dict, str]]:
+        """ """
         timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
 
@@ -103,12 +104,11 @@ class ChatHub:
             )
         # Send request
         await self.wss.send_str(append_identifier(self.request.struct))
-        final = False
         draw = False
         resp_txt = ""
         result_text = ""
         resp_txt_no_link = ""
-        while not final:
+        while True:
             msg = await self.wss.receive(timeout=900)
             objects = msg.data.split(DELIMITER)
             for obj in objects:
@@ -160,6 +160,7 @@ class ChatHub:
                                     + "\n"
                                 )
                         yield False, resp_txt
+                        return
 
                 elif response.get("type") == 2:
                     if response["item"]["result"].get("error"):
@@ -186,7 +187,6 @@ class ChatHub:
                             "Preserved the message from being deleted",
                             file=sys.stderr,
                         )
-                    final = True
                     await self.close()
                     yield True, response
 

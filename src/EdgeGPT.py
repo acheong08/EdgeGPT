@@ -10,7 +10,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Union
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -108,7 +108,7 @@ class Chatbot:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
-    ) -> Generator[str, None, None]:
+    ) -> Generator[bool, Union[dict, str]]:
         """
         Ask a question to the bot
         """
