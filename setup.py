@@ -12,7 +12,7 @@ if not PATH.exists():
 
 setup(
     name="EdgeGPT",
-    version="0.8.1",
+    version="0.8.2",
     license="GNU General Public License v2.0",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
@@ -39,7 +39,7 @@ setup(
     ],
     long_description=Path.open(PATH, encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    py_modules=["EdgeGPT", "ImageGen"],
+    py_modules=["EdgeGPT", "EdgeUtils", "ImageGen"],
     classifiers=[
         "License :: OSI Approved :: The Unlicense (Unlicense)",
         "Intended Audience :: Developers",
