@@ -1,3 +1,4 @@
+import uuid
 from ..conversation_style import CONVERSATION_STYLE_TYPE, ConversationStyle
 from ..utilities import guess_locale, get_ran_hex, get_location_hint_from_locale
 
@@ -8,7 +9,7 @@ class ChatHubRequest:
         conversation_signature: str,
         client_id: str,
         conversation_id: str,
-        invocation_id: int = 0,
+        invocation_id: int = 3,
     ) -> None:
         self.struct: dict = {}
 
@@ -37,6 +38,7 @@ class ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value
+        message_id = str(uuid.uuid4())
         self.struct = {
             "arguments": [
                 {
@@ -81,7 +83,7 @@ class ChatHubRequest:
                         "524vidansgs0",
                     ],
                     "traceId": get_ran_hex(32),
-                    "isStartOfSession": self.invocation_id == 0,
+                    "isStartOfSession": self.invocation_id == 3,
                     "message": {
                         "locale": locale,
                         "market": locale,
@@ -91,7 +93,11 @@ class ChatHubRequest:
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": "Chat",
+                        "messageId": message_id,
+                        "requestId": message_id,
                     },
+                    "tone": conversation_style.name.capitalize(),  # Make first letter uppercase
+                    "requestId": message_id,
                     "conversationSignature": self.conversation_signature,
                     "participant": {
                         "id": self.client_id,

@@ -58,7 +58,7 @@ class ChatHub:
             autoping=False,
         )
         await self._initial_handshake()
-        if self.request.invocation_id == 0:
+        if self.request.invocation_id == 3:
             # Construct a ChatHub request
             self.request.update(
                 prompt=prompt,
