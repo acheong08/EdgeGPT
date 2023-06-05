@@ -62,14 +62,14 @@ class Chatbot:
         Save the conversation to a file
         """
         with open(filename, "w") as f:
-            f.write(json.dumps(self.chat_hub.struct))
+            f.write(json.dumps(self.chat_hub.request.struct))
 
     async def load_conversation(self, filename: str) -> None:
         """
         Load the conversation from a file
         """
         with open(filename, "r") as f:
-            self.chat_hub.struct = json.loads(f.read())
+            self.chat_hub.request.struct = json.loads(f.read())
 
     async def ask(
         self,
