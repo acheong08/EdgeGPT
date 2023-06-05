@@ -24,7 +24,7 @@ class ChatHubRequest:
         prompt: str,
         conversation_style: CONVERSATION_STYLE_TYPE,
         webpage_context: str | None = None,
-        search_result: bool = False,
+        search_result: bool = True,
         locale: str = guess_locale(),
     ) -> None:
         if conversation_style:
