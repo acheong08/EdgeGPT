@@ -53,7 +53,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## 認證
 
-不用，不需要了。微軟已向所有人提供聊天功能，因此这一步可以跳過了。
+不用，不需要了。微軟已向所有人提供聊天功能，不需要再從已登錄的微軟帳戶使用cookie了。 不過，如果希望在多個帳戶 / cookie 中迴圈使用的話，請留意方法 ```EdgeUtils.Cookie```。
 
 1. 安裝最新版本的 Microsoft Edge
 <details>
@@ -90,13 +90,14 @@ bot = await Chatbot.create(cookies=cookies)
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
+usage: EdgeGPT.py [-h] [--enter-once] [--search-result] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
                   [--style {creative,balanced,precise}] [--prompt PROMPT] [--cookie-file COOKIE_FILE]
-                  [--history-file HISTORY_FILE]
+                  [--history-file HISTORY_FILE] [--locale LOCALE]
 
 options:
   -h, --help            show this help message and exit
   --enter-once
+  --search-result
   --no-stream
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
@@ -107,7 +108,10 @@ options:
                         path to cookie file
   --history-file HISTORY_FILE
                         path to history file
+  --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
+  
+（中/美/英/挪具有更好的本地化支援）
 
 ## 在 Python 運行
 
@@ -136,11 +140,13 @@ if __name__ == "__main__":
   </summary>
 
 創建一個簡單的必應聊天 AI 查詢（預設情況下使用“精確”對話樣式），這樣可以僅查看主要文本輸出，而不是整個 API 回應：
+  
+注意按照特定格式儲存 cookie： ```bing_cookies_*.json```。
 
 ```python
-from EdgeGPT import Query, Cookie
+from EdgeUtils import Query, Cookie
 
-q = Query("你是誰？用python代码給出回答")
+q = Query("你是誰？用python代碼給出回答")
 print(q)
 ```
 
@@ -148,7 +154,7 @@ print(q)
 
 ```python
 q = Query(
-  "你是誰？用python代码給出回答",
+  "你是誰？用python代碼給出回答",
   style="creative",  # 或者平衡模式 'balanced'
   cookies="./bing_cookies_alternative.json"
 )
@@ -250,7 +256,7 @@ optional arguments:
 根據一個簡單的提示產生圖像並下載到目前工作目錄：
 
 ```python
-from EdgeGPT import ImageQuery
+from EdgeUtils import ImageQuery
 
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
