@@ -591,6 +591,9 @@ class _ChatHub:
                 prompt=prompt,
                 conversation_style=conversation_style,
                 options=options,
+                webpage_context=webpage_context,
+                search_result=search_result,
+                locale=locale,
             )
         # Send request
         await self.wss.send_str(_append_identifier(self.request.struct))
