@@ -1,7 +1,11 @@
 import uuid
-from ..conversation_style import CONVERSATION_STYLE_TYPE, ConversationStyle
-from ..utilities import guess_locale, get_ran_hex, get_location_hint_from_locale
 from datetime import datetime
+
+from ..conversation_style import CONVERSATION_STYLE_TYPE
+from ..conversation_style import ConversationStyle
+from ..utilities import get_location_hint_from_locale
+from ..utilities import get_ran_hex
+from ..utilities import guess_locale
 
 
 class ChatHubRequest:

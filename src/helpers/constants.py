@@ -1,5 +1,6 @@
+import base64
 import random
-import secrets, base64
+import secrets
 
 sec_websocket_key = secrets.token_urlsafe(16)
 sec_websocket_key = base64.b64encode(sec_websocket_key.encode()).decode()

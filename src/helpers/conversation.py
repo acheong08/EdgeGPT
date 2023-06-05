@@ -1,4 +1,8 @@
-import os, httpx, json
+import json
+import os
+
+import httpx
+
 from .constants import HEADERS_INIT_CONVER
 from .exceptions import NotAllowedToAccess
 

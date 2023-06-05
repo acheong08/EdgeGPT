@@ -4,8 +4,10 @@ import re
 import time
 from pathlib import Path
 
-from EdgeGPT import Chatbot, ConversationStyle
+from EdgeGPT import Chatbot
+from EdgeGPT import ConversationStyle
 from ImageGen import ImageGen
+
 
 class Cookie:
     """

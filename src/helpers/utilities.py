@@ -1,4 +1,7 @@
-import json, random, locale
+import json
+import locale
+import random
+
 from .constants import DELIMITER
 from .locale import LocationHint
 

@@ -1,13 +1,25 @@
-import httpx, asyncio, aiohttp, ssl, certifi, json, sys, os
-from typing import Generator, Union
+import asyncio
+import json
+import os
+import ssl
+import sys
+from typing import Generator
+from typing import Union
 
-from ..conversation import Conversation
-from .request import ChatHubRequest
-from ..utilities import guess_locale, get_ran_hex, append_identifier
-from ..constants import HEADERS, DELIMITER, HEADERS_INIT_CONVER
-from ..conversation_style import CONVERSATION_STYLE_TYPE
-
+import aiohttp
+import certifi
+import httpx
 from BingImageCreator import ImageGenAsync
+
+from ..constants import DELIMITER
+from ..constants import HEADERS
+from ..constants import HEADERS_INIT_CONVER
+from ..conversation import Conversation
+from ..conversation_style import CONVERSATION_STYLE_TYPE
+from ..utilities import append_identifier
+from ..utilities import get_ran_hex
+from ..utilities import guess_locale
+from .request import ChatHubRequest
 
 ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())

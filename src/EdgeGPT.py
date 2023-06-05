@@ -6,11 +6,11 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-
 import re
 import sys
 from pathlib import Path
-from typing import Generator, Union
+from typing import Generator
+from typing import Union
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -23,8 +23,9 @@ from rich.markdown import Markdown
 from src.helpers.chathub.chathub import ChatHub
 from src.helpers.chathub.request import ChatHubRequest
 from src.helpers.conversation import Conversation
-from src.helpers.utilities import guess_locale, get_ran_hex
 from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
+from src.helpers.utilities import get_ran_hex
+from src.helpers.utilities import guess_locale
 
 
 class Chatbot:
@@ -73,14 +74,14 @@ class Chatbot:
                     "conversation_signature": conversation_signature,
                     "client_id": client_id,
                     "invocation_id": invocation_id,
-                }
+                },
             )
 
     async def load_conversation(self, filename: str) -> None:
         """
         Load the conversation from a file
         """
-        with open(filename, "r") as f:
+        with open(filename) as f:
             conversation = json.load(f)
             self.chat_hub.request = ChatHubRequest(
                 conversation_signature=conversation["conversation_signature"],
@@ -129,7 +130,7 @@ class Chatbot:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
-    ) -> Generator[bool, Union[dict, str], None]:
+    ) -> Generator[bool, dict | str, None]:
         """
         Ask a question to the bot
         """
