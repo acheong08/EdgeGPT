@@ -20,10 +20,10 @@ from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
 
-from helpers.chathub.chathub import ChatHub
-from helpers.conversation import Conversation
-from helpers.utilities import guess_locale
-from helpers.conversation_style import CONVERSATION_STYLE_TYPE
+from src.helpers.chathub.chathub import ChatHub
+from src.helpers.conversation import Conversation
+from src.helpers.utilities import guess_locale
+from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
 
 
 class Chatbot:
@@ -108,7 +108,7 @@ class Chatbot:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
-    ) -> Generator[bool, Union[dict, str]]:
+    ) -> Generator[bool, Union[dict, str], None]:
         """
         Ask a question to the bot
         """

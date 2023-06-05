@@ -42,7 +42,7 @@ class ChatHub:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
-    ) -> Generator[bool, Union[dict, str]]:
+    ) -> Generator[bool, Union[dict, str], None]:
         """ """
         timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
