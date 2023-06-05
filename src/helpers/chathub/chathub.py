@@ -115,6 +115,7 @@ class ChatHub:
                 if obj is None or not obj:
                     continue
                 response = json.loads(obj)
+                # print(response)
                 if response.get("type") != 2 and raw:
                     yield False, response
                 elif response.get("type") == 1 and response["arguments"][0].get(
@@ -193,6 +194,7 @@ class ChatHub:
     async def _initial_handshake(self) -> None:
         await self.wss.send_str(append_identifier({"protocol": "json", "version": 1}))
         await self.wss.receive(timeout=900)
+        await self.wss.send_str(append_identifier({"type": 6}))
 
     async def close(self) -> None:
         if self.wss and not self.wss.closed:
