@@ -40,8 +40,24 @@ class ChatHubRequest:
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value
         message_id = str(uuid.uuid4())
-        # Generate timestamp in format: 2023-06-05T20:49:30+08:00
-        timestamp = datetime.now().isoformat(sep="T")
+        # Get the current local time
+        now_local = datetime.now()
+
+        # Get the current UTC time
+        now_utc = datetime.utcnow()
+
+        # Calculate the time difference between local and UTC time
+        timezone_offset = now_local - now_utc
+
+        # Get the offset in hours and minutes
+        offset_hours = int(timezone_offset.total_seconds() // 3600)
+        offset_minutes = int((timezone_offset.total_seconds() % 3600) // 60)
+
+        # Format the offset as a string
+        offset_string = f"{offset_hours:+03d}:{offset_minutes:02d}"
+
+        # Get current time
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + offset_string
         self.struct = {
             "arguments": [
                 {
@@ -134,4 +150,4 @@ class ChatHubRequest:
             ]
         self.invocation_id += 1
 
-        # print(self.struct)
+        # print(timestamp)
