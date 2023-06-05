@@ -53,7 +53,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## 身份验证
 
-不用，不需要了。微软已将聊天功能开放给所有人，这一步可以省略了。
+不用，不需要了。微软已将聊天功能开放给所有人，不需要再从已登录的微软账户使用 cookie 了。不过，如果希望在多个账号 / cookie 中循环使用的话，请留意方法 ```EdgeUtils.Cookie```。
 
 1. 安装最新版本的 Microsoft Edge
 <details>
@@ -90,13 +90,14 @@ bot = await Chatbot.create(cookies=cookies)
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
+usage: EdgeGPT.py [-h] [--enter-once] [--search-result] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
                   [--style {creative,balanced,precise}] [--prompt PROMPT] [--cookie-file COOKIE_FILE]
-                  [--history-file HISTORY_FILE]
+                  [--history-file HISTORY_FILE] [--locale LOCALE]
 
 options:
   -h, --help            show this help message and exit
   --enter-once
+  --search-result
   --no-stream
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
@@ -107,7 +108,10 @@ options:
                         path to cookie file
   --history-file HISTORY_FILE
                         path to history file
+  --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
+  
+(中/美/英/挪具有更好的本地化支持)
 
 ## 在 Python 运行
 
@@ -136,9 +140,11 @@ if __name__ == "__main__":
   </summary>
 
 创建一个简易的必应聊天 AI 查询（默认使用精确模式），这样可以只查看主要的文字输出，而不会打出整个 API 响应内容：
+  
+注意按照特定格式存储 cookie：```bing_cookies_*.json```。
 
 ```python
-from EdgeGPT import Query, Cookie
+from EdgeUtils import Query, Cookie
 
 q = Query("你是谁？用python代码给出回答")
 print(q)
@@ -179,7 +185,7 @@ Query.index  # 一个查询对象的列表；是动态更新的
 Query.request_count  # 使用每个 cookie 文件发出的请求数
 ```
 
-最后，`Cookie` 类支持多个 Cookie 文件，因此，如果您使用命名约定 `bing_cookies_*.json` 创建其他 Cookie 文件，那么如果超过了每日请求配额（目前设置为200），查询将自动尝试使用下一个文件（按字母顺序）。
+最后，`Cookie` 类支持多个 Cookie 文件，因此，如果您使用命名约定 `bing_cookies_*.json` 创建其他 Cookie 文件，那么如果超过了每日请求配额（目前设置为 200），查询将自动尝试使用下一个文件（按字母顺序）。
 
 这些是可以访问的主要属性:
 
@@ -250,7 +256,7 @@ optional arguments:
 使用一个简易提示生成图像，并下载到当前工作目录：
 
 ```python
-from EdgeGPT import ImageQuery
+from EdgeUtils import ImageQuery
 
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
