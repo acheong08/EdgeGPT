@@ -38,7 +38,6 @@ class ChatHub:
         wss_link: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
-        options: dict = None,
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
@@ -62,7 +61,6 @@ class ChatHub:
         self.request.update(
             prompt=prompt,
             conversation_style=conversation_style,
-            options=options,
             webpage_context=webpage_context,
             search_result=search_result,
             locale=locale,
