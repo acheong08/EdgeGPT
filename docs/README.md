@@ -39,10 +39,11 @@ python3 -m pip install EdgeGPT --upgrade
 ### Requirements
 
 - python 3.8+
-- A Microsoft Account with access to <https://bing.com/chat> (Optional)
+- A Microsoft Account with access to <https://bing.com/chat> (Optional, depending on your region)
 - Required in a supported country or region with New Bing (Chinese mainland VPN required)
 - [Selenium](https://pypi.org/project/selenium/) (for automatic cookie setup)
 
+</details>
 <details>
 
 <summary>
@@ -53,27 +54,38 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## Authentication
 
-!!! NOT REQUIRED ANYMORE !!!
-Microsoft has made the chat feature available to everyone, so you don't need to use cookies from a logged-in Microsoft account any more.  However, if you wish to cycle through multiple cookies/accounts, please look at the `EdgeUtils.Cookie` methods.
+!!! POSSIBLY NOT REQUIRED ANYMORE !!!
+In some regions, Microsoft has made the chat feature available to everyone, so you might be able to skip this step. You can check this with a browser (with user-agent set to reflect Edge), by trying to start a chat without logging in.
 
-1. Install the latest version of Microsoft Edge
+It was also found that it might depend on your IP address. For example, if you try to access the chat features from an IP that is known to belong to a datacenter range (vServers, root servers, VPN, common proxies, ...), you might be required to log in while being able to access the features just fine from your home IP address. If you receive the following error, you can try providing a cookie and see if it works then:
+`Exception: Authentication failed. You have not been accepted into the beta.`
+
 <details>
 
-2. Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
+<summary>
+  
+### Collecting cookies
+
+</summary>
+
+1. Get a browser that looks like Microsoft Edge.
+  
+ * a) (Easy) Install the latest version of Microsoft Edge
+ * b) (Advanced) Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
+  
+2. Open [bing.com/chat](https://bing.com/chat)
+3. If you see a chat feature, you are good to continue...
+4. Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
+5. Go to [bing.com](https://bing.com)
+6. Open the extension
+7. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
+8. Paste your cookies into a file `cookies.json`
 
 </details>
 
-3. Open [bing.com/chat](https://bing.com/chat)
-4. If you see a chat feature, you are good to continue...
-5. Install the cookie editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
-6. Go to [bing.com](https://bing.com)
-7. Open the extension
-8. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
-9. Paste your cookies into a file `cookies.json`
-
 ### In code:
 ```python
-cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())
+cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())  # might omit cookies option
 bot = await Chatbot.create(cookies=cookies)
 ```
 
@@ -123,7 +135,7 @@ import asyncio
 from EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
-    bot = await Chatbot.create() # Passing cookies is optional
+    bot = await Chatbot.create() # Passing cookies is "optional", as explained above
     print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative))
     await bot.close()
 
