@@ -20,11 +20,11 @@ from prompt_toolkit.key_binding import KeyBindings
 from rich.live import Live
 from rich.markdown import Markdown
 
-from src.helpers.chathub.chathub import ChatHub
-from src.helpers.chathub.request import ChatHubRequest
-from src.helpers.conversation import Conversation
-from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
-from src.helpers.utilities import guess_locale
+from helpers.chathub.chathub import ChatHub
+from helpers.chathub.request import ChatHubRequest
+from helpers.conversation import Conversation
+from helpers.conversation_style import CONVERSATION_STYLE_TYPE
+from helpers.utilities import guess_locale
 
 
 class Chatbot:
