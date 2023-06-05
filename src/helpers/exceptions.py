@@ -1,0 +1,2 @@
+class NotAllowedToAccess(Exception):
+    pass

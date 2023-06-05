@@ -29,12 +29,12 @@ setup(
     },
     install_requires=[
         "httpx[socks]>=0.24.0",
+        "aiohttp",
         "websockets",
         "rich",
         "certifi",
         "prompt_toolkit",
         "requests",
-        "aiofiles",
         "BingImageCreator>=0.3.0",
     ],
     long_description=Path.open(PATH, encoding="utf-8").read(),
