@@ -1,6 +1,7 @@
 import uuid
 from ..conversation_style import CONVERSATION_STYLE_TYPE, ConversationStyle
 from ..utilities import guess_locale, get_ran_hex, get_location_hint_from_locale
+from datetime import datetime
 
 
 class ChatHubRequest:
@@ -39,6 +40,8 @@ class ChatHubRequest:
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value
         message_id = str(uuid.uuid4())
+        # Generate timestamp in format: 2023-06-05T20:49:30+08:00
+        timestamp = datetime.now().isoformat(sep="T")
         self.struct = {
             "arguments": [
                 {
@@ -82,6 +85,7 @@ class ChatHubRequest:
                         "515oscfing2s0",
                         "524vidansgs0",
                     ],
+                    "verbosity": "verbose",
                     "traceId": get_ran_hex(32),
                     "isStartOfSession": self.invocation_id == 3,
                     "message": {
@@ -89,6 +93,7 @@ class ChatHubRequest:
                         "market": locale,
                         "region": locale[-2:],  # en-US -> US
                         "locationHints": get_location_hint_from_locale(locale),
+                        "timestamp": timestamp,
                         "author": "user",
                         "inputMethod": "Keyboard",
                         "text": prompt,
@@ -128,3 +133,5 @@ class ChatHubRequest:
                 },
             ]
         self.invocation_id += 1
+
+        # print(self.struct)
