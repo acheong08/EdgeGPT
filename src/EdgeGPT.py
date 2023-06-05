@@ -21,8 +21,9 @@ from rich.live import Live
 from rich.markdown import Markdown
 
 from src.helpers.chathub.chathub import ChatHub
+from src.helpers.chathub.request import ChatHubRequest
 from src.helpers.conversation import Conversation
-from src.helpers.utilities import guess_locale
+from src.helpers.utilities import guess_locale, get_ran_hex
 from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
 
 
@@ -62,14 +63,37 @@ class Chatbot:
         Save the conversation to a file
         """
         with open(filename, "w") as f:
-            f.write(json.dumps(self.chat_hub.request.struct))
+            conversation_id = self.chat_hub.request.conversation_id
+            conversation_signature = self.chat_hub.request.conversation_signature
+            client_id = self.chat_hub.request.client_id
+            invocation_id = self.chat_hub.request.invocation_id
+            f.write(
+                {
+                    "conversation_id": conversation_id,
+                    "conversation_signature": conversation_signature,
+                    "client_id": client_id,
+                    "invocation_id": invocation_id,
+                }
+            )
 
     async def load_conversation(self, filename: str) -> None:
         """
         Load the conversation from a file
         """
         with open(filename, "r") as f:
-            self.chat_hub.request.struct = json.loads(f.read())
+            conversation = json.load(f)
+            self.chat_hub.request = ChatHubRequest(
+                conversation_signature=conversation["conversation_signature"],
+                client_id=conversation["client_id"],
+                conversation_id=conversation["conversation_id"],
+                invocation_id=conversation["invocation_id"],
+            )
+
+    async def get_conversation(self) -> dict:
+        """
+        Gets the conversation history from conversation_id (requires load_conversation)
+        """
+        return await self.chat_hub.get_conversation()
 
     async def ask(
         self,

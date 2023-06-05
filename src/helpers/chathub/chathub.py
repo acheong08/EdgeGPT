@@ -1,10 +1,10 @@
-import httpx, asyncio, aiohttp, ssl, certifi, json, sys
+import httpx, asyncio, aiohttp, ssl, certifi, json, sys, os
 from typing import Generator, Union
 
 from ..conversation import Conversation
 from .request import ChatHubRequest
 from ..utilities import guess_locale, get_ran_hex, append_identifier
-from ..constants import HEADERS, DELIMITER
+from ..constants import HEADERS, DELIMITER, HEADERS_INIT_CONVER
 from ..conversation_style import CONVERSATION_STYLE_TYPE
 
 from BingImageCreator import ImageGenAsync
@@ -31,6 +31,29 @@ class ChatHub:
         )
         self.cookies = cookies
         self.proxy: str = proxy
+        proxy = (
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
+        )
+        if proxy is not None and proxy.startswith("socks5h://"):
+            proxy = "socks5://" + proxy[len("socks5h://") :]
+        self.session = httpx.Client(
+            proxies=proxy,
+            timeout=900,
+            headers=HEADERS_INIT_CONVER,
+        )
+
+    async def get_conversation(self) -> dict:
+        conversation_id = self.request.conversation_id
+        conversation_signature = self.request.conversation_signature
+        client_id = self.request.client_id
+        url = f"https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}&source=cib&participantId={client_id}&conversationSignature={conversation_signature}&traceId={get_ran_hex()}"
+        response = await self.session.get(url)
+        return response.json()
 
     async def ask_stream(
         self,
