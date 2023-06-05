@@ -58,50 +58,15 @@ class ChatHub:
             autoping=False,
         )
         await self._initial_handshake()
-        if self.request.invocation_id == 3:
-            # Construct a ChatHub request
-            self.request.update(
-                prompt=prompt,
-                conversation_style=conversation_style,
-                options=options,
-                webpage_context=webpage_context,
-                search_result=search_result,
-                locale=locale,
-            )
-        else:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    "https://sydney.bing.com/sydney/UpdateConversation/",
-                    json={
-                        "messages": [
-                            {
-                                "author": "user",
-                                "description": webpage_context,
-                                "contextType": "WebPage",
-                                "messageType": "Context",
-                            },
-                        ],
-                        "conversationId": self.request.conversation_id,
-                        "source": "cib",
-                        "traceId": get_ran_hex(32),
-                        "participant": {"id": self.request.client_id},
-                        "conversationSignature": self.request.conversation_signature,
-                    },
-                )
-            if response.status_code != 200:
-                print(f"Status code: {response.status_code}")
-                print(response.text)
-                print(response.url)
-                raise Exception("Update web page context failed")
-            # Construct a ChatHub request
-            self.request.update(
-                prompt=prompt,
-                conversation_style=conversation_style,
-                options=options,
-                webpage_context=webpage_context,
-                search_result=search_result,
-                locale=locale,
-            )
+        # Construct a ChatHub request
+        self.request.update(
+            prompt=prompt,
+            conversation_style=conversation_style,
+            options=options,
+            webpage_context=webpage_context,
+            search_result=search_result,
+            locale=locale,
+        )
         # Send request
         await self.wss.send_str(append_identifier(self.request.struct))
         draw = False

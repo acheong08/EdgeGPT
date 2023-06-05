@@ -23,18 +23,10 @@ class ChatHubRequest:
         self,
         prompt: str,
         conversation_style: CONVERSATION_STYLE_TYPE,
-        options: list | None = None,
         webpage_context: str | None = None,
         search_result: bool = True,
         locale: str = guess_locale(),
     ) -> None:
-        if options is None:
-            options = [
-                "deepleo",
-                "enable_debug_commands",
-                "disable_emoji_spoken_text",
-                "enablemm",
-            ]
         if conversation_style:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
