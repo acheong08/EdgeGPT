@@ -2,6 +2,7 @@ import asyncio
 import json
 import time
 from pathlib import Path
+from typing import Union
 
 from EdgeGPT.EdgeGPT import Chatbot
 from EdgeGPT.EdgeGPT import ConversationStyle
@@ -20,10 +21,10 @@ class Cookie:
     dirpath = Path("./").resolve()
     search_pattern = "bing_cookies_*.json"
     ignore_files = set()
-    current_filepath: dict | None = None
+    current_filepath: Union[dict, None] = None
 
     @classmethod
-    def fetch_default(cls, path: Path | None = None) -> None:
+    def fetch_default(cls, path: Union[Path, None] = None) -> None:
         from selenium import webdriver
         from selenium.webdriver.common.by import By
 
@@ -98,7 +99,7 @@ class Query:
         cookie_file: int = 0,
         echo: bool = True,
         echo_prompt: bool = False,
-        proxy: str | None = None,
+        proxy: Union[str, None] = None,
     ) -> None:
         """
         Arguments:

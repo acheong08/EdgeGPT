@@ -30,7 +30,7 @@ class ChatHub:
         self,
         conversation: Conversation,
         proxy: str = None,
-        cookies: list[dict] | None = None,
+        cookies: Union[list[dict], None] = None,
     ) -> None:
         self.wss = None
         self.request: ChatHubRequest
@@ -73,7 +73,7 @@ class ChatHub:
         wss_link: str,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
-        webpage_context: str | None = None,
+        webpage_context: Union[str, None] = None,
         search_result: bool = False,
         locale: str = guess_locale(),
     ) -> Generator[bool, Union[dict, str], None]:
