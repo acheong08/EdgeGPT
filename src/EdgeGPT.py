@@ -3,27 +3,22 @@ Main.py
 """
 from __future__ import annotations
 
-import argparse
-import asyncio
 import json
-import re
-import sys
-from pathlib import Path
+
 from typing import Generator
 
-from prompt_toolkit import PromptSession
-from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.key_binding import KeyBindings
-from rich.live import Live
-from rich.markdown import Markdown
-
-from src.helpers.chathub.chathub import ChatHub
-from src.helpers.chathub.request import ChatHubRequest
-from src.helpers.conversation import Conversation
-from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
-from src.helpers.utilities import guess_locale
+try:
+    from helpers.chathub.chathub import ChatHub
+    from helpers.chathub.request import ChatHubRequest
+    from helpers.conversation import Conversation
+    from helpers.conversation_style import CONVERSATION_STYLE_TYPE
+    from helpers.utilities import guess_locale
+except ImportError:
+    from src.helpers.chathub.chathub import ChatHub
+    from src.helpers.chathub.request import ChatHubRequest
+    from src.helpers.conversation import Conversation
+    from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
+    from src.helpers.utilities import guess_locale
 
 
 class Chatbot:
@@ -161,21 +156,21 @@ class Chatbot:
         )
 
 
-async def _get_input_async(
-    session: PromptSession = None,
-    completer: WordCompleter = None,
-) -> str:
-    """
-    Multiline input function.
-    """
-    return await session.prompt_async(
-        completer=completer,
-        multiline=True,
-        auto_suggest=AutoSuggestFromHistory(),
-    )
+import argparse, asyncio, json
+from rich.live import Live
+from rich.markdown import Markdown
+from pathlib import Path
+import re
+import sys
+from prompt_toolkit import PromptSession
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.key_binding import KeyBindings
+from EdgeGPT import Chatbot
 
 
-def _create_session() -> PromptSession:
+def create_session() -> PromptSession:
     kb = KeyBindings()
 
     @kb.add("enter")
@@ -195,7 +190,7 @@ def _create_session() -> PromptSession:
     return PromptSession(key_bindings=kb, history=InMemoryHistory())
 
 
-def _create_completer(commands: list, pattern_str: str = "$") -> WordCompleter:
+def create_completer(commands: list, pattern_str: str = "$") -> WordCompleter:
     return WordCompleter(words=commands, pattern=re.compile(pattern_str))
 
 
@@ -209,6 +204,20 @@ def _create_history_logger(f):
     return logger
 
 
+async def get_input_async(
+    session: PromptSession = None,
+    completer: WordCompleter = None,
+) -> str:
+    """
+    Multiline input function.
+    """
+    return await session.prompt_async(
+        completer=completer,
+        multiline=True,
+        auto_suggest=AutoSuggestFromHistory(),
+    )
+
+
 async def async_main(args: argparse.Namespace) -> None:
     """
     Main function
@@ -220,8 +229,8 @@ async def async_main(args: argparse.Namespace) -> None:
     if args.cookie_file:
         cookies = json.loads(Path.open(args.cookie_file, encoding="utf-8").read())
     bot = await Chatbot.create(proxy=args.proxy, cookies=cookies)
-    session = _create_session()
-    completer = _create_completer(["!help", "!exit", "!reset"])
+    session = create_session()
+    completer = create_completer(["!help", "!exit", "!reset"])
     initial_prompt = args.prompt
 
     # Log chat history
@@ -243,7 +252,7 @@ async def async_main(args: argparse.Namespace) -> None:
             question = (
                 input()
                 if args.enter_once
-                else await _get_input_async(session=session, completer=completer)
+                else await get_input_async(session=session, completer=completer)
             )
         print()
         p_hist(question + "\n")
