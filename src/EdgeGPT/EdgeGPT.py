@@ -220,7 +220,10 @@ async def async_main(args: argparse.Namespace) -> None:
     # Read and parse cookies
     cookies = None
     if args.cookie_file:
-        cookies = json.loads(Path.open(args.cookie_file, encoding="utf-8").read())
+        file_path = Path(args.cookie_file)
+        if file_path.exists():
+            with file_path.open("r", encoding="utf-8") as f:
+                cookies = json.load(f)
     bot = await Chatbot.create(proxy=args.proxy, cookies=cookies)
     session = create_session()
     completer = create_completer(["!help", "!exit", "!reset"])
