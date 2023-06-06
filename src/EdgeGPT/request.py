@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Union
 
 from .conversation_style import CONVERSATION_STYLE_TYPE
 from .conversation_style import ConversationStyle
@@ -27,7 +28,7 @@ class ChatHubRequest:
         self,
         prompt: str,
         conversation_style: CONVERSATION_STYLE_TYPE,
-        webpage_context: str | None = None,
+        webpage_context: Union[str, None] = None,
         search_result: bool = False,
         locale: str = guess_locale(),
     ) -> None:
