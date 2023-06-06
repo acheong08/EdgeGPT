@@ -10,7 +10,6 @@ import re
 import sys
 from pathlib import Path
 from typing import Generator
-from typing import Union
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory

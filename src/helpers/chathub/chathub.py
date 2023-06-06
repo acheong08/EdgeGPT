@@ -32,7 +32,7 @@ class ChatHub:
         proxy: str = None,
         cookies: list[dict] | None = None,
     ) -> None:
-        self.wss: aiohttp.ClientWebSocketResponse | None = None
+        self.wss = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -79,12 +79,9 @@ class ChatHub:
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
         timeout = aiohttp.ClientTimeout(total=900)
-        self.session = aiohttp.ClientSession(timeout=timeout)
-
-        if self.wss and not self.wss.closed:
-            await self.wss.close()
+        self.wss_session = aiohttp.ClientSession(timeout=timeout)
         # Check if websocket is closed
-        self.wss = await self.session.ws_connect(
+        self.wss = await self.wss_session.ws_connect(
             wss_link,
             headers=HEADERS,
             ssl=ssl_context,
@@ -185,8 +182,9 @@ class ChatHub:
                             "Preserved the message from being deleted",
                             file=sys.stderr,
                         )
-                    await self.close()
                     yield True, response
+                    await self.wss_session.close()
+                    await self.wss.close()
                     return
 
     async def _initial_handshake(self) -> None:
@@ -195,7 +193,4 @@ class ChatHub:
         await self.wss.send_str(append_identifier({"type": 6}))
 
     async def close(self) -> None:
-        if self.wss and not self.wss.closed:
-            await self.wss.close()
-        if self.session and not self.session.closed:
-            await self.session.close()
+        self.session.close()
