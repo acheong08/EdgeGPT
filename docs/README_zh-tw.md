@@ -79,7 +79,7 @@ bot = await Chatbot.create(cookies=cookies)
 ## 從命令行運行
 
 ```
- $ python3 -m EdgeGPT -h
+ $ python3 -m EdgeGPT.EdgeGPT -h
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/EdgeGPT
@@ -117,7 +117,7 @@ options:
 
 ```python
 import asyncio
-from EdgeGPT import Chatbot, ConversationStyle
+from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = await Chatbot.create()
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 創建一個簡單的必應聊天 AI 查詢（預設情況下使用“精確”對話樣式），這樣可以僅查看主要文本輸出，而不是整個 API 回應：
 
 ```python
-from EdgeGPT import Query, Cookie
+from EdgeGPT.EdgeGPT import Query, Cookie
 
 q = Query("你是誰？用python代码給出回答")
 print(q)
@@ -228,7 +228,7 @@ docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/coo
 ## 從命令行運行
 
 ```bash
-$ python3 -m ImageGen -h
+$ python3 -m ImageGen.ImageGen -h
 usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
 optional arguments:
@@ -250,7 +250,7 @@ optional arguments:
 根據一個簡單的提示產生圖像並下載到目前工作目錄：
 
 ```python
-from EdgeGPT import ImageQuery
+from EdgeGPT.EdgeGPT import ImageQuery
 
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
@@ -264,7 +264,7 @@ Query.image_dirpath = Path("./to_another_folder")
 ### 2) 使用 `ImageGen` 類和 `asyncio` 類以進行更精細的控制
 
 ```python
-from ImageGen import ImageGen
+from EdgeGPT.ImageGen import ImageGen
 import argparse
 import json
 

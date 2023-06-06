@@ -81,7 +81,7 @@ python3 -m pip install EdgeGPT --upgrade
 ### Ejemplo línea de comandos
 
 ```
- $ python3 -m EdgeGPT -h
+ $ python3 -m EdgeGPT.EdgeGPT -h
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/EdgeGPT
@@ -134,7 +134,7 @@ Código de ejemplo usando programación asíncrona:
 
 ```python
 import asyncio
-from EdgeGPT import Chatbot, ConversationStyle
+from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = await Chatbot.create()
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 </summary>
 
 ```bash
-$ python3 -m ImageGen -h
+$ python3 -m ImageGen.ImageGen -h
 usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
 optional arguments:
@@ -176,7 +176,7 @@ optional arguments:
 ### Ejemplo para desarrolladores
 
 ```python
-from ImageGen import ImageGen
+from EdgeGPT.ImageGen import ImageGen
 import argparse
 import json
 

@@ -81,7 +81,7 @@ python3 -m pip install EdgeGPT --upgrade
 ### クイックスタート
 
 ```
- $ python3 -m EdgeGPT -h
+ $ python3 -m EdgeGPT.EdgeGPT -h
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/EdgeGPT
@@ -150,7 +150,7 @@ Cookie を渡す 3 つの方法:
 
 ```python
 import asyncio
-from EdgeGPT import Chatbot, ConversationStyle
+from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = await Chatbot.create()
@@ -174,7 +174,7 @@ if __name__ == "__main__":
 </summary>
 
 ```bash
-$ python3 -m ImageGen -h
+$ python3 -m ImageGen.ImageGen -h
 usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
 optional arguments:
@@ -192,7 +192,7 @@ optional arguments:
 ### 開発者デモ
 
 ```python
-from ImageGen import ImageGen
+from EdgeGPT.ImageGen import ImageGen
 import argparse
 import json
 

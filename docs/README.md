@@ -92,7 +92,7 @@ bot = await Chatbot.create(cookies=cookies)
 ## Running from the Command Line
 
 ```
- $ python3 -m EdgeGPT -h
+ $ python3 -m EdgeGPT.EdgeGPT -h
 
         EdgeGPT - A demo of reverse engineering the Bing GPT chatbot
         Repo: github.com/acheong08/EdgeGPT
@@ -132,7 +132,7 @@ Use Async for the best experience, for example:
 
 ```python
 import asyncio
-from EdgeGPT import Chatbot, ConversationStyle
+from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
     bot = await Chatbot.create() # Passing cookies is "optional", as explained above
@@ -155,7 +155,7 @@ Create a simple Bing Chat AI query (using the 'precise' conversation style by de
 Remeber to store your cookies in a specific format: `bing_cookies_*.json`.
 
 ```python
-from EdgeUtils import Query, Cookie
+from EdgeGPT.EdgeUtils import Query, Cookie
 
 q = Query("What are you? Give your answer as Python code")
 print(q)
@@ -245,7 +245,7 @@ docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/coo
 ## Running from the Command Line
 
 ```bash
-$ python3 -m ImageGen -h
+$ python3 -m ImageGen.ImageGen -h
 usage: ImageGen.py [-h] [-U U] [--cookie-file COOKIE_FILE] --prompt PROMPT [--output-dir OUTPUT_DIR] [--quiet] [--asyncio]
 
 optional arguments:
@@ -267,7 +267,7 @@ optional arguments:
 Generate images based on a simple prompt and download to the current working directory:
 
 ```python
-from EdgeUtils import ImageQuery
+from EdgeGPT.EdgeUtils import ImageQuery
 
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
@@ -281,7 +281,7 @@ Query.image_dirpath = Path("./to_another_folder")
 ### 2) The `ImageGen` class and `asyncio` for more granular control
 
 ```python
-from ImageGen import ImageGen
+from EdgeGPT.ImageGen import ImageGen
 import argparse
 import json
 

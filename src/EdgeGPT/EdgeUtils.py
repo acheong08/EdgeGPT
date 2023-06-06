@@ -5,7 +5,7 @@ from pathlib import Path
 
 from EdgeGPT.EdgeGPT import Chatbot
 from EdgeGPT.EdgeGPT import ConversationStyle
-from ImageGen import ImageGen
+from EdgeGPT.ImageGen import ImageGen
 
 
 class Cookie:
