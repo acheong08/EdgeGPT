@@ -1,5 +1,6 @@
 import asyncio
 import json
+import platform
 import time
 from pathlib import Path
 from typing import Union
@@ -142,6 +143,8 @@ class Query:
             self.create_image()
 
     def log_and_send_query(self, echo: bool, echo_prompt: bool) -> None:
+        if platform.system() == "Windows":
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         self.response = asyncio.run(self.send_to_bing(echo, echo_prompt))
         name = str(Cookie.current_filepath.name)
         if not self.request_count.get(name):
