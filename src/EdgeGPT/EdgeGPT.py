@@ -7,18 +7,11 @@ import json
 
 from typing import Generator
 
-try:
-    from helpers.chathub.chathub import ChatHub
-    from helpers.chathub.request import ChatHubRequest
-    from helpers.conversation import Conversation
-    from helpers.conversation_style import CONVERSATION_STYLE_TYPE
-    from helpers.utilities import guess_locale
-except ImportError:
-    from src.helpers.chathub.chathub import ChatHub
-    from src.helpers.chathub.request import ChatHubRequest
-    from src.helpers.conversation import Conversation
-    from src.helpers.conversation_style import CONVERSATION_STYLE_TYPE
-    from src.helpers.utilities import guess_locale
+from .chathub import *
+from .request import *
+from .conversation import *
+from .conversation_style import *
+from .utilities import *
 
 
 class Chatbot:
@@ -167,7 +160,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
-from EdgeGPT import Chatbot
+from EdgeGPT.EdgeGPT import Chatbot
 
 
 def create_session() -> PromptSession:

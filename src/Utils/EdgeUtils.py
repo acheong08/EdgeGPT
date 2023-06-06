@@ -1,11 +1,10 @@
 import asyncio
 import json
-import re
 import time
 from pathlib import Path
 
-from EdgeGPT import Chatbot
-from EdgeGPT import ConversationStyle
+from EdgeGPT.EdgeGPT import Chatbot
+from EdgeGPT.EdgeGPT import ConversationStyle
 from ImageGen import ImageGen
 
 

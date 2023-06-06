@@ -11,14 +11,14 @@ import certifi
 import httpx
 from BingImageCreator import ImageGenAsync
 
-from ..constants import DELIMITER
-from ..constants import HEADERS
-from ..constants import HEADERS_INIT_CONVER
-from ..conversation import Conversation
-from ..conversation_style import CONVERSATION_STYLE_TYPE
-from ..utilities import append_identifier
-from ..utilities import get_ran_hex
-from ..utilities import guess_locale
+from .constants import DELIMITER
+from .constants import HEADERS
+from .constants import HEADERS_INIT_CONVER
+from .conversation import Conversation
+from .conversation_style import CONVERSATION_STYLE_TYPE
+from .utilities import append_identifier
+from .utilities import get_ran_hex
+from .utilities import guess_locale
 from .request import ChatHubRequest
 
 ssl_context = ssl.create_default_context()
