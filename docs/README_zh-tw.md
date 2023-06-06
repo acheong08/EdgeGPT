@@ -39,10 +39,11 @@ python3 -m pip install EdgeGPT --upgrade
 ### 要求
 
 - python 3.8+
-- 一個可以訪問必應聊天的微軟帳戶 <https://bing.com/chat> (可選)
+- 一個可以訪問必應聊天的微軟帳戶 <https://bing.com/chat> (可選，取決於所在地區)
 - 需要在 New Bing 支持的國家或地區（中國大陸需使用VPN）
 - [Selenium](https://pypi.org/project/selenium/) (對於需要自動配置cookie的情況)
 
+</details>
 <details>
 
 <summary>
@@ -53,26 +54,36 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## 認證
 
-不用，不需要了。微軟已向所有人提供聊天功能，因此这一步可以跳過了。
+基本上不需要了。在某些地區，微軟已向所有人提供聊天功能，這一步或許可以省略了。您可以使用瀏覽器進行檢查（將 UA 設置為能表示為 Edge 的），嘗試能否在不登錄的情況下開始聊天。
 
-1. 安裝最新版本的 Microsoft Edge
+但是也得看當前所在地區。 例如，如果試圖從一個已知屬於數據中心範圍的 IP 來訪問聊天功能（虛擬伺服器、根伺服器、虛擬專網、公共代理等），可能就需要登錄；但是要是用家裡的 IP 位址訪問聊天功能，就沒有問題。 如果收到這樣的錯誤，可以試試提供一個cookie看看能不能解決：```Exception: Authentication failed. You have not been accepted into the beta.```
+
 <details>
 
-2. 或者, 您可以使用任何瀏覽器並將用戶代理設置為Edge的用戶代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 這樣的擴展輕鬆完成此操作.
+<summary>
+
+### 收集 cookie
+
+</summary>
+
+1. 獲取一個看著像 Microsoft Edge 的瀏覽器。
+
+ * a) (簡單) 安裝最新版本的 Microsoft Edge
+ * b) (高級) 或者, 您可以使用任何瀏覽器並將用戶代理設置為Edge的用戶代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 這樣的擴展輕鬆完成此操作.
+
+2. 打開 [bing.com/chat](https://bing.com/chat)
+3. 如果您看到聊天功能，就接著下面的步驟...
+4. 安裝 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 擴展
+5. 轉到 [bing.com](https://bing.com)
+6. 打開擴展程式
+7. 單擊右下角的「匯出」，然後按「匯出為 JSON」（這會將您的 cookie 保存到剪貼簿）
+8. 將您剪貼簿上的 cookie 粘貼到檔 `cookies.json` 中
 
 </details>
 
-3. 打開 [bing.com/chat](https://bing.com/chat)
-4. 如果您看到聊天功能，就接著下面的步驟...
-5. 安裝 [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 或 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) 的 cookie editor 擴展
-6. 轉到 [bing.com](https://bing.com)
-7. 打開擴展程式
-8. 單擊右下角的「匯出」，然後按「匯出為 JSON」（這會將您的 cookie 保存到剪貼簿）
-9. 將您剪貼簿上的 cookie 粘貼到檔 `cookies.json` 中
-
 ### 在代碼中：
 ```python
-cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())
+cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())  #可能會省略 cookie 選項
 bot = await Chatbot.create(cookies=cookies)
 ```
 
@@ -90,13 +101,14 @@ bot = await Chatbot.create(cookies=cookies)
         Type !exit to exit
         Enter twice to send message or set --enter-once to send one line message
 
-usage: EdgeGPT.py [-h] [--enter-once] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
+usage: EdgeGPT.py [-h] [--enter-once] [--search-result] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
                   [--style {creative,balanced,precise}] [--prompt PROMPT] [--cookie-file COOKIE_FILE]
-                  [--history-file HISTORY_FILE]
+                  [--history-file HISTORY_FILE] [--locale LOCALE]
 
 options:
   -h, --help            show this help message and exit
   --enter-once
+  --search-result
   --no-stream
   --rich
   --proxy PROXY         Proxy URL (e.g. socks5://127.0.0.1:1080)
@@ -107,7 +119,10 @@ options:
                         path to cookie file
   --history-file HISTORY_FILE
                         path to history file
+  --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
+  
+（中/美/英/挪具有更好的本地化支援）
 
 ## 在 Python 運行
 
@@ -136,11 +151,13 @@ if __name__ == "__main__":
   </summary>
 
 創建一個簡單的必應聊天 AI 查詢（預設情況下使用“精確”對話樣式），這樣可以僅查看主要文本輸出，而不是整個 API 回應：
+  
+注意按照特定格式儲存 cookie： ```bing_cookies_*.json```。
 
 ```python
-from EdgeGPT.EdgeGPT import Query, Cookie
+from EdgeGPT.EdgeUtils import Query, Cookie
 
-q = Query("你是誰？用python代码給出回答")
+q = Query("你是誰？用python代碼給出回答")
 print(q)
 ```
 
@@ -148,7 +165,7 @@ print(q)
 
 ```python
 q = Query(
-  "你是誰？用python代码給出回答",
+  "你是誰？用python代碼給出回答",
   style="creative",  # 或者平衡模式 'balanced'
   cookies="./bing_cookies_alternative.json"
 )
@@ -204,14 +221,12 @@ Cookie.ignore_files
 假設在當前工作目錄中有一個檔 `cookie.json`
 
 ```bash
-
 docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt
 ```
 
 可以像這樣添加任意參數
 
 ```bash
-
 docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt --rich --style creative
 ```
 
@@ -250,7 +265,7 @@ optional arguments:
 根據一個簡單的提示產生圖像並下載到目前工作目錄：
 
 ```python
-from EdgeGPT.EdgeGPT import ImageQuery
+from EdgeGPT.EdgeUtils import ImageQuery
 
 q=ImageQuery("Meerkats at a garden party in Devon")
 ```
