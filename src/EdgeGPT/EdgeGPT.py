@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 
+from pathlib import Path
 from typing import Generator
 
 from .chathub import *
@@ -234,7 +235,8 @@ async def async_main(args: argparse.Namespace) -> None:
         pass
 
     if args.history_file:
-        f = Path.open(args.history_file, "a+", encoding="utf-8")
+        history_file_path = Path(args.history_file)
+        f = history_file_path.open("a+", encoding="utf-8")
         p_hist = _create_history_logger(f)
 
     while True:
