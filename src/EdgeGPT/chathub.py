@@ -4,7 +4,7 @@ import os
 import ssl
 import sys
 from typing import Generator
-from typing import Union
+from typing import Union, List
 
 import aiohttp
 import certifi
@@ -30,7 +30,7 @@ class ChatHub:
         self,
         conversation: Conversation,
         proxy: str = None,
-        cookies: Union[list[dict], None] = None,
+        cookies: Union[List[dict], None] = None,
     ) -> None:
         self.wss = None
         self.request: ChatHubRequest
