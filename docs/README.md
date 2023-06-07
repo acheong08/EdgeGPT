@@ -22,7 +22,7 @@ _The reverse engineering the chat feature of the new version of Bing_
 
 </p>
 
-<details>
+<details open>
 
 <summary>
 
@@ -30,43 +30,33 @@ _The reverse engineering the chat feature of the new version of Bing_
 
 </summary>
 
-### Install package
+## Install package
 
 ```bash
 python3 -m pip install EdgeGPT --upgrade
 ```
 
-### Requirements
+## Requirements
+
 
 - python 3.8+
 - A Microsoft Account with access to <https://bing.com/chat> (Optional, depending on your region)
 - Required in a supported country or region with New Bing (Chinese mainland VPN required)
 - [Selenium](https://pypi.org/project/selenium/) (for automatic cookie setup)
 
-</details>
-<details>
-
-<summary>
-
-# Chatbot
-
-</summary>
-
 ## Authentication
 
 !!! POSSIBLY NOT REQUIRED ANYMORE !!!
-In some regions, Microsoft has made the chat feature available to everyone, so you might be able to skip this step. You can check this with a browser (with user-agent set to reflect Edge), by trying to start a chat without logging in.
 
-It was also found that it might depend on your IP address. For example, if you try to access the chat features from an IP that is known to belong to a datacenter range (vServers, root servers, VPN, common proxies, ...), you might be required to log in while being able to access the features just fine from your home IP address. If you receive the following error, you can try providing a cookie and see if it works then:
+**In some regions**, Microsoft has made the chat feature **available** to everyone, so you might be able to **skip this step**. You can check this with a browser (with user-agent set to reflect Edge), by **trying to start a chat without logging in**.
+
+It was also found that it might **depend on your IP address**. For example, if you try to access the chat features from an IP that is known to **belong to a datacenter range** (vServers, root servers, VPN, common proxies, ...), **you might be required to log in** while being able to access the features just fine from your home IP address.
+
+If you receive the following error, you can try **providing a cookie** and see if it works then:
+
 `Exception: Authentication failed. You have not been accepted into the beta.`
 
-<details>
-
-<summary>
-
-### Collecting cookies
-
-</summary>
+### Collect cookies
 
 1. Get a browser that looks like Microsoft Edge.
 
@@ -79,17 +69,28 @@ It was also found that it might depend on your IP address. For example, if you t
 5. Go to [bing.com](https://bing.com)
 6. Open the extension
 7. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
-8. Paste your cookies into a file `cookies.json`
+8. Paste your cookies into a file `bing_cookies_*.json`.
+   * NOTE: The **cookies file name MUST follow the regex pattern `bing_cookies_*.json`**, so that they could be recognized by internal cookie processing mechanisms
 
-</details>
 
-### In code:
+
+### Use cookies in code:
 ```python
 cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())  # might omit cookies option
 bot = await Chatbot.create(cookies=cookies)
 ```
 
-## Running from the Command Line
+</details>
+
+<details open>
+
+<summary>
+
+# How to use Chatbot
+
+</summary>
+
+## Run from Command Line
 
 ```
  $ python3 -m EdgeGPT.EdgeGPT -h
@@ -124,7 +125,7 @@ options:
 ```
 (China/US/UK/Norway has enhanced support for locale)
 
-## Running in Python
+## Run in Python
 
 ### 1. The `Chatbot` class and `asyncio` for more granular control
 
@@ -143,12 +144,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-<details>
-<summary>
-
 ### 2) The `Query` and `Cookie` helper classes
-
-  </summary>
 
 Create a simple Bing Chat AI query (using the 'precise' conversation style by default) and see just the main text output rather than the whole API response:
 
@@ -166,8 +162,8 @@ Or change the conversation style or cookie file to be used:
 ```python
 q = Query(
   "What are you? Give your answer as Python code",
-  style="creative",  # or 'balanced'
-  cookies="./bing_cookies_alternative.json"
+  style="creative",  # or: 'balanced', 'precise'
+  cookie_file="./bing_cookies_alternative.json"
 )
 ```
 
@@ -212,11 +208,9 @@ Cookie.image_token
 Cookie.ignore_files
 ```
 
-</details>
-
 ---
 
-## Running with Docker
+## Run with Docker
 
 This assumes you have a file cookies.json in your current working directory
 
@@ -234,15 +228,17 @@ docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/coo
 
 </details>
 
-<details>
+</details>
+
+<details open>
 
 <summary>
 
-# Image generator
+# How to use Image generator
 
 </summary>
 
-## Running from the Command Line
+## Run from Command Line
 
 ```bash
 $ python3 -m ImageGen.ImageGen -h
@@ -260,7 +256,7 @@ optional arguments:
   --asyncio             Run ImageGen using asyncio
 ```
 
-## Running in Python
+## Run in Python
 
 ### 1) The `ImageQuery` helper class
 
@@ -338,14 +334,30 @@ if __name__ == "__main__":
 
 </details>
 
+<details open>
+
+<summary>
+
 # Star History
+
+</summary>
 
 [![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
 
+</details>
+
+<details open>
+
+<summary>
+
 # Contributors
+
+</summary>
 
 This project exists thanks to all the people who contribute.
 
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
  </a>
+
+</details>
