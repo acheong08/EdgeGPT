@@ -32,6 +32,12 @@ class ChatHubRequest:
         search_result: bool = False,
         locale: str = guess_locale(),
     ) -> None:
+        options = [
+            "deepleo",
+            "enable_debug_commands",
+            "disable_emoji_spoken_text",
+            "enablemm",
+        ]
         if conversation_style:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
