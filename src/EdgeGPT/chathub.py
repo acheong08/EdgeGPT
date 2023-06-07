@@ -53,7 +53,7 @@ class ChatHub:
         )
         if proxy is not None and proxy.startswith("socks5h://"):
             proxy = "socks5://" + proxy[len("socks5h://") :]
-        self.session = httpx.Client(
+        self.session = httpx.AsyncClient(
             proxies=proxy,
             timeout=900,
             headers=HEADERS_INIT_CONVER,
@@ -193,4 +193,4 @@ class ChatHub:
         await self.wss.send_str(append_identifier({"type": 6}))
 
     async def close(self) -> None:
-        self.session.close()
+        await self.session.aclose()
