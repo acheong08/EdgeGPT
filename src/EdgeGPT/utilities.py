@@ -33,6 +33,6 @@ def get_location_hint_from_locale(locale: str) -> Union[dict, None]:
 
 def guess_locale() -> str:
     loc, _ = locale.getlocale()
-    if not loc:
+    if not loc or len(loc) > 5:
         loc = "en-US"
     return loc.replace("_", "-")
