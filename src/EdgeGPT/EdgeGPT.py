@@ -94,6 +94,16 @@ class Chatbot:
     ) -> dict:
         """
         Ask a question to the bot
+        Response:
+            {
+                item (dict):
+                    messages (list[dict]):
+                        adaptiveCards (list[dict]):
+                            body (list[dict]):
+                                text (str): Response
+            }
+        To get the response, you can do:
+            response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
         """
         async for final, response in self.chat_hub.ask_stream(
             prompt=prompt,
