@@ -6,6 +6,7 @@ import sys
 from typing import Generator
 from typing import List
 from typing import Union
+from time import time
 
 import aiohttp
 import certifi
@@ -114,6 +115,8 @@ class ChatHub:
                 continue
             objects = msg.data.split(DELIMITER)
             for obj in objects:
+                if int(time()) % 6 == 0:
+                    await self.wss.send_str(append_identifier({"type": 6}))
                 if obj is None or not obj:
                     continue
                 response = json.loads(obj)
