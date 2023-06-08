@@ -4,7 +4,8 @@ import os
 import ssl
 import sys
 from typing import Generator
-from typing import Union, List
+from typing import List
+from typing import Union
 
 import aiohttp
 import certifi
@@ -16,10 +17,10 @@ from .constants import HEADERS
 from .constants import HEADERS_INIT_CONVER
 from .conversation import Conversation
 from .conversation_style import CONVERSATION_STYLE_TYPE
+from .request import ChatHubRequest
 from .utilities import append_identifier
 from .utilities import get_ran_hex
 from .utilities import guess_locale
-from .request import ChatHubRequest
 
 ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
