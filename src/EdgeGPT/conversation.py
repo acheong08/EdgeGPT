@@ -1,7 +1,9 @@
 import json
 import os
+from typing import List
+from typing import Union
+
 import httpx
-from typing import Union, List
 
 from .constants import HEADERS_INIT_CONVER
 from .exceptions import NotAllowedToAccess

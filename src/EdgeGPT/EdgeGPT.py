@@ -4,14 +4,13 @@ Main.py
 from __future__ import annotations
 
 import json
-
 from pathlib import Path
 from typing import Generator
 
 from .chathub import *
-from .request import *
 from .conversation import *
 from .conversation_style import *
+from .request import *
 from .utilities import *
 
 
@@ -94,6 +93,16 @@ class Chatbot:
     ) -> dict:
         """
         Ask a question to the bot
+        Response:
+            {
+                item (dict):
+                    messages (list[dict]):
+                        adaptiveCards (list[dict]):
+                            body (list[dict]):
+                                text (str): Response
+            }
+        To get the response, you can do:
+            response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
         """
         async for final, response in self.chat_hub.ask_stream(
             prompt=prompt,
@@ -105,7 +114,6 @@ class Chatbot:
         ):
             if final:
                 return response
-        await self.chat_hub.wss.close()
         return {}
 
     async def ask_stream(

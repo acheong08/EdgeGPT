@@ -4,7 +4,8 @@ import os
 import ssl
 import sys
 from typing import Generator
-from typing import Union, List
+from typing import List
+from typing import Union
 
 import aiohttp
 import certifi
@@ -16,10 +17,10 @@ from .constants import HEADERS
 from .constants import HEADERS_INIT_CONVER
 from .conversation import Conversation
 from .conversation_style import CONVERSATION_STYLE_TYPE
+from .request import ChatHubRequest
 from .utilities import append_identifier
 from .utilities import get_ran_hex
 from .utilities import guess_locale
-from .request import ChatHubRequest
 
 ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
@@ -103,8 +104,14 @@ class ChatHub:
         resp_txt = ""
         result_text = ""
         resp_txt_no_link = ""
+        retry_count = 5
         while True:
             msg = await self.wss.receive(timeout=900)
+            if not msg:
+                retry_count -= 1
+                if retry_count == 0:
+                    raise Exception("No response from server")
+                continue
             objects = msg.data.split(DELIMITER)
             for obj in objects:
                 if obj is None or not obj:
@@ -186,6 +193,10 @@ class ChatHub:
                     await self.wss_session.close()
                     await self.wss.close()
                     return
+                elif response.get("type") == 6:
+                    await self.wss.send_str(append_identifier({"type": 6}))
+                elif response.get("type") == 7:
+                    await self.wss.send_str(append_identifier({"type": 7}))
 
     async def _initial_handshake(self) -> None:
         await self.wss.send_str(append_identifier({"protocol": "json", "version": 1}))

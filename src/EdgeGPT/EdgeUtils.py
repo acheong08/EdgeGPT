@@ -3,7 +3,10 @@ import json
 import platform
 import time
 from pathlib import Path
-from typing import Union, List, Dict, Set
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Union
 
 from EdgeGPT.EdgeGPT import Chatbot
 from EdgeGPT.EdgeGPT import ConversationStyle

@@ -121,7 +121,7 @@ options:
                         path to history file
   --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
-  
+
 （中/美/英/挪具有更好的本地化支援）
 
 ## 在 Python 運行
@@ -151,7 +151,7 @@ if __name__ == "__main__":
   </summary>
 
 創建一個簡單的必應聊天 AI 查詢（預設情況下使用“精確”對話樣式），這樣可以僅查看主要文本輸出，而不是整個 API 回應：
-  
+
 注意按照特定格式儲存 cookie： ```bing_cookies_*.json```。
 
 ```python
