@@ -55,12 +55,12 @@ class Chatbot:
             client_id = self.chat_hub.request.client_id
             invocation_id = self.chat_hub.request.invocation_id
             f.write(
-                {
+                json.dumps({
                     "conversation_id": conversation_id,
                     "conversation_signature": conversation_signature,
                     "client_id": client_id,
                     "invocation_id": invocation_id,
-                },
+                }),
             )
 
     async def load_conversation(self, filename: str) -> None:
