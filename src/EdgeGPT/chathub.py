@@ -190,8 +190,8 @@ class ChatHub:
                             file=sys.stderr,
                         )
                     yield True, response
-                    await self.wss_session.close()
                     await self.wss.close()
+                    await self.wss_session.close()
                     return
                 elif response.get("type") == 6:
                     await self.wss.send_str(append_identifier({"type": 6}))

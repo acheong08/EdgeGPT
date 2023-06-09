@@ -113,6 +113,10 @@ class Chatbot:
             locale=locale,
         ):
             if final:
+                if not self.chat_hub.wss.closed:
+                    await self.chat_hub.wss.close()
+                if not self.chat_hub.wss_session.closed:
+                    await self.chat_hub.wss_session.close()
                 return response
         return {}
 
