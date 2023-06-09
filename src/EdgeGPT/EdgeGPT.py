@@ -125,6 +125,7 @@ class Chatbot:
                         "sources_text": message["adaptiveCards"]["body"][-1]["text"],
                         "suggestions": [text for text in message["suggestedResponses"]["text"]],
                         "messages_left": response["throttling"]["maxNumUserMessagesInConversation"] - response["throttling"]["numUserMessagesInConversation"],
+                        "adaptive_text": message["adaptiveCards"]["body"][0]["text"]
                     }
         return {}
 
