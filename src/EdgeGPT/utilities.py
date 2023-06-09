@@ -1,8 +1,8 @@
 import json
 import locale
 import random
-from typing import Union
 import sys
+from typing import Union
 
 from .constants import DELIMITER
 from .locale import LocationHint
@@ -33,7 +33,7 @@ def get_location_hint_from_locale(locale: str) -> Union[dict, None]:
 
 
 def guess_locale() -> str:
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith("win"):
         return "en-us"
     loc, _ = locale.getlocale()
     return loc.replace("_", "-")

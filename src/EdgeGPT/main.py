@@ -1,16 +1,18 @@
-
-import argparse, asyncio, json
-from rich.live import Live
-from rich.markdown import Markdown
-from pathlib import Path
+import argparse
+import asyncio
+import json
 import re
 import sys
+from pathlib import Path
+
+from EdgeGPT.EdgeGPT import Chatbot
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
-from EdgeGPT.EdgeGPT import Chatbot
+from rich.live import Live
+from rich.markdown import Markdown
 
 
 def create_session() -> PromptSession:

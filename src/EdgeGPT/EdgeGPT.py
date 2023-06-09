@@ -55,12 +55,14 @@ class Chatbot:
             client_id = self.chat_hub.request.client_id
             invocation_id = self.chat_hub.request.invocation_id
             f.write(
-                json.dumps({
-                    "conversation_id": conversation_id,
-                    "conversation_signature": conversation_signature,
-                    "client_id": client_id,
-                    "invocation_id": invocation_id,
-                }),
+                json.dumps(
+                    {
+                        "conversation_id": conversation_id,
+                        "conversation_signature": conversation_signature,
+                        "client_id": client_id,
+                        "invocation_id": invocation_id,
+                    }
+                ),
             )
 
     async def load_conversation(self, filename: str) -> None:
@@ -123,9 +125,17 @@ class Chatbot:
                         "author": message["author"],
                         "sources": message["sourceAttributions"],
                         "sources_text": message["adaptiveCards"][0]["body"][-1]["text"],
-                        "suggestions": [suggestion["text"] for suggestion in message["suggestedResponses"]],
-                        "messages_left": response["item"]["throttling"]["maxNumUserMessagesInConversation"] - response["item"]["throttling"]["numUserMessagesInConversation"],
-                        "adaptive_text": message["adaptiveCards"][0]["body"][0]["text"]
+                        "suggestions": [
+                            suggestion["text"]
+                            for suggestion in message["suggestedResponses"]
+                        ],
+                        "messages_left": response["item"]["throttling"][
+                            "maxNumUserMessagesInConversation"
+                        ]
+                        - response["item"]["throttling"][
+                            "numUserMessagesInConversation"
+                        ],
+                        "adaptive_text": message["adaptiveCards"][0]["body"][0]["text"],
                     }
         return {}
 
@@ -170,6 +180,8 @@ class Chatbot:
             cookies=self.chat_hub.cookies,
         )
 
+
 if __name__ == "__main__":
     from .main import main
+
     main()

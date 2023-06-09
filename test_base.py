@@ -1,4 +1,6 @@
-import pytest, json
+import json
+
+import pytest
 from EdgeGPT.EdgeGPT import Chatbot
 from EdgeGPT.EdgeGPT import ConversationStyle
 
@@ -14,5 +16,5 @@ async def test_ask():
         simplify_response=True,
     )
     await bot.close()
-    print((json.dumps(response, indent=2)))
+    print(json.dumps(response, indent=2))
     assert response != ""
