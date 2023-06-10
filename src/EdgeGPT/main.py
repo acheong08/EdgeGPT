@@ -4,6 +4,8 @@ import json
 import re
 import sys
 from pathlib import Path
+import atexit
+import subprocess
 
 from EdgeGPT.EdgeGPT import Chatbot
 from prompt_toolkit import PromptSession
@@ -89,6 +91,12 @@ async def async_main(args: argparse.Namespace) -> None:
         history_file_path = Path(args.history_file)
         f = history_file_path.open("a+", encoding="utf-8")
         p_hist = _create_history_logger(f)
+
+    if args.at_exit:
+        def exit_handler():
+            for action in args.at_exit:
+                eval(action)
+        atexit.register(exit_handler)
 
     while True:
         print("\nYou:")
@@ -239,6 +247,16 @@ def main() -> None:
         default="en-US",
         required=False,
         help="your locale",
+    )
+    parser.add_argument(
+        "--at-exit",
+        type=str,
+        nargs='*',
+        default=[],
+        required=False,
+        help="""Execute python command at program exit
+             Use subprocess.Popen("command", shell=True) to run shell command
+             """,
     )
     args = parser.parse_args()
     asyncio.run(async_main(args))
