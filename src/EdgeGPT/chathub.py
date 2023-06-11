@@ -69,6 +69,17 @@ class ChatHub:
         response = await self.session.get(url)
         return response.json()
 
+    async def get_activity(self) -> dict:
+        url = "https://www.bing.com/turing/conversation/chats"
+        headers = HEADERS_INIT_CONVER.copy()
+        if self.cookies is not None:
+            for cookie in self.cookies:
+                if cookie["name"] == "_U":
+                    headers["Cookie"] = f"SUID=A; _U={cookie['value']};"
+                    break
+        response = await self.session.get(url, headers=headers)
+        return response.json()
+
     async def ask_stream(
         self,
         prompt: str,
