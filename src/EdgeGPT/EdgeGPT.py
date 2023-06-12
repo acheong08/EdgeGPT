@@ -84,6 +84,12 @@ class Chatbot:
         """
         return await self.chat_hub.get_conversation()
 
+    async def get_activity(self) -> dict:
+        """
+        Gets the recent activity (requires cookies)
+        """
+        return await self.chat_hub.get_activity()
+
     async def ask(
         self,
         prompt: str,
