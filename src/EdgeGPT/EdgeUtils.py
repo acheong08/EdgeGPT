@@ -197,12 +197,12 @@ class Query:
     @property
     def output(self) -> str:
         """The response from a completed Chatbot request"""
-        return self.response["item"]["messages"][1]["text"]
+        return self.response["item"]["messages"][-1]["text"]
 
     @property
     def sources(self) -> str:
         """The source names and details parsed from a completed Chatbot request"""
-        return self.response["item"]["messages"][1]["sourceAttributions"]
+        return self.response["item"]["messages"][-1]["sourceAttributions"]
 
     @property
     def sources_dict(self) -> Dict[str, str]:
@@ -235,7 +235,7 @@ class Query:
         """Follow-on questions suggested by the Chatbot"""
         return [
             x["text"]
-            for x in self.response["item"]["messages"][1]["suggestedResponses"]
+            for x in self.response["item"]["messages"][-1]["suggestedResponses"]
         ]
 
     def __repr__(self) -> str:
