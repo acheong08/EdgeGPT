@@ -61,10 +61,10 @@ class ChatHub:
             headers=HEADERS_INIT_CONVER,
         )
 
-    async def get_conversation(self) -> dict:
-        conversation_id = self.request.conversation_id
-        conversation_signature = self.request.conversation_signature
-        client_id = self.request.client_id
+    async def get_conversation(self, conversation_id: str=None,conversation_signature:str = None, client_id:str = None) -> dict:
+        conversation_id = conversation_id or self.request.conversation_id
+        conversation_signature = conversation_signature or self.request.conversation_signature
+        client_id = client_id or self.request.client_id
         url = f"https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}&source=cib&participantId={client_id}&conversationSignature={conversation_signature}&traceId={get_ran_hex()}"
         response = await self.session.get(url)
         return response.json()
