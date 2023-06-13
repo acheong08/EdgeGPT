@@ -229,5 +229,22 @@ class ChatHub:
         await wss.receive(timeout=900)
         await wss.send_str(append_identifier({"type": 6}))
 
+    async def remove_and_close(self) -> None:
+        conversation_id = self.request.conversation_id
+        conversation_signature = self.request.conversation_signature
+        client_id = self.request.client_id
+        url = "https://sydney.bing.com/sydney/DeleteSingleConversation"
+        await self.session.post(
+            url,
+            json={
+                "conversationId": conversation_id,
+                "conversationSignature": conversation_signature,
+                "participant": {"id": client_id},
+                "source": "cib",
+                "optionsSets": ["autosave"]
+            }
+        )
+        await self.session.aclose()
+
     async def close(self) -> None:
         await self.session.aclose()

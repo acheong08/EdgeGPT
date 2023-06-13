@@ -174,11 +174,20 @@ class Chatbot:
         """
         await self.chat_hub.close()
 
-    async def reset(self) -> None:
+    async def remove_and_close(self) -> None:
+        """
+        Delete the chat in the server and close the connection
+        """
+        await self.chat_hub.remove_and_close()
+
+    async def reset(self, delete=False) -> None:
         """
         Reset the conversation
         """
-        await self.close()
+        if delete:
+            await self.remove_and_close()
+        else:
+            await self.close()
         self.chat_hub = ChatHub(
             await Conversation.create(self.proxy, cookies=self.chat_hub.cookies),
             proxy=self.proxy,
