@@ -124,25 +124,24 @@ class Chatbot:
             if final:
                 if not simplify_response:
                     return response
-                else:
-                    message = response["item"]["messages"][-1]
-                    return {
-                        "text": message["text"],
-                        "author": message["author"],
-                        "sources": message["sourceAttributions"],
-                        "sources_text": message["adaptiveCards"][0]["body"][-1]["text"],
-                        "suggestions": [
-                            suggestion["text"]
-                            for suggestion in message["suggestedResponses"]
-                        ],
-                        "messages_left": response["item"]["throttling"][
-                            "maxNumUserMessagesInConversation"
-                        ]
-                        - response["item"]["throttling"][
-                            "numUserMessagesInConversation"
-                        ],
-                        "adaptive_text": message["adaptiveCards"][0]["body"][0]["text"],
-                    }
+                message = response["item"]["messages"][-1]
+                return {
+                    "text": message["text"],
+                    "author": message["author"],
+                    "sources": message["sourceAttributions"],
+                    "sources_text": message["adaptiveCards"][0]["body"][-1]["text"],
+                    "suggestions": [
+                        suggestion["text"]
+                        for suggestion in message["suggestedResponses"]
+                    ],
+                    "messages_left": response["item"]["throttling"][
+                        "maxNumUserMessagesInConversation"
+                    ]
+                    - response["item"]["throttling"][
+                        "numUserMessagesInConversation"
+                    ],
+                    "adaptive_text": message["adaptiveCards"][0]["body"][0]["text"],
+                }
         return {}
 
     async def ask_stream(

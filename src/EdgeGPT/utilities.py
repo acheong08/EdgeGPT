@@ -19,14 +19,12 @@ def get_ran_hex(length: int = 32) -> str:
 
 def get_location_hint_from_locale(locale: str) -> Union[dict, None]:
     locale = locale.lower()
-    if locale == "en-us":
-        hint = LocationHint.USA.value
-    elif locale == "zh-cn":
-        hint = LocationHint.CHINA.value
-    elif locale == "en-gb":
+    if locale == "en-gb":
         hint = LocationHint.UK.value
     elif locale == "en-ie":
         hint = LocationHint.EU.value
+    elif locale == "zh-cn":
+        hint = LocationHint.CHINA.value
     else:
         hint = LocationHint.USA.value
     return hint.get("LocationHint")
