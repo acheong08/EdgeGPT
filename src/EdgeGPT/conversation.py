@@ -49,10 +49,6 @@ class Conversation:
             or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
         )
         if response.status_code != 200:
-            response = self.session.get(
-                "https://edge.churchless.tech/edgesvc/turing/conversation/create",
-            )
-        if response.status_code != 200:
             print(f"Status code: {response.status_code}")
             print(response.text)
             print(response.url)
