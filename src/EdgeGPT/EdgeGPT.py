@@ -61,7 +61,7 @@ class Chatbot:
                         "conversation_signature": conversation_signature,
                         "client_id": client_id,
                         "invocation_id": invocation_id,
-                    }
+                    },
                 ),
             )
 
@@ -137,9 +137,7 @@ class Chatbot:
                     "messages_left": response["item"]["throttling"][
                         "maxNumUserMessagesInConversation"
                     ]
-                    - response["item"]["throttling"][
-                        "numUserMessagesInConversation"
-                    ],
+                    - response["item"]["throttling"]["numUserMessagesInConversation"],
                     "adaptive_text": message["adaptiveCards"][0]["body"][0]["text"],
                 }
         return {}
@@ -174,11 +172,20 @@ class Chatbot:
         """
         await self.chat_hub.close()
 
-    async def delete_conversation(self, conversation_id: str=None, conversation_signature: str=None, client_id: str=None) -> None:
+    async def delete_conversation(
+        self,
+        conversation_id: str = None,
+        conversation_signature: str = None,
+        client_id: str = None,
+    ) -> None:
         """
         Delete the chat in the server and close the connection
         """
-        await self.chat_hub.delete_conversation(conversation_id=conversation_id, conversation_signature=conversation_signature, client_id=client_id)
+        await self.chat_hub.delete_conversation(
+            conversation_id=conversation_id,
+            conversation_signature=conversation_signature,
+            client_id=client_id,
+        )
 
     async def reset(self, delete=False) -> None:
         """

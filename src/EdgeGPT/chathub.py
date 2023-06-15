@@ -61,9 +61,16 @@ class ChatHub:
             headers=HEADERS_INIT_CONVER,
         )
 
-    async def get_conversation(self, conversation_id: str=None,conversation_signature:str = None, client_id:str = None) -> dict:
+    async def get_conversation(
+        self,
+        conversation_id: str = None,
+        conversation_signature: str = None,
+        client_id: str = None,
+    ) -> dict:
         conversation_id = conversation_id or self.request.conversation_id
-        conversation_signature = conversation_signature or self.request.conversation_signature
+        conversation_signature = (
+            conversation_signature or self.request.conversation_signature
+        )
         client_id = client_id or self.request.client_id
         url = f"https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}&source=cib&participantId={client_id}&conversationSignature={conversation_signature}&traceId={get_ran_hex()}"
         response = await self.session.get(url)
@@ -143,12 +150,13 @@ class ChatHub:
                             if not draw:
                                 if (
                                     response["arguments"][0]["messages"][0].get(
-                                        "messageType"
+                                        "messageType",
                                     )
                                     == "GenerateContentQuery"
                                 ):
                                     async with ImageGenAsync(
-                                        "", True
+                                        "",
+                                        True,
                                     ) as image_generator:
                                         images = await image_generator.get_images(
                                             response["arguments"][0]["messages"][0][
@@ -229,9 +237,16 @@ class ChatHub:
         await wss.receive(timeout=900)
         await wss.send_str(append_identifier({"type": 6}))
 
-    async def delete_conversation(self, conversation_id: str=None, conversation_signature: str=None, client_id: str=None) -> None:
+    async def delete_conversation(
+        self,
+        conversation_id: str = None,
+        conversation_signature: str = None,
+        client_id: str = None,
+    ) -> None:
         conversation_id = conversation_id or self.request.conversation_id
-        conversation_signature = conversation_signature or self.request.conversation_signature
+        conversation_signature = (
+            conversation_signature or self.request.conversation_signature
+        )
         client_id = client_id or self.request.client_id
         url = "https://sydney.bing.com/sydney/DeleteSingleConversation"
         await self.session.post(
@@ -241,8 +256,9 @@ class ChatHub:
                 "conversationSignature": conversation_signature,
                 "participant": {"id": client_id},
                 "source": "cib",
-                "optionsSets": ["autosave"]
-            }
+                "optionsSets": ["autosave"],
+            },
         )
+
     async def close(self) -> None:
         await self.session.aclose()
