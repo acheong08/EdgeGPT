@@ -128,7 +128,7 @@ class Chatbot:
                 return {
                     "text": message["text"],
                     "author": message["author"],
-                    "sources": message["sourceAttributions"],
+                    "sources": message.get("sourceAttributions"),
                     "sources_text": message["adaptiveCards"][0]["body"][-1]["text"],
                     "suggestions": [
                         suggestion["text"]
