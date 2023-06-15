@@ -229,10 +229,10 @@ class ChatHub:
         await wss.receive(timeout=900)
         await wss.send_str(append_identifier({"type": 6}))
 
-    async def remove_and_close(self) -> None:
-        conversation_id = self.request.conversation_id
-        conversation_signature = self.request.conversation_signature
-        client_id = self.request.client_id
+    async def delete_conversation(self, conversation_id: str=None, conversation_signature: str=None, client_id: str=None) -> None:
+        conversation_id = conversation_id or self.request.conversation_id
+        conversation_signature = conversation_signature or self.request.conversation_signature
+        client_id = client_id or self.request.client_id
         url = "https://sydney.bing.com/sydney/DeleteSingleConversation"
         await self.session.post(
             url,
@@ -244,7 +244,5 @@ class ChatHub:
                 "optionsSets": ["autosave"]
             }
         )
-        await self.session.aclose()
-
     async def close(self) -> None:
         await self.session.aclose()

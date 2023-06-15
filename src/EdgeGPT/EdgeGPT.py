@@ -174,11 +174,11 @@ class Chatbot:
         """
         await self.chat_hub.close()
 
-    async def remove_and_close(self) -> None:
+    async def delete_conversation(self, conversation_id: str=None, conversation_signature: str=None, client_id: str=None) -> None:
         """
         Delete the chat in the server and close the connection
         """
-        await self.chat_hub.remove_and_close()
+        await self.chat_hub.delete_conversation(conversation_id=conversation_id, conversation_signature=conversation_signature, client_id=client_id)
 
     async def reset(self, delete=False) -> None:
         """
