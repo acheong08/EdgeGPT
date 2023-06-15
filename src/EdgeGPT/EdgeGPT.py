@@ -179,7 +179,7 @@ class Chatbot:
         client_id: str = None,
     ) -> None:
         """
-        Delete the chat in the server and close the connection
+        Delete the chat in the server
         """
         await self.chat_hub.delete_conversation(
             conversation_id=conversation_id,
