@@ -124,10 +124,10 @@ class ChatHub:
                         if retry_count == 0:
                             raise Exception("No response from server")
                         continue
-                    # Check if msg.data is int
-                    if isinstance(msg.data, int):
+                    if isinstance(msg.data, str):
+                        objects = msg.data.split(DELIMITER)
+                    else:
                         continue
-                    objects = msg.data.split(DELIMITER)
                     for obj in objects:
                         if int(time()) % 6 == 0:
                             await wss.send_str(append_identifier({"type": 6}))
