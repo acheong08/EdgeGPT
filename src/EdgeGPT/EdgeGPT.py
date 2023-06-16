@@ -124,11 +124,14 @@ class Chatbot:
             if final:
                 if not simplify_response:
                     return response
-                message = response["item"]["messages"][-1]
-                for s in reversed(response['item']['messages']):
-                    if 'messageType' not in s:
-                        message = s
-                        break
+                message = next(
+                    (
+                        s
+                        for s in reversed(response["item"]["messages"])
+                        if "messageType" not in s
+                    ),
+                    response["item"]["messages"][-1],
+                )
                 return {
                     "text": message["text"],
                     "author": message["author"],
