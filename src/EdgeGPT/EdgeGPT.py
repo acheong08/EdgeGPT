@@ -125,6 +125,10 @@ class Chatbot:
                 if not simplify_response:
                     return response
                 message = response["item"]["messages"][-1]
+                for s in reversed(response['item']['messages']):
+                    if 'messageType' not in s:
+                        message = s
+                        break
                 return {
                     "text": message["text"],
                     "author": message["author"],
