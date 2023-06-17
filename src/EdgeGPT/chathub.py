@@ -8,7 +8,7 @@ from typing import Generator
 from typing import List
 from typing import Union
 
-from websockets.client import connect
+from websockets.client import connect, WebSocketClientProtocol
 import certifi
 import httpx
 from BingImageCreator import ImageGenAsync
@@ -34,7 +34,6 @@ class ChatHub:
         proxy: str = None,
         cookies: Union[List[dict], None] = None,
     ) -> None:
-        wss = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -90,7 +89,7 @@ class ChatHub:
     async def ask_stream(
         self,
         prompt: str,
-        wss_link: str,
+        wss_link: str = None,
         conversation_style: CONVERSATION_STYLE_TYPE = None,
         raw: bool = False,
         webpage_context: Union[str, None] = None,
@@ -100,8 +99,10 @@ class ChatHub:
         """ """
 
         # Check if websocket is closed
-        async with connect("wss://sydney.bing.com/sydney/ChatHub") as wss:
-            await self._initial_handshake(wss, extra_headers=HEADERS)
+        async with connect(
+            wss_link or "wss://sydney.bing.com/sydney/ChatHub", extra_headers=HEADERS
+        ) as wss:
+            await self._initial_handshake(wss)
             # Construct a ChatHub request
             self.request.update(
                 prompt=prompt,
@@ -111,14 +112,14 @@ class ChatHub:
                 locale=locale,
             )
             # Send request
-            await wss.send_str(append_identifier(self.request.struct))
+            await wss.send(append_identifier(self.request.struct))
             draw = False
             resp_txt = ""
             result_text = ""
             resp_txt_no_link = ""
             retry_count = 5
             while True:
-                msg = await wss.receive(timeout=900)
+                msg = await wss.recv()
                 if not msg:
                     retry_count -= 1
                     if retry_count == 0:
@@ -130,7 +131,7 @@ class ChatHub:
                     continue
                 for obj in objects:
                     if int(time()) % 6 == 0:
-                        await wss.send_str(append_identifier({"type": 6}))
+                        await wss.send(append_identifier({"type": 6}))
                     if obj is None or not obj:
                         continue
                     response = json.loads(obj)
@@ -215,14 +216,14 @@ class ChatHub:
                         yield True, response
                         return
                     elif response.get("type") == 6:
-                        await wss.send_str(append_identifier({"type": 6}))
+                        await wss.send(append_identifier({"type": 6}))
                     elif response.get("type") == 7:
-                        await wss.send_str(append_identifier({"type": 7}))
+                        await wss.send(append_identifier({"type": 7}))
 
-    async def _initial_handshake(self, wss: aiohttp.ClientWebSocketResponse) -> None:
-        await wss.send_str(append_identifier({"protocol": "json", "version": 1}))
-        await wss.receive(timeout=900)
-        await wss.send_str(append_identifier({"type": 6}))
+    async def _initial_handshake(self, wss: WebSocketClientProtocol) -> None:
+        await wss.send(append_identifier({"protocol": "json", "version": 1}))
+        await wss.recv()
+        await wss.send(append_identifier({"type": 6}))
 
     async def delete_conversation(
         self,
