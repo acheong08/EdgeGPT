@@ -100,7 +100,10 @@ class ChatHub:
 
         # Check if websocket is closed
         async with connect(
-            wss_link or "wss://sydney.bing.com/sydney/ChatHub", extra_headers=HEADERS
+            wss_link or "wss://sydney.bing.com/sydney/ChatHub",
+            extra_headers=HEADERS,
+            max_size=None,
+            ssl=ssl_context,
         ) as wss:
             await self._initial_handshake(wss)
             # Construct a ChatHub request
@@ -125,8 +128,8 @@ class ChatHub:
                     if retry_count == 0:
                         raise Exception("No response from server")
                     continue
-                if isinstance(msg.data, str):
-                    objects = msg.data.split(DELIMITER)
+                if isinstance(msg, str):
+                    objects = msg.split(DELIMITER)
                 else:
                     continue
                 for obj in objects:
