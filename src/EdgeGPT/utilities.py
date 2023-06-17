@@ -34,4 +34,6 @@ def guess_locale() -> str:
     if sys.platform.startswith("win"):
         return "en-us"
     loc, _ = locale.getlocale()
+    if not loc:
+        return "en-us"
     return loc.replace("_", "-")
