@@ -129,6 +129,9 @@ class Chatbot:
                         s
                         for s in reversed(response["item"]["messages"])
                         if "messageType" not in s
+                        or not s.get("adaptiveCards", [""])
+                        .get("body", [""])[0]
+                        .get("text", None)
                     ),
                     response["item"]["messages"][-1],
                 )
