@@ -129,9 +129,6 @@ class Chatbot:
                         s
                         for s in reversed(response["item"]["messages"])
                         if "messageType" not in s
-                        or not s.get("adaptiveCards", [""])
-                        .get("body", [""])[0]
-                        .get("text", None)
                     ),
                     response["item"]["messages"][-1],
                 )
@@ -148,7 +145,7 @@ class Chatbot:
                         "maxNumUserMessagesInConversation"
                     ]
                     - response["item"]["throttling"]["numUserMessagesInConversation"],
-                    "adaptive_text": message["adaptiveCards"][0]["body"][0]["text"],
+                    "adaptive_text": message["adaptiveCards"][0]["body"][0].get("text"),
                 }
         return {}
 
