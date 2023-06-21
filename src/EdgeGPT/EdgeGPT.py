@@ -146,6 +146,9 @@ class Chatbot:
                     ]
                     - response["item"]["throttling"]["numUserMessagesInConversation"],
                     "adaptive_text": message["adaptiveCards"][0]["body"][0].get("text"),
+                    "total_messages": response["item"]["throttling"][
+                        "maxNumUserMessagesInConversation"
+                    ],
                 }
         return {}
 
