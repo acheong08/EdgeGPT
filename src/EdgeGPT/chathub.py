@@ -123,6 +123,8 @@ class ChatHub:
             resp_txt_no_link = ""
             retry_count = 5
             while True:
+                if wss.closed:
+                    break
                 msg = await wss.recv()
                 if not msg:
                     retry_count -= 1
