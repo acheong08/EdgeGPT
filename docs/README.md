@@ -140,85 +140,20 @@ async def main():
     response = await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, simplify_response=True)
     print(json.dumps(response, indent=2)) # Returns
     """
-    {
-        "text": str
-        "author": str
-        "sources": list[dict]
-        "sources_text": str
-        "suggestions": list[str]
-        "messages_left": int
-    }
+{
+    "text": str,
+    "author": str,
+    "sources": list[dict],
+    "sources_text": str,
+    "suggestions": list[str],
+    "messages_left": int
+}
     """
     await bot.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
-
-### 2) The `Query` and `Cookie` helper classes
-
-Create a simple Bing Chat AI query (using the 'precise' conversation style by default) and see just the main text output rather than the whole API response:
-
-Remember to store your cookies in a specific format: `bing_cookies_*.json`.
-
-```python
-from EdgeGPT.EdgeUtils import Query, Cookie
-
-q = Query("What are you? Give your answer as Python code")
-print(q)
-```
-
-Or change the conversation style or cookie file to be used:
-
-```python
-q = Query(
-  "What are you? Give your answer as Python code",
-  style="creative",  # or: 'balanced', 'precise'
-  cookie_file="./bing_cookies_alternative.json"
-)
-```
-
-Quickly extract the text output, code snippets, list of sources/references, or suggested follow-on questions using the following attributes:
-
-```python
-q.output
-q.code
-q.suggestions
-q.sources       # for the full json output
-q.sources_dict  # for a dictionary of titles and urls
-```
-
-Get the original prompt and the conversation style you specified:
-
-```python
-q.prompt
-q.style
-repr(q)
-```
-
-Access previous Queries made since importing `Query`:
-
-```python
-Query.index  # A list of Query objects; updated dynamically
-Query.request_count  # A tally of requests made using each cookie file
-```
-
-And finally, the `Cookie` class supports multiple cookie files, so if you create additional cookie files with the naming convention `bing_cookies_*.json`, your queries will automatically try using the next file (alphabetically) if you've exceeded your daily quota of requests (currently set at 200).
-
-Here are the main attributes which you can access:
-
-```python
-Cookie.current_file_index
-Cookie.dirpath
-Cookie.search_pattern  # default is `bing_cookies_*.json`
-Cookie.files()  # list as files that match .search_pattern
-Cookie.current_filepath
-Cookie.current_data
-Cookie.import_next()
-Cookie.image_token
-Cookie.ignore_files
-```
-
 ---
 
 ## Run with Docker
