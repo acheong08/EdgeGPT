@@ -104,6 +104,7 @@ class ChatHub:
             extra_headers=HEADERS,
             max_size=None,
             ssl=ssl_context,
+            ping_interval=None,
         ) as wss:
             await self._initial_handshake(wss)
             # Construct a ChatHub request
@@ -215,6 +216,7 @@ class ChatHub:
                                 "Preserved the message from being deleted",
                                 file=sys.stderr,
                             )
+                        await wss.close()
                         yield True, response
                         return
                     elif response.get("type") == 6:

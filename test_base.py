@@ -11,7 +11,7 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_ask():
     bot = await Chatbot.create()  # Passing cookies is "optional", as explained above
     response = await bot.ask(
-        prompt="What time is it?",
+        prompt="find me some information about the new ai released by meta.",
         conversation_style=ConversationStyle.balanced,
         simplify_response=True,
     )
