@@ -128,7 +128,7 @@ class Chatbot:
                     (
                         s
                         for s in reversed(response["item"]["messages"])
-                        if "messageType" not in s
+                        if "messageType" not in s and "adaptiveCards" in s
                     ),
                     response["item"]["messages"][-1],
                 )
