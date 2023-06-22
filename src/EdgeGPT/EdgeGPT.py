@@ -158,6 +158,9 @@ class Chatbot:
                     - response["item"]["throttling"].get(
                         "numUserMessagesInConversation", 0
                     ),
+                    "max_messages": response["item"]["throttling"][
+                        "maxNumUserMessagesInConversation"
+                    ],
                     "adaptive_text": adaptive_text,
                 }
         return {}
