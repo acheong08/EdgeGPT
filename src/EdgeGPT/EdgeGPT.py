@@ -124,31 +124,41 @@ class Chatbot:
             if final:
                 if not simplify_response:
                     return response
-                message = next(
-                    (
-                        s
-                        for s in reversed(response["item"]["messages"])
-                        if "messageType" not in s and "adaptiveCards" in s
-                    ),
-                    response["item"]["messages"][-1],
+                for msg in reversed(response["item"]["messages"]):
+                    if msg.get("adaptiveCards") and msg["adaptiveCards"][0]["body"][
+                        0
+                    ].get("text"):
+                        message = msg
+                        break
+                suggestions = [
+                    suggestion["text"]
+                    for suggestion in message.get("suggestedResponses", [])
+                ]
+                adaptive_cards = message.get("adaptiveCards", [])
+                adaptive_text = (
+                    adaptive_cards[0]["body"][0].get("text") if adaptive_cards else None
+                )
+                sources = (
+                    adaptive_cards[0]["body"][0].get("text") if adaptive_cards else None
+                )
+                sources_text = (
+                    adaptive_cards[0]["body"][-1].get("text")
+                    if adaptive_cards
+                    else None
                 )
                 return {
                     "text": message["text"],
                     "author": message["author"],
-                    "sources": message.get("sourceAttributions"),
-                    "sources_text": message["adaptiveCards"][0]["body"][-1]["text"],
-                    "suggestions": [
-                        suggestion["text"]
-                        for suggestion in message["suggestedResponses"]
-                    ],
+                    "sources": sources,
+                    "sources_text": sources_text,
+                    "suggestions": suggestions,
                     "messages_left": response["item"]["throttling"][
                         "maxNumUserMessagesInConversation"
                     ]
-                    - response["item"]["throttling"]["numUserMessagesInConversation"],
-                    "adaptive_text": message["adaptiveCards"][0]["body"][0].get("text"),
-                    "total_messages": response["item"]["throttling"][
-                        "maxNumUserMessagesInConversation"
-                    ],
+                    - response["item"]["throttling"].get(
+                        "numUserMessagesInConversation", 0
+                    ),
+                    "adaptive_text": adaptive_text,
                 }
         return {}
 
