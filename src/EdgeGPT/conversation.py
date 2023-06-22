@@ -102,7 +102,7 @@ class Conversation:
             # Send GET request
             response = await client.get(
                 url=os.environ.get("BING_PROXY_URL")
-                or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
+                or "https://www.bing.com/turing/conversation/create",
                 follow_redirects=True,
             )
         if response.status_code != 200:
