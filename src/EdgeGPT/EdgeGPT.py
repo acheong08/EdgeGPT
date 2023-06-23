@@ -137,6 +137,8 @@ class Chatbot:
                     ].get("text"):
                         message = msg
                         break
+                if not message:
+                    raise Exception("No message found")
                 suggestions = [
                     suggestion["text"]
                     for suggestion in message.get("suggestedResponses", [])
