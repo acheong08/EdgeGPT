@@ -124,6 +124,13 @@ class Chatbot:
             if final:
                 if not simplify_response:
                     return response
+                messages_left = response["item"]["throttling"][
+                    "maxNumUserMessagesInConversation"
+                ] - response["item"]["throttling"].get(
+                    "numUserMessagesInConversation", 0
+                )
+                if messages_left == 0:
+                    raise Exception("Max messages reached")
                 for msg in reversed(response["item"]["messages"]):
                     if msg.get("adaptiveCards") and msg["adaptiveCards"][0]["body"][
                         0
@@ -152,12 +159,7 @@ class Chatbot:
                     "sources": sources,
                     "sources_text": sources_text,
                     "suggestions": suggestions,
-                    "messages_left": response["item"]["throttling"][
-                        "maxNumUserMessagesInConversation"
-                    ]
-                    - response["item"]["throttling"].get(
-                        "numUserMessagesInConversation", 0
-                    ),
+                    "messages_left": messages_left,
                     "max_messages": response["item"]["throttling"][
                         "maxNumUserMessagesInConversation"
                     ],
