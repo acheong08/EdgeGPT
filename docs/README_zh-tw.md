@@ -52,7 +52,7 @@ python3 -m pip install EdgeGPT --upgrade
 
 可能也得**看當前所在 IP 位址**。例如，如果試圖從一個已知**屬於數據中心範圍**的 IP 來訪問聊天功能（虛擬伺服器、根伺服器、虛擬專網、公共代理等），**可能就需要登錄**；但是要是用家裡的 IP 位址訪問聊天功能，就沒有問題。
 
-如果收到這樣的錯誤，可以試試**提供一個 cookie **看看能不能解決：
+如果收到這樣的錯誤，可以試試**提供一個 cookie** 看看能不能解決：
 
 `Exception: Authentication failed. You have not been accepted into the beta.`
 
