@@ -267,7 +267,7 @@ if __name__ == "__main__":
         raise Exception("未能找到认证 Cookie")
 
     if not args.asyncio:
-        # Create image generator
+        # 创建图像生成器
         image_generator = ImageGen(args.U, args.quiet)
         image_generator.save_images(
             image_generator.get_images(args.prompt),
