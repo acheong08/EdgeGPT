@@ -69,7 +69,7 @@ python3 -m pip install EdgeGPT --upgrade
 5. 移步到 [bing.com](https://bing.com)
 6. 打开扩展程序
 7. 点击右下角的"导出" ，然后点击"导出为 JSON" (将会把内容保存到你的剪贴板上)
-8. 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
+8. 把你剪贴板上的内容粘贴到 `bing_cookies_*.json` 文件中
    * 注意：**Cookie 文件名必须遵守正则表达式 `bing_cookies_*.json`**，这样才能让本模块的 cookie 处理程序识别到。
 
 
