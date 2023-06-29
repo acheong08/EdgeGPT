@@ -142,9 +142,7 @@ class ChatHub:
                         continue
                     response = json.loads(obj)
                     # print(response)
-                    if response.get("type") != 2 and raw:
-                        yield False, response
-                    elif response.get("type") == 1 and response["arguments"][0].get(
+                    if response.get("type") == 1 and response["arguments"][0].get(
                         "messages",
                     ):
                         if not draw:
@@ -166,7 +164,7 @@ class ChatHub:
                             if (
                                 response["arguments"][0]["messages"][0]["contentOrigin"]
                                 != "Apology"
-                            ) and not draw:
+                            ) and not draw and not raw:
                                 resp_txt = result_text + response["arguments"][0][
                                     "messages"
                                 ][0]["adaptiveCards"][0]["body"][0].get("text", "")
@@ -190,7 +188,8 @@ class ChatHub:
                                         ][0]["body"][0]["inlines"][0].get("text")
                                         + "\n"
                                     )
-                            yield False, resp_txt
+                            if not raw:
+                                yield False, resp_txt
 
                     elif response.get("type") == 2:
                         if response["item"]["result"].get("error"):
@@ -221,10 +220,13 @@ class ChatHub:
                         await wss.close()
                         yield True, response
                         return
-                    elif response.get("type") == 6:
-                        await wss.send(append_identifier({"type": 6}))
-                    elif response.get("type") == 7:
-                        await wss.send(append_identifier({"type": 7}))
+                    if response.get("type") != 2:
+                        if response.get("type") == 6:
+                            await wss.send(append_identifier({"type": 6}))
+                        elif response.get("type") == 7:
+                            await wss.send(append_identifier({"type": 7}))
+                        elif raw:
+                            yield False, response
 
     async def _initial_handshake(self, wss: WebSocketClientProtocol) -> None:
         await wss.send(append_identifier({"protocol": "json", "version": 1}))
