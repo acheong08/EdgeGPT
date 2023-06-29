@@ -22,7 +22,7 @@ _新必应聊天功能的逆向工程_
 
 </p>
 
-<details>
+<details open>
 
 <summary>
 
@@ -30,41 +30,33 @@ _新必应聊天功能的逆向工程_
 
 </summary>
 
-### 安装模块
+## 安装模块
 
 ```bash
 python3 -m pip install EdgeGPT --upgrade
 ```
 
-### 要求
+## 要求
+
 
 - python 3.8+
 - 一个可以访问必应聊天的微软账户 <https://bing.com/chat> (可选，视所在地区而定)
 - 需要在 New Bing 支持的国家或地区（中国大陆需使用VPN）
 - [Selenium](https://pypi.org/project/selenium/) (对于需要自动配置cookie的情况)
 
-</details>
-<details>
-
-<summary>
-
-# 聊天机器人
-
-</summary>
-
 ## 身份验证
 
-基本上不需要了。在部分地区，微软已将聊天功能开放给所有人，这一步或许可以省略了。可以使用浏览器来确认（将 UA 设置为能表示为 Edge 的），试一下能不能不登录就可以开始聊天。
+基本上不需要了。
 
-但是也得看当前所在地区。例如，如果试图从一个已知属于数据中心范围的 IP 来访问聊天功能（虚拟服务器、根服务器、虚拟专网、公共代理等），可能就需要登录；但是要是用家里的 IP 地址访问聊天功能，就没有问题。如果收到这样的错误，可以试试提供一个 cookie 看看能不能解决：```Exception: Authentication failed. You have not been accepted into the beta.```
+**在部分地区**，微软已将聊天功能**开放**给所有人，或许可以**省略这一步**了。可以使用浏览器来确认（将 UA 设置为能表示为 Edge 的），**试一下能不能不登录就可以开始聊天**。
 
-<details>
+可能也得**看当前所在 IP 地址**。例如，如果试图从一个已知**属于数据中心范围**的 IP 来访问聊天功能（虚拟服务器、根服务器、虚拟专网、公共代理等），**可能就需要登录**；但是要是用家里的 IP 地址访问聊天功能，就没有问题。
 
-<summary>
+如果收到这样的错误，可以试试**提供一个 cookie** 看看能不能解决：
+
+`Exception: Authentication failed. You have not been accepted into the beta.`
 
 ### 收集 cookie
-
-</summary>
 
 1. 获取一个看着像 Microsoft Edge 的浏览器。
 
@@ -77,15 +69,26 @@ python3 -m pip install EdgeGPT --upgrade
 5. 移步到 [bing.com](https://bing.com)
 6. 打开扩展程序
 7. 点击右下角的"导出" ，然后点击"导出为 JSON" (将会把内容保存到你的剪贴板上)
-8. 把你剪贴板上的内容粘贴到 `cookies.json` 文件中
+8. 把你剪贴板上的内容粘贴到 `bing_cookies_*.json` 文件中
+   * 注意：**Cookie 文件名必须遵守正则表达式 `bing_cookies_*.json`**，这样才能让本模块的 cookie 处理程序识别到。
 
-</details>
 
-### 在代码中：
+
+### 在代码中使用 cookie：
 ```python
 cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read()) # 可能会忽略 cookie 选项
 bot = await Chatbot.create(cookies=cookies)
 ```
+
+</details>
+
+<details open>
+
+<summary>
+
+# 如何使用聊天机器人
+
+</summary>
 
 ## 从命令行运行
 
@@ -99,7 +102,6 @@ bot = await Chatbot.create(cookies=cookies)
         !help for help
 
         Type !exit to exit
-        Enter twice to send message or set --enter-once to send one line message
 
 usage: EdgeGPT.py [-h] [--enter-once] [--search-result] [--no-stream] [--rich] [--proxy PROXY] [--wss-link WSS_LINK]
                   [--style {creative,balanced,precise}] [--prompt PROMPT] [--cookie-file COOKIE_FILE]
@@ -121,7 +123,6 @@ options:
                         path to history file
   --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
-
 （中/美/英/挪具有更好的本地化支持）
 
 ## 在 Python 运行
@@ -131,90 +132,28 @@ options:
 使用 async 获得最佳体验，例如:
 
 ```python
-import asyncio
+import asyncio, json
 from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 
 async def main():
-    bot = await Chatbot.create()
-    print(await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative))
+    bot = await Chatbot.create() # 导入 cookie 是“可选”的，如前所述
+    response = await bot.ask(prompt="Hello world", conversation_style=ConversationStyle.creative, simplify_response=True)
+    print(json.dumps(response, indent=2)) # 返回下面这些
+    """
+{
+    "text": str,
+    "author": str,
+    "sources": list[dict],
+    "sources_text": str,
+    "suggestions": list[str],
+    "messages_left": int
+}
+    """
     await bot.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
-
-<details>
-<summary>
-
-### 2)  `Query` 和 `Cookie` 助手类
-
-  </summary>
-
-创建一个简易的必应聊天 AI 查询（默认使用精确模式），这样可以只查看主要的文字输出，而不会打出整个 API 响应内容：
-
-注意按照特定格式保存 cookie：`bing_cookies_*.json`.
-
-
-```python
-from EdgeGPT.EdgeUtils import Query, Cookie
-
-q = Query("你是谁？用python代码给出回答")
-print(q)
-```
-
-也可以修改对话模式，或者指定要使用的 cookie 文件：
-
-```python
-q = Query(
-  "你是谁？用python代码给出回答",
-  style="creative",  # 或者平衡模式 'balanced'
-  cookies="./bing_cookies_alternative.json"
-)
-```
-
-使用以下属性快速提取文本输出、代码片段、来源/参考列表或建议的后续问题：
-
-```python
-q.output
-q.code
-q.suggestions
-q.sources       # 用于完整的 JSON 输出
-q.sources_dict  # 用于标题和 URL 的字典
-```
-
-获得原始 prompt 和指定的对话模式：
-
-```python
-q.prompt
-q.style
-repr(q)
-```
-
-通过 import `Query` 获取之前的查询:
-
-```python
-Query.index  # 一个查询对象的列表；是动态更新的
-Query.request_count  # 使用每个 cookie 文件发出的请求数
-```
-
-最后，`Cookie` 类支持多个 Cookie 文件，因此，如果您使用命名约定 `bing_cookies_*.json` 创建其他 Cookie 文件，那么如果超过了每日请求配额（目前设置为 200），查询将自动尝试使用下一个文件（按字母顺序）。
-
-这些是可以访问的主要属性:
-
-```python
-Cookie.current_file_index
-Cookie.dirpath
-Cookie.search_pattern  # 默认为 `bing_cookies_*.json`
-Cookie.files()  # 匹配 .search_pattern 的文件列表
-Cookie.current_filepath
-Cookie.current_data
-Cookie.import_next()
-Cookie.image_token
-Cookie.ignore_files
-```
-
-</details>
-
 ---
 
 ## 使用 Docker 运行
@@ -222,22 +161,26 @@ Cookie.ignore_files
 假设当前工作目录有一个文件 `cookies.json`
 
 ```bash
+
 docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt
 ```
 
 可以像这样添加任意参数
 
 ```bash
+
 docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt --rich --style creative
 ```
 
 </details>
 
-<details>
+</details>
+
+<details open>
 
 <summary>
 
-# 图片生成
+# 如何使用图片生成器
 
 </summary>
 
@@ -324,7 +267,7 @@ if __name__ == "__main__":
         raise Exception("未能找到认证 Cookie")
 
     if not args.asyncio:
-        # Create image generator
+        # 创建图像生成器
         image_generator = ImageGen(args.U, args.quiet)
         image_generator.save_images(
             image_generator.get_images(args.prompt),
@@ -337,14 +280,30 @@ if __name__ == "__main__":
 
 </details>
 
+<details open>
+
+<summary>
+
 # Star 历史
+
+</summary>
 
 [![Star History Chart](https://api.star-history.com/svg?repos=acheong08/EdgeGPT&type=Date)](https://star-history.com/#acheong08/EdgeGPT&Date)
 
+</details>
+
+<details open>
+
+<summary>
+
 # 贡献者
+
+</summary>
 
 这个项目的存在要归功于所有做出贡献的人。
 
  <a href="https://github.com/acheong08/EdgeGPT/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=acheong08/EdgeGPT" />
  </a>
+
+</details>
