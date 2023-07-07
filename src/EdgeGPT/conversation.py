@@ -49,10 +49,6 @@ class Conversation:
             or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
         )
         if response.status_code != 200:
-            response = self.session.get(
-                "https://edge.churchless.tech/edgesvc/turing/conversation/create",
-            )
-        if response.status_code != 200:
             print(f"Status code: {response.status_code}")
             print(response.text)
             print(response.url)
@@ -106,12 +102,9 @@ class Conversation:
             # Send GET request
             response = await client.get(
                 url=os.environ.get("BING_PROXY_URL")
-                or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
+                or "https://www.bing.com/turing/conversation/create",
+                follow_redirects=True,
             )
-            if response.status_code != 200:
-                response = await client.get(
-                    "https://edge.churchless.tech/edgesvc/turing/conversation/create",
-                )
         if response.status_code != 200:
             print(f"Status code: {response.status_code}")
             print(response.text)
@@ -120,6 +113,7 @@ class Conversation:
         try:
             self.struct = response.json()
         except (json.decoder.JSONDecodeError, NotAllowedToAccess) as exc:
+            print(response.text)
             raise Exception(
                 "Authentication failed. You have not been accepted into the beta.",
             ) from exc

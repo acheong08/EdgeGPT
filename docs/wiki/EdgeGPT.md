@@ -44,18 +44,28 @@ async def get_conversation() -> dict
 
 Gets the conversation history from conversation_id (requires load_conversation)
 
+<a id="EdgeGPT.EdgeGPT.Chatbot.get_activity"></a>
+
+#### get\_activity
+
+```python
+async def get_activity() -> dict
+```
+
+Gets the recent activity (requires cookies)
+
 <a id="EdgeGPT.EdgeGPT.Chatbot.ask"></a>
 
 #### ask
 
 ```python
-async def ask(
-    prompt: str,
-    wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-    conversation_style: CONVERSATION_STYLE_TYPE = None,
-    webpage_context: str | None = None,
-    search_result: bool = False,
-    locale: str = guess_locale()) -> dict
+async def ask(prompt: str,
+              wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+              conversation_style: CONVERSATION_STYLE_TYPE = None,
+              webpage_context: str | None = None,
+              search_result: bool = False,
+              locale: str = guess_locale(),
+              simplify_response: bool = False) -> dict
 ```
 
 Ask a question to the bot
@@ -98,33 +108,24 @@ async def close() -> None
 
 Close the connection
 
+<a id="EdgeGPT.EdgeGPT.Chatbot.delete_conversation"></a>
+
+#### delete\_conversation
+
+```python
+async def delete_conversation(conversation_id: str = None,
+                              conversation_signature: str = None,
+                              client_id: str = None) -> None
+```
+
+Delete the chat in the server and close the connection
+
 <a id="EdgeGPT.EdgeGPT.Chatbot.reset"></a>
 
 #### reset
 
 ```python
-async def reset() -> None
+async def reset(delete=False) -> None
 ```
 
 Reset the conversation
-
-<a id="EdgeGPT.EdgeGPT.get_input_async"></a>
-
-#### get\_input\_async
-
-```python
-async def get_input_async(session: PromptSession = None,
-                          completer: WordCompleter = None) -> str
-```
-
-Multiline input function.
-
-<a id="EdgeGPT.EdgeGPT.async_main"></a>
-
-#### async\_main
-
-```python
-async def async_main(args: argparse.Namespace) -> None
-```
-
-Main function

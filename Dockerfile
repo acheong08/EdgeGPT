@@ -13,4 +13,4 @@ make init && make build && make ci && apk del make && \
 rm -Rf /root/.cache/pip
 
 
-ENTRYPOINT ["python3", "-m" , "EdgeGPT"]
+ENTRYPOINT ["python3", "-m" , "EdgeGPT.EdgeGPT"]

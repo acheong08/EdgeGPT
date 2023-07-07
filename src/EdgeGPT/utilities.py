@@ -1,6 +1,7 @@
 import json
 import locale
 import random
+import sys
 from typing import Union
 
 from .constants import DELIMITER
@@ -18,21 +19,21 @@ def get_ran_hex(length: int = 32) -> str:
 
 def get_location_hint_from_locale(locale: str) -> Union[dict, None]:
     locale = locale.lower()
-    if locale == "en-us":
-        hint = LocationHint.USA.value
-    elif locale == "zh-cn":
-        hint = LocationHint.CHINA.value
-    elif locale == "en-gb":
+    if locale == "en-gb":
         hint = LocationHint.UK.value
     elif locale == "en-ie":
         hint = LocationHint.EU.value
+    elif locale == "zh-cn":
+        hint = LocationHint.CHINA.value
     else:
         hint = LocationHint.USA.value
     return hint.get("LocationHint")
 
 
 def guess_locale() -> str:
+    if sys.platform.startswith("win"):
+        return "en-us"
     loc, _ = locale.getlocale()
-    if not loc or len(loc) > 5:
-        loc = "en-US"
+    if not loc:
+        return "en-us"
     return loc.replace("_", "-")
