@@ -370,7 +370,7 @@ def test_features():
         print(f"{q.code_block_formats=}")  # The language/format of each code block (if given)
         print(f"{Query.index=}")  # Keeps an index of Query objects created
         print(f"{Query.image_dir_path=}")
-    except Exception a E:
+    except Exception as E:
         raise Exception(E)    
     finally:
         return q
