@@ -1,17 +1,14 @@
 import asyncio
 import json
-import platform
-import time
+import re
 from pathlib import Path
-from typing import Dict
-from typing import List
-from typing import Set
-from typing import Union
 
-from EdgeGPT.EdgeGPT import Chatbot
-from EdgeGPT.EdgeGPT import ConversationStyle
+from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
 from EdgeGPT.ImageGen import ImageGen
+from log2d import Log
 
+Log("BingChat")
+log = Log.BingChat.debug  # shortcut to create a log entry
 
 class Cookie:
     """
@@ -20,235 +17,360 @@ class Cookie:
     cookie/credentials file e.g. when daily request limits (current 200 per
     account per day) are exceeded.
     """
-
     current_file_index = 0
-    dirpath = Path("./").resolve()
-    search_pattern = "bing_cookies_*.json"
+    dir_path = Path.home().resolve() / "bing_cookies"
+    current_file_path = dir_path  # Avoid Path errors when no cookie file used
+    search_pattern = 'bing_cookies_*.json'
     ignore_files = set()
-    current_filepath: Union[dict, None] = None
+    request_count = {}
+    supplied_files = set()
+    rotate_cookies = True
 
     @classmethod
-    def fetch_default(cls, path: Union[Path, None] = None) -> None:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-
-        driver = webdriver.Edge()
-        driver.get("https://bing.com/chat")
-        time.sleep(5)
-        xpath = '//button[@id="bnp_btn_accept"]'
-        driver.find_element(By.XPATH, xpath).click()
-        time.sleep(2)
-        xpath = '//a[@id="codexPrimaryButton"]'
-        driver.find_element(By.XPATH, xpath).click()
-        if path is None:
-            path = Path("./bing_cookies__default.json")
-            # Double underscore ensures this file is first when sorted
-        cookies = driver.get_cookies()
-        Path(path).write_text(json.dumps(cookies, indent=4), encoding="utf-8")
-        # Path again in case supplied path is: str
-        print(f"Cookies saved to: {path}")
-        driver.quit()
+    def files(cls):
+        """
+        Return a sorted list of all cookie files matching .search_pattern in
+        cls.dir_path, plus any supplied files, minus any ignored files.
+        """
+        all_files = set(Path(cls.dir_path).glob(cls.search_pattern))
+        if hasattr(cls, "supplied_files"):
+            supplied_files = {x for x in cls.supplied_files if x.is_file()}
+            all_files.update(supplied_files)
+        return sorted(list(all_files - cls.ignore_files))
 
     @classmethod
-    def files(cls) -> List[Path]:
-        """Return a sorted list of all cookie files matching .search_pattern"""
-        all_files = set(cls.dirpath.glob(cls.search_pattern))
-        return sorted(all_files - cls.ignore_files)
-
-    @classmethod
-    def import_data(cls) -> None:
+    def import_data(cls):
         """
         Read the active cookie file and populate the following attributes:
 
-          .current_filepath
+          .current_file_path
           .current_data
           .image_token
         """
+        if not cls.files():
+            log(f"No files in Cookie.dir_path")
+            return
         try:
-            cls.current_filepath = cls.files()[cls.current_file_index]
-        except IndexError as exc:
-            print(
-                "> Please set Cookie.current_filepath to a valid cookie file, then run Cookie.import_data()",
-            )
-            raise "No valid cookie file found." from exc
-        print(f"> Importing cookies from: {cls.current_filepath.name}")
-        with Path.open(cls.current_filepath, encoding="utf-8") as file:
+            cls.current_file_path = cls.files()[cls.current_file_index]
+        except IndexError:
+            log(f"Invalid file index [{cls.current_file_index}]")
+            log("Files in Cookie.dir_path:")
+            for file in cls.files():
+                log(f"{file}")
+            return
+        log(f"Importing cookies from: {cls.current_file_path.name}")
+        with open(cls.current_file_path, encoding="utf-8") as file:
             cls.current_data = json.load(file)
-        cls.image_token = [x for x in cls.current_data if x.get("name") == "_U"]
+        cls.image_token = [x for x in cls.current_data if x.get("name").startswith("_U")]
         cls.image_token = cls.image_token[0].get("value")
 
     @classmethod
-    def import_next(cls) -> None:
+    def import_next(cls, discard=False):
         """
-        Cycle through to the next cookies file.  Import it.  Mark the previous
-        file to be ignored for the remainder of the current session.
+        Cycle through to the next cookies file then import it.
+
+        discard (bool): True -Mark the previous file to be ignored for the remainder of the current session.  Otherwise cycle through all available
+        cookie files (sharing the workload and 'resting' when not in use).
         """
-        cls.ignore_files.add(cls.current_filepath)
+        if not hasattr(cls, "current_file_path"):
+            cls.import_data()
+            return
+        try:
+            if discard:
+                cls.ignore_files.add(cls.current_file_path)
+            else:
+                Cookie.current_file_index += 1
+        except AttributeError:
+            # Will fail on first instantiation because no current_file_path
+            pass
         if Cookie.current_file_index >= len(cls.files()):
             Cookie.current_file_index = 0
         Cookie.import_data()
-
 
 class Query:
     """
     A convenience class that wraps around EdgeGPT.Chatbot to encapsulate input,
     config, and output all together.  Relies on Cookie class for authentication
+    unless ignore_cookies=True
     """
+    index = []
+    image_dir_path = Path.cwd().resolve() / "bing_images"
 
     def __init__(
         self,
-        prompt: str,
-        style: str = "precise",
-        content_type: str = "text",
-        cookie_file: int = 0,
-        echo: bool = True,
-        echo_prompt: bool = False,
-        proxy: Union[str, None] = None,
-    ) -> None:
+        prompt,
+        style="precise",
+        content_type="text",
+        cookie_files=None,
+        ignore_cookies=False,
+        echo=True,
+        echo_prompt=False,
+        locale = "en-GB",
+        simplify_response = True,
+    ):
         """
         Arguments:
 
         prompt: Text to enter into Bing Chat
         style: creative, balanced, or precise
         content_type: "text" for Bing Chat; "image" for Dall-e
-        cookie_file: Path, filepath string, or index (int) to list of cookie paths
+        ignore_cookies (bool): Ignore cookie data altogether
         echo: Print something to confirm request made
         echo_prompt: Print confirmation of the evaluated prompt
+        simplify_response: True -> single simplified prompt/response exchange
+        cookie_files: iterable of Paths or strings of cookie files (json)
+
+        Files in Cookie.dir_path will also be used if they exist.  This defaults
+        to the current working directory, so set Cookie.dir_path before
+        creating a Query if your cookie files are elsewhere.
         """
-        self.proxy = proxy
-        self.index = []
-        self.request_count = {}
-        self.image_dirpath = Path("./").resolve()
-        Cookie.import_data()
-        self.index += [self]
+        self.__class__.index += [self]
         self.prompt = prompt
-        files = Cookie.files()
-        if isinstance(cookie_file, int):
-            index = cookie_file if cookie_file < len(files) else 0
-        else:
-            if not isinstance(cookie_file, (str, Path)):
-                message = "'cookie_file' must be an int, str, or Path object"
-                raise TypeError(message)
-            cookie_file = Path(cookie_file)
-            if cookie_file in files:  # Supplied filepath IS in Cookie.dirpath
-                index = files.index(cookie_file)
-            else:  # Supplied filepath is NOT in Cookie.dirpath
-                if cookie_file.is_file():
-                    Cookie.dirpath = cookie_file.parent.resolve()
-                if cookie_file.is_dir():
-                    Cookie.dirpath = cookie_file.resolve()
-                index = 0
-        Cookie.current_file_index = index
+        self.locale = locale
+        self.simplify_response = simplify_response
+        self.ignore_cookies = ignore_cookies
+        if not ignore_cookies:
+            if cookie_files:
+                # Convert singular argument to an iterable:
+                if isinstance(cookie_files, (str, Path)):
+                    cookie_files = {cookie_files}
+                # Check all elements exist and are Paths:
+                cookie_files = {
+                    Path(x).resolve()
+                    for x in cookie_files
+                    if isinstance(x, (str, Path)) and x
+                }
+                Cookie.supplied_files = cookie_files
+            files = Cookie.files()  # includes .supplied_files
+            if Cookie.rotate_cookies:
+                Cookie.import_next()
+            else:
+                Cookie.import_data()
         if content_type == "text":
             self.style = style
             self.log_and_send_query(echo, echo_prompt)
         if content_type == "image":
             self.create_image()
 
-    def log_and_send_query(self, echo: bool, echo_prompt: bool) -> None:
-        if platform.system() == "Windows":
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    def log_and_send_query(self, echo, echo_prompt):
         self.response = asyncio.run(self.send_to_bing(echo, echo_prompt))
-        name = str(Cookie.current_filepath.name)
-        if not self.request_count.get(name):
-            self.request_count[name] = 1
+        if not hasattr(Cookie, "current_data"):
+            name = "<no_cookies>"
         else:
-            self.request_count[name] += 1
+            name = Cookie.current_file_path.name
+        if not Cookie.request_count.get(name):
+            Cookie.request_count[name] = 1
+        else:
+            Cookie.request_count[name] += 1
 
-    def create_image(self) -> None:
+    def create_image(self):
         image_generator = ImageGen(Cookie.image_token)
         image_generator.save_images(
             image_generator.get_images(self.prompt),
-            output_dir=self.image_dirpath,
+            output_dir=self.__class__.image_dir_path,
         )
 
-    async def send_to_bing(self, echo: bool = True, echo_prompt: bool = False) -> str:
+    async def send_to_bing(self, echo=True, echo_prompt=False):
         """Creat, submit, then close a Chatbot instance.  Return the response"""
-        retries = len(Cookie.files())
+        retries = len(Cookie.files()) or 1
         while retries:
+            if not hasattr(Cookie, "current_data"):
+                bot = await Chatbot.create()
+            else:
+                bot = await Chatbot.create(cookies=Cookie.current_data)
+            if echo_prompt:
+                log(f"{self.prompt=}")
+            if echo:
+                log("Waiting for response...")
+            if self.style.lower() not in "creative balanced precise".split():
+                self.style = "precise"
             try:
-                # Read the cookies file
-                bot = await Chatbot.create(
-                    proxy=self.proxy,
-                    cookies=Cookie.current_data,
-                )
-                if echo_prompt:
-                    print(f"> {self.prompt}=")
-                if echo:
-                    print("> Waiting for response...")
-                if self.style.lower() not in "creative balanced precise".split():
-                    self.style = "precise"
-                return await bot.ask(
+                response = await bot.ask(
                     prompt=self.prompt,
-                    conversation_style=getattr(ConversationStyle, self.style),
-                    # wss_link="wss://sydney.bing.com/sydney/ChatHub"
-                    # What other values can this parameter take? It seems to be optional
+                    conversation_style=getattr(ConversationStyle, self.style),simplify_response=self.simplify_response,
+                    locale=self.locale,
                 )
-            except KeyError:
-                print(
-                    f"> KeyError [{Cookie.current_filepath.name} may have exceeded the daily limit]",
-                )
-                Cookie.import_next()
+                return response
+            except Exception as ex:
+                log(f"Exception: [{Cookie.current_file_path.name} may have exceeded the daily limit]\n{ex}")
+                Cookie.import_next(discard=True)
                 retries -= 1
             finally:
                 await bot.close()
-        return None
 
     @property
-    def output(self) -> str:
+    def output(self):
         """The response from a completed Chatbot request"""
-        return self.response["item"]["messages"][1]["text"]
+        if self.simplify_response:
+            try:
+                return self.response['text']
+            except TypeError as te:
+                raise TypeError(f"{te}\n(No response received - probably rate throttled...)")
+        else:
+            return [
+                x.get('text') or x.get('hiddenText')
+                for x in self.response['item']['messages']
+                if x['author']=='bot'
+            ]
 
     @property
-    def sources(self) -> str:
+    def sources(self):
         """The source names and details parsed from a completed Chatbot request"""
-        return self.response["item"]["messages"][1]["sourceAttributions"]
+        if self.simplify_response:
+            return self.response['sources_text']
+        else:
+            return [
+                x.get('sourceAttributions') or []
+                for x in self.response['item']['messages']
+                if x['author']=='bot'
+            ]
 
     @property
-    def sources_dict(self) -> Dict[str, str]:
+    def sources_dict(self):
         """The source names and details as a dictionary"""
-        sources_dict = {}
-        name = "providerDisplayName"
-        url = "seeMoreUrl"
-        for source in self.sources:
-            if name in source and url in source:
-                sources_dict[source[name]] = source[url]
-            else:
-                continue
-        return sources_dict
+        if self.simplify_response:
+            text = self.response['sources_text']
+            sources = enumerate(re.findall(r'\((http.*?)\)', text))
+            return {index+1: value for index, value in sources}
+        else:
+            all_sources = []
+            name = 'providerDisplayName'
+            url = 'seeMoreUrl'
+            for sources in self.sources:
+                if not sources:
+                    continue
+                data = {}
+                for index, source in enumerate(sources):
+                    if name in source.keys() and url in source.keys():
+                        data[index+1] = source[url]
+                    else:
+                        continue
+                all_sources += [data]
+            return all_sources
 
     @property
-    def code(self) -> str:
-        """Extract and join any snippets of Python code in the response"""
-        code_blocks = self.output.split("```")[1:-1:2]
-        code_blocks = ["\n".join(x.splitlines()[1:]) for x in code_blocks]
-        return "\n\n".join(code_blocks)
+    def code_block_formats(self):
+        """
+        Extract a list of programming languages/formats used in code blocks
+        """
+        regex = r"``` *(\b\w+\b\+*) *"
+        if self.simplify_response:
+            return re.findall(regex, self.output)
+        else:
+            return re.findall(regex, "\n".join(self.output))
 
     @property
-    def languages(self) -> Set[str]:
-        """Extract all programming languages given in code blocks"""
-        code_blocks = self.output.split("```")[1:-1:2]
-        return {x.splitlines()[0] for x in code_blocks}
+    def code_blocks(self):
+        """
+        Return a list of code blocks (```) or snippets (`) as strings.
+
+        If the response contains a mix of snippets and code blocks, return the
+        code blocks only.
+
+        This method is not suitable if the main text response includes either of
+        the delimiters but not as part of an actual snippet or code block.
+
+        For example:
+        'In Markdown, the back-tick (`) is used to denote a code snippet'
+
+        """
+
+        final_blocks = []
+        if isinstance(self.output, str):  # I.e. simplify_response is True
+            separator = '```' if '```' in self.output else '`'
+            code_blocks = self.output.split(separator)[1:-1:2]
+            if separator == '`':
+                return code_blocks
+        else:
+            code_blocks = []
+            for response in self.output:
+                separator = '```' if '```' in response else '`'
+                code_blocks.extend(response.split(separator)[1:-1:2])
+            code_blocks = [x for x in code_blocks if x]
+        # Remove language name if present:
+        for block in code_blocks:
+            lines = block.splitlines()
+            code = lines[1:] if re.match(" *\w+ *", lines[0]) else lines
+            final_blocks += ["\n".join(code).removeprefix(separator)]
+        return [x for x in final_blocks if x]
 
     @property
-    def suggestions(self) -> List[str]:
+    def code(self):
+        """
+        Extract and join any snippets of code or formatted data in the response
+        """
+        return "\n\n".join(self.code_blocks)
+
+
+    @property
+    def suggestions(self):
         """Follow-on questions suggested by the Chatbot"""
-        return [
-            x["text"]
-            for x in self.response["item"]["messages"][1]["suggestedResponses"]
-        ]
+        if self.simplify_response:
+            return self.response['suggestions']
+        else:
+            try:
+                return [x['text'] for x in self.response['item']['messages'][1]['suggestedResponses']]
+            except KeyError:
+                return
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"<EdgeGPT.Query: {self.prompt}>"
 
-    def __str__(self) -> str:
-        return self.output
-
+    def __str__(self):
+        if self.simplify_response:
+            return self.output
+        else:
+            return "\n\n".join(self.output)
 
 class ImageQuery(Query):
-    def __init__(self, prompt: str, **kwargs) -> None:
-        kwargs["content_type"] = "image"
+    def __init__(self, prompt, **kwargs):
+        kwargs.update({"content_type": "image"})
         super().__init__(prompt, **kwargs)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"<EdgeGPT.ImageQuery: {self.prompt}>"
+
+def test_cookie_rotation():
+    for i in range(1, 50):
+        q = Query(f"What is {i} in Roman numerals?  Give the answer in JSON", style="precise")
+        log(f"{i}: {Cookie.current_file_path.name}")
+        log(q.code)
+        log(f"Cookie count: {Cookie.request_count.get(Cookie.current_file_path.name)}")
+
+def test_features():
+    try:
+        q = Query(f"What is {i} in Roman numerals?  Give the answer in JSON", style="precise")
+        log(f"{i}: {Cookie.current_file_path.name}")
+        print(f"{Cookie.current_file_index=}")
+        print(f"{Cookie.current_file_path=}")
+        print(f"{Cookie.current_data=}")
+        print(f"{Cookie.dir_path=}")
+        print(f"{Cookie.search_pattern=}")
+        print(f"{Cookie.files()=}")
+        print(f"{Cookie.image_token=}")
+        print(f"{Cookie.import_next(discard=True)=}")
+        print(f"{Cookie.rotate_cookies=}")
+        print(f"{Cookie.files()=}")
+        print(f"{Cookie.ignore_files=}")
+        print(f"{Cookie.supplied_files=}")
+        print(f"{Cookie.request_count=}")  # Keeps a tally of requests made in using each cookie file during this session
+        print(f"{q=}")
+        print(f"{q.prompt=}")
+        print(f"{q.ignore_cookies=}")
+        print(f"{q.style=}")
+        print(f"{q.simplify_response=}")
+        print(f"{q.locale=}")
+        print(f"{q.output=}")
+        print(q)
+        print(f"{q.sources=}")
+        print(f"{q.sources_dict=}")
+        print(f"{q.suggestions=}")
+        print(f"{q.code=}")  # All code as a single string
+        print(f"{q.code_blocks=}")  # Individual code blocks
+        print(f"{q.code_block_formats=}")  # The language/format of each code block (if given)
+        print(f"{Query.index=}")  # Keeps an index of Query objects created
+        print(f"{Query.image_dir_path=}")
+    except Exception a E:
+        raise Exception(E)    
+    finally:
+        return q
