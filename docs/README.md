@@ -156,6 +156,11 @@ from EdgeGPT.EdgeUtils import Query, Cookie
 q = Query("What are you? Give your answer as Python code")
 print(q)
 ```
+The default directory for storing Cookie files is `HOME/bing_cookies` but you can change it with:
+
+```python
+Cookie.dir_path = Path(r"...")
+```
 
 Or change the conversation style or cookie file to be used:
 
@@ -165,23 +170,30 @@ q = Query(
   style="creative",  # or: 'balanced', 'precise'
   cookie_file="./bing_cookies_alternative.json"
 )
+
+#  Use `help(Query)` to see other supported parameters.
 ```
 
-Quickly extract the text output, code snippets, list of sources/references, or suggested follow-on questions using the following attributes:
+Quickly extract the text output, code snippets, list of sources/references, or suggested follow-on questions from a response using the following attributes:
 
 ```python
-q.output
-q.code
+q.output  # Also: print(q)
+q.sources
+q.sources_dict
 q.suggestions
-q.sources       # for the full json output
-q.sources_dict  # for a dictionary of titles and urls
+q.code
+q.code_blocks
+q.code_block_formatsgiven)
 ```
 
 Get the orginal prompt and the conversation style you specified:
 
 ```python
 q.prompt
+q.ignore_cookies
 q.style
+q.simplify_response
+q.locale
 repr(q)
 ```
 
@@ -189,7 +201,8 @@ Access previous Queries made since importing `Query`:
 
 ```python
 Query.index  # A list of Query objects; updated dynamically
-Query.request_count  # A tally of requests made using each cookie file
+Query.image_dir_path
+
 ```
 
 And finally, the `Cookie` class supports multiple cookie files, so if you create additional cookie files with the naming convention `bing_cookies_*.json`, your queries will automatically try using the next file (alphabetically) if you've exceeded your daily quota of requests (currently set at 200).
@@ -198,14 +211,17 @@ Here are the main attributes which you can access:
 
 ```python
 Cookie.current_file_index
-Cookie.dirpath
-Cookie.search_pattern  # default is `bing_cookies_*.json`
-Cookie.files()  # list as files that match .search_pattern
-Cookie.current_filepath
+Cookie.current_file_path
 Cookie.current_data
-Cookie.import_next()
+Cookie.dir_path
+Cookie.search_pattern
+Cookie.files
 Cookie.image_token
+Cookie.import_next
+Cookie.rotate_cookies
 Cookie.ignore_files
+Cookie.supplied_files
+Cookie.request_count
 ```
 
 ---
