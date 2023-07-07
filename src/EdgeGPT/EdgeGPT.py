@@ -127,7 +127,8 @@ class Chatbot:
                 messages_left = response["item"]["throttling"][
                     "maxNumUserMessagesInConversation"
                 ] - response["item"]["throttling"].get(
-                    "numUserMessagesInConversation", 0
+                    "numUserMessagesInConversation",
+                    0,
                 )
                 if messages_left == 0:
                     raise Exception("Max messages reached")

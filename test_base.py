@@ -7,8 +7,8 @@ from EdgeGPT.EdgeGPT import ConversationStyle
 pytest_plugins = ("pytest_asyncio",)
 
 
-@pytest.mark.asyncio
-async def test_ask():
+@pytest.mark.asyncio()
+async def test_ask() -> None:
     bot = await Chatbot.create()  # Passing cookies is "optional", as explained above
     response = await bot.ask(
         prompt="find me some information about the new ai released by meta.",
@@ -17,4 +17,4 @@ async def test_ask():
     )
     await bot.close()
     print(json.dumps(response, indent=2))
-    assert response != ""
+    assert response
