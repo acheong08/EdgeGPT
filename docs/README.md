@@ -38,7 +38,6 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## Requirements
 
-
 - python 3.8+
 - A Microsoft Account with access to <https://bing.com/chat> (Optional, depending on your region)
 - Required in a supported country or region with New Bing (Chinese mainland VPN required)
@@ -60,8 +59,8 @@ If you receive the following error, you can try **providing a cookie** and see i
 
 1. Get a browser that looks like Microsoft Edge.
 
- * a) (Easy) Install the latest version of Microsoft Edge
- * b) (Advanced) Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
+- a) (Easy) Install the latest version of Microsoft Edge
+- b) (Advanced) Alternatively, you can use any browser and set the user-agent to look like you're using Edge (e.g., `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). You can do this easily with an extension like "User-Agent Switcher and Manager" for [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/).
 
 2. Open [bing.com/chat](https://bing.com/chat)
 3. If you see a chat feature, you are good to continue...
@@ -70,11 +69,10 @@ If you receive the following error, you can try **providing a cookie** and see i
 6. Open the extension
 7. Click "Export" on the bottom right, then "Export as JSON" (This saves your cookies to clipboard)
 8. Paste your cookies into a file `bing_cookies_*.json`.
-   * NOTE: The **cookies file name MUST follow the regex pattern `bing_cookies_*.json`**, so that they could be recognized by internal cookie processing mechanisms
-
-
+   - NOTE: The **cookies file name MUST follow the regex pattern `bing_cookies_*.json`**, so that they could be recognized by internal cookie processing mechanisms
 
 ### Use cookies in code:
+
 ```python
 cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read())  # might omit cookies option
 bot = await Chatbot.create(cookies=cookies)
@@ -123,6 +121,7 @@ options:
                         path to history file
   --locale LOCALE       your locale (e.g. en-US, zh-CN, en-IE, en-GB)
 ```
+
 (China/US/UK/Norway has enhanced support for locale)
 
 ## Run in Python
@@ -154,6 +153,88 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+### 2) The `Query` and `Cookie` helper classes 
+
+Create a simple Bing Chat AI query (using the 'precise' conversation style by default) and see just the main text output rather than the whole API response:
+
+Remeber to store your cookies in a specific format: `bing_cookies_*.json`.
+
+```python
+from EdgeGPT.EdgeUtils import Query, Cookie
+
+q = Query("What are you? Give your answer as Python code")
+print(q)
+```
+
+The default directory for storing Cookie files is `HOME/bing_cookies` but you can change it with:
+
+```python
+Cookie.dir_path = Path(r"...")
+```
+
+Or change the conversation style or cookie file to be used:
+
+```python
+q = Query(
+  "What are you? Give your answer as Python code",
+  style="creative",  # or: 'balanced', 'precise'
+  cookie_file="./bing_cookies_alternative.json"
+)
+
+#  Use `help(Query)` to see other supported parameters.
+```
+
+Quickly extract the text output, code snippets, list of sources/references, or suggested follow-on questions from a response using the following attributes:
+
+```python
+q.output  # Also: print(q)
+q.sources
+q.sources_dict
+q.suggestions
+q.code
+q.code_blocks
+q.code_block_formatsgiven)
+```
+
+Get the orginal prompt and the conversation style you specified:
+
+```python
+q.prompt
+q.ignore_cookies
+q.style
+q.simplify_response
+q.locale
+repr(q)
+```
+
+Access previous Queries made since importing `Query`:
+
+```python
+Query.index  # A list of Query objects; updated dynamically
+Query.image_dir_path
+
+```
+
+And finally, the `Cookie` class supports multiple cookie files, so if you create additional cookie files with the naming convention `bing_cookies_*.json`, your queries will automatically try using the next file (alphabetically) if you've exceeded your daily quota of requests (currently set at 200).
+
+Here are the main attributes which you can access:
+
+```python
+Cookie.current_file_index
+Cookie.current_file_path
+Cookie.current_data
+Cookie.dir_path
+Cookie.search_pattern
+Cookie.files
+Cookie.image_token
+Cookie.import_next
+Cookie.rotate_cookies
+Cookie.ignore_files
+Cookie.supplied_files
+Cookie.request_count
+```
+
 ---
 
 ## Run with Docker

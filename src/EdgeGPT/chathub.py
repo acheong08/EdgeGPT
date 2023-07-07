@@ -162,9 +162,15 @@ class ChatHub:
                                     resp_txt = f"{resp_txt}\n![image{i}]({image})"
                                 draw = True
                             if (
-                                response["arguments"][0]["messages"][0]["contentOrigin"]
-                                != "Apology"
-                            ) and not draw and not raw:
+                                (
+                                    response["arguments"][0]["messages"][0][
+                                        "contentOrigin"
+                                    ]
+                                    != "Apology"
+                                )
+                                and not draw
+                                and not raw
+                            ):
                                 resp_txt = result_text + response["arguments"][0][
                                     "messages"
                                 ][0]["adaptiveCards"][0]["body"][0].get("text", "")
