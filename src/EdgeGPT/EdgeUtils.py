@@ -3,8 +3,8 @@ import json
 import re
 from pathlib import Path
 
-from EdgeGPT.EdgeGPT import Chatbot, ConversationStyle
-from EdgeGPT.ImageGen import ImageGen
+from .EdgeGPT import Chatbot, ConversationStyle
+from .ImageGen import ImageGen
 from log2d import Log
 
 Log("BingChat")
