@@ -131,6 +131,7 @@ class Chatbot:
                 )
                 if messages_left == 0:
                     raise Exception("Max messages reached")
+                message = ""
                 for msg in reversed(response["item"]["messages"]):
                     if msg.get("adaptiveCards") and msg["adaptiveCards"][0]["body"][
                         0
