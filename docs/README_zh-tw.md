@@ -38,7 +38,6 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## 要求
 
-
 - python 3.8+
 - 一個可以訪問必應聊天的微軟帳戶 <https://bing.com/chat> (可選，取決於所在地區)
 - 需要在 New Bing 支持的國家或地區（中國大陸需使用VPN）
@@ -72,9 +71,8 @@ python3 -m pip install EdgeGPT --upgrade
 8. 將您剪貼簿上的 cookie 粘貼到檔 `bing_cookies_*.json` 中
    * 注意：**cookie 檔名必須遵循正則表示式 `bing_cookies_*.json`**，這樣才能讓本模組的 cookie 處理程式識別到。
 
-
-
 ### 在代碼中使用 cookie：
+
 ```python
 cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read()) # 可能会忽略 cookie 选项
 bot = await Chatbot.create(cookies=cookies)
@@ -154,6 +152,89 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+
+### 2)  `Query` 和 `Cookie` 助手類
+
+創建一個簡單的必應聊天 AI 查詢（預設情況下使用“精確”對話樣式），這樣可以僅查看主要文本輸出，而不是整個 API 回應：
+
+注意按照特定格式儲存 cookie： ```bing_cookies_*.json```。
+
+```python
+from EdgeGPT.EdgeUtils import Query, Cookie
+
+q = Query("你是誰？用python代碼給出回答")
+print(q)
+```
+
+儲存 Cookie 檔的預設目錄是 `HOME/bing_cookies`，但您可以通過以下方式更改它：
+
+```python
+Cookie.dir_path = Path(r"...")
+```
+
+或者更改要使用的對話風格或 Cookie 檔：
+
+```python
+q = Query(
+  "你是誰？用python代碼給出回答",
+  style="creative",  # 或者平衡模式 'balanced' 或者精確模式 'precise'
+  cookies="./bing_cookies_alternative.json"
+)
+
+# 使用 `help(Query)` 查看其他支持的參數。
+```
+
+使用以下屬性快速提取文字輸出、代碼片段、來源/參考清單或建議的後續問題：
+
+```python
+q.output  # 或者: print(q)
+q.sources
+q.sources_dict
+q.suggestions
+q.code
+q.code_blocks
+q.code_block_formatsgiven)
+```
+
+抓取原始 prompt 與您指定的對話風格：
+
+```python
+q.prompt
+q.ignore_cookies
+q.style
+q.simplify_response
+q.locale
+repr(q)
+```
+
+通過 import `Query` 獲取進行的先前查詢：
+
+```python
+Query.index  # 一个查詢物件的串列；是動態更新的
+Query.image_dir_path
+
+```
+
+最後，`Cookie` 類支援多個 cookie 檔，因此，如果您使用命名約定 `bing_cookies_*.json` 創建其他 cookie 檔，則如果您的請求數已超出每日配額（當前設置為 200），您的查詢將自動嘗試使用下一個檔（按字母順序）。
+
+以下是您可以獲得的主要屬性：
+
+```python
+Cookie.current_file_index
+Cookie.current_file_path
+Cookie.current_data
+Cookie.dir_path
+Cookie.search_pattern
+Cookie.files
+Cookie.image_token
+Cookie.import_next
+Cookie.rotate_cookies
+Cookie.ignore_files
+Cookie.supplied_files
+Cookie.request_count
+```
+
 ---
 
 ## 使用 Docker 運行
@@ -255,7 +336,7 @@ if __name__ == "__main__":
         "--asyncio", help="使用 asyncio 運行 ImageGen", action="store_true"
     )
     args = parser.parse_args()
-    # Load auth cookie
+    # 載入身份驗證 cookie
     with open(args.cookie_file, encoding="utf-8") as file:
         cookie_json = json.load(file)
         for cookie in cookie_json:
