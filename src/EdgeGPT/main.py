@@ -106,6 +106,7 @@ async def async_main(args: argparse.Namespace) -> None:
         print()
         p_hist(question + "\n")
         if question == "!exit":
+            await bot.close()
             break
         if question == "!help":
             print(

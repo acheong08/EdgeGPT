@@ -108,7 +108,7 @@ class ChatHub:
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
             ssl=ssl_context,
             headers=HEADERS,
-            proxy=self.proxy
+            proxy=self.proxy,
         ) as wss:
             await self._initial_handshake(wss)
             # Construct a ChatHub request
@@ -266,3 +266,4 @@ class ChatHub:
 
     async def close(self) -> None:
         await self.session.aclose()
+        await self.aio_session.close()
