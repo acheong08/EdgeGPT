@@ -6,10 +6,11 @@ from EdgeGPT.EdgeGPT import ConversationStyle
 
 pytest_plugins = ("pytest_asyncio",)
 
+from os import getenv
 
 @pytest.mark.asyncio()
 async def test_ask() -> None:
-    bot = await Chatbot.create()  # Passing cookies is "optional", as explained above
+    bot = await Chatbot.create(cookies=getenv("EDGE_COOKIES"))
     response = await bot.ask(
         prompt="find me some information about the new ai released by meta.",
         conversation_style=ConversationStyle.balanced,
