@@ -108,7 +108,7 @@ class ChatHub:
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
             ssl=ssl_context,
             headers=HEADERS,
-            proxy=self.proxy
+            proxy=self.proxy,
         ) as wss:
             await self._initial_handshake(wss)
             # Construct a ChatHub request
@@ -154,15 +154,19 @@ class ChatHub:
                                 )
                                 == "GenerateContentQuery"
                             ):
-                                async with ImageGenAsync(
-                                    all_cookies=self.cookies,
-                                ) as image_generator:
-                                    images = await image_generator.get_images(
-                                        response["arguments"][0]["messages"][0]["text"],
-                                    )
-                                for i, image in enumerate(images):
-                                    resp_txt = f"{resp_txt}\n![image{i}]({image})"
-                                draw = True
+                                try:
+                                    async with ImageGenAsync(
+                                        all_cookies=self.cookies,
+                                    ) as image_generator:
+                                        images = await image_generator.get_images(
+                                            response["arguments"][0]["messages"][0]["text"],
+                                        )
+                                    for i, image in enumerate(images):
+                                        resp_txt = f"{resp_txt}\n![image{i}]({image})"
+                                    draw = True
+                                except Exception as e:
+                                    print(e)
+                                    continue
                             if (
                                 (
                                     response["arguments"][0]["messages"][0][
@@ -266,3 +270,4 @@ class ChatHub:
 
     async def close(self) -> None:
         await self.session.aclose()
+        await self.aio_session.close()

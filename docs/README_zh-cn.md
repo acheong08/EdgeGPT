@@ -38,7 +38,6 @@ python3 -m pip install EdgeGPT --upgrade
 
 ## 要求
 
-
 - python 3.8+
 - 一个可以访问必应聊天的微软账户 <https://bing.com/chat> (可选，视所在地区而定)
 - 需要在 New Bing 支持的国家或地区（中国大陆需使用VPN）
@@ -60,8 +59,8 @@ python3 -m pip install EdgeGPT --upgrade
 
 1. 获取一个看着像 Microsoft Edge 的浏览器。
 
- * a) (简单) 安装最新版本的 Microsoft Edge
- * b) (高级) 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作。
+- a) (简单) 安装最新版本的 Microsoft Edge
+- b) (高级) 或者, 您可以使用任何浏览器并将用户代理设置为Edge的用户代理 (例如 `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51`). 您可以使用像 "User-Agent Switcher and Manager"  [Chrome](https://chrome.google.com/webstore/detail/user-agent-switcher-and-m/bhchdcejhohfmigjafbampogmaanbfkg) 和 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/user-agent-string-switcher/) 这样的扩展轻松完成此操作。
 
 2. 打开 [bing.com/chat](https://bing.com/chat)
 3. 如果您看到聊天功能，就接着下面的步骤...
@@ -70,11 +69,10 @@ python3 -m pip install EdgeGPT --upgrade
 6. 打开扩展程序
 7. 点击右下角的"导出" ，然后点击"导出为 JSON" (将会把内容保存到你的剪贴板上)
 8. 把你剪贴板上的内容粘贴到 `bing_cookies_*.json` 文件中
-   * 注意：**Cookie 文件名必须遵守正则表达式 `bing_cookies_*.json`**，这样才能让本模块的 cookie 处理程序识别到。
-
-
+   - 注意：**Cookie 文件名必须遵守正则表达式 `bing_cookies_*.json`**，这样才能让本模块的 cookie 处理程序识别到。
 
 ### 在代码中使用 cookie：
+
 ```python
 cookies = json.loads(open("./path/to/cookies.json", encoding="utf-8").read()) # 可能会忽略 cookie 选项
 bot = await Chatbot.create(cookies=cookies)
@@ -154,6 +152,89 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+
+### 2)  `Query` 和 `Cookie` 助手类
+
+创建一个简易的必应聊天 AI 查询（默认使用精确模式），这样可以只查看主要的文字输出，而不会打出整个 API 响应内容：
+
+注意按照特定格式保存 cookie：`bing_cookies_*.json`.
+
+```python
+from EdgeGPT.EdgeUtils import Query, Cookie
+
+q = Query("你是谁？用python代码给出回答")
+print(q)
+```
+
+保存 cookie 文件的默认目录是 `HOME/bing_cookies`，不过可以这样修改：
+
+```python
+Cookie.dir_path = Path(r"...")
+```
+
+也可以修改对话模式，或者指定要使用的 cookie 文件：
+
+```python
+q = Query(
+  "你是谁？用python代码给出回答",
+  style="creative",  # 或者平衡模式 'balanced' 或者精确模式 'precise'
+  cookie_file="./bing_cookies_alternative.json"
+)
+
+# 使用 `help(Query)` 查看其他支持的参数。
+```
+
+使用以下属性快速提取文本输出、代码片段、来源/参考列表或建议的后续问题：
+
+```python
+q.output  # 或者: print(q)
+q.sources
+q.sources_dict
+q.suggestions
+q.code
+q.code_blocks
+q.code_block_formatsgiven)
+```
+
+获得原始 prompt 和指定的对话模式：
+
+```python
+q.prompt
+q.ignore_cookies
+q.style
+q.simplify_response
+q.locale
+repr(q)
+```
+
+通过 import `Query` 获取之前的查询:
+
+```python
+Query.index  # 一个查询对象的列表；是动态更新的
+Query.image_dir_path
+
+```
+
+最后，`Cookie` 类支持多个 Cookie 文件，因此，如果您使用命名约定 `bing_cookies_*.json` 创建其他 Cookie 文件，那么如果超过了每日请求配额（目前设置为 200），查询将自动尝试使用下一个文件（按字母顺序）。
+
+这些是可以访问的主要属性:
+
+```python
+Cookie.current_file_index
+Cookie.current_file_path
+Cookie.current_data
+Cookie.dir_path
+Cookie.search_pattern
+Cookie.files
+Cookie.image_token
+Cookie.import_next
+Cookie.rotate_cookies
+Cookie.ignore_files
+Cookie.supplied_files
+Cookie.request_count
+```
+
 ---
 
 ## 使用 Docker 运行
@@ -255,7 +336,7 @@ if __name__ == "__main__":
         "--asyncio", help="使用 asyncio 运行 ImageGen", action="store_true"
     )
     args = parser.parse_args()
-    # Load auth cookie
+    # 加载认证 cookie
     with open(args.cookie_file, encoding="utf-8") as file:
         cookie_json = json.load(file)
         for cookie in cookie_json:

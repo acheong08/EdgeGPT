@@ -20,6 +20,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
+      env:
+        EDGE_COOKIES: ${{ secrets.EDGE_COOKIES }}
       run: |
         python -m pip install pytest pytest-asyncio
         python -m pip install .
