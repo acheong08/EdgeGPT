@@ -34,6 +34,7 @@ class ChatHub:
         proxy: str = None,
         cookies: Union[List[dict], None] = None,
     ) -> None:
+        self.aio_session = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
@@ -59,11 +60,6 @@ class ChatHub:
             timeout=900,
             headers=HEADERS_INIT_CONVER,
         )
-        cookies = {}
-        if self.cookies is not None:
-            for cookie in self.cookies:
-                cookies[cookie["name"]] = cookie["value"]
-        self.aio_session = aiohttp.ClientSession(cookies=cookies)
 
     async def get_conversation(
         self,
@@ -102,7 +98,11 @@ class ChatHub:
         locale: str = guess_locale(),
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
-
+        cookies = {}
+        if self.cookies is not None:
+            for cookie in self.cookies:
+                cookies[cookie["name"]] = cookie["value"]
+        self.aio_session = aiohttp.ClientSession(cookies=cookies)
         # Check if websocket is closed
         async with self.aio_session.ws_connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
