@@ -131,3 +131,6 @@ cookies.json
 output/*
 README.md
 *.json
+
+# Pycharm
+.idea/*
