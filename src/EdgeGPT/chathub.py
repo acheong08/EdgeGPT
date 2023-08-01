@@ -226,6 +226,8 @@ class ChatHub:
                             file=sys.stderr,
                         )
                     await wss.close()
+                    if not self.aio_session.closed:
+                        await self.aio_session.close()
                     yield True, response
                     return
                 if response.get("type") != 2:
@@ -266,4 +268,3 @@ class ChatHub:
 
     async def close(self) -> None:
         await self.session.aclose()
-        await self.aio_session.close()
