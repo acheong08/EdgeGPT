@@ -1,13 +1,11 @@
 import uuid
 import socket
 
-try:
-    take_ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    take_ip_socket.connect(("8.8.8.8", 80))
-    FORWARDED_IP = take_ip_socket.getsockname()[0]
-    take_ip_socket.close()
-except Exception as error:
-    print(repr(error))
+take_ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+take_ip_socket.connect(("8.8.8.8", 80))
+FORWARDED_IP: str = take_ip_socket.getsockname()[0]
+take_ip_socket.close()
+
 DELIMITER = "\x1e"
 
 HEADERS = {
