@@ -1,5 +1,5 @@
-import uuid
 import socket
+import uuid
 
 take_ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 take_ip_socket.connect(("8.8.8.8", 80))

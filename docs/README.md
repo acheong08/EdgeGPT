@@ -154,7 +154,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### 2) The `Query` and `Cookie` helper classes 
+### 2) The `Query` and `Cookie` helper classes
 
 Create a simple Bing Chat AI query (using the 'precise' conversation style by default) and see just the main text output rather than the whole API response:
 

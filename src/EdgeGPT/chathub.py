@@ -3,13 +3,12 @@ import json
 import os
 import ssl
 import sys
-import aiohttp
-
 from time import time
 from typing import Generator
 from typing import List
 from typing import Union
 
+import aiohttp
 import certifi
 import httpx
 from BingImageCreator import ImageGenAsync
@@ -30,10 +29,10 @@ ssl_context.load_verify_locations(certifi.where())
 
 class ChatHub:
     def __init__(
-            self,
-            conversation: Conversation,
-            proxy: str = None,
-            cookies: Union[List[dict], None] = None,
+        self,
+        conversation: Conversation,
+        proxy: str = None,
+        cookies: Union[List[dict], None] = None,
     ) -> None:
         self.aio_session = None
         self.request: ChatHubRequest
@@ -47,15 +46,15 @@ class ChatHub:
         self.cookies = cookies
         self.proxy: str = proxy
         proxy = (
-                proxy
-                or os.environ.get("all_proxy")
-                or os.environ.get("ALL_PROXY")
-                or os.environ.get("https_proxy")
-                or os.environ.get("HTTPS_PROXY")
-                or None
+            proxy
+            or os.environ.get("all_proxy")
+            or os.environ.get("ALL_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("HTTPS_PROXY")
+            or None
         )
         if proxy is not None and proxy.startswith("socks5h://"):
-            proxy = "socks5://" + proxy[len("socks5h://"):]
+            proxy = "socks5://" + proxy[len("socks5h://") :]
         self.session = httpx.AsyncClient(
             proxies=proxy,
             timeout=900,
@@ -63,14 +62,14 @@ class ChatHub:
         )
 
     async def get_conversation(
-            self,
-            conversation_id: str = None,
-            conversation_signature: str = None,
-            client_id: str = None,
+        self,
+        conversation_id: str = None,
+        conversation_signature: str = None,
+        client_id: str = None,
     ) -> dict:
         conversation_id = conversation_id or self.request.conversation_id
         conversation_signature = (
-                conversation_signature or self.request.conversation_signature
+            conversation_signature or self.request.conversation_signature
         )
         client_id = client_id or self.request.client_id
         url = f"https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}&source=cib&participantId={client_id}&conversationSignature={conversation_signature}&traceId={get_ran_hex()}"
@@ -89,14 +88,14 @@ class ChatHub:
         return response.json()
 
     async def ask_stream(
-            self,
-            prompt: str,
-            wss_link: str = None,
-            conversation_style: CONVERSATION_STYLE_TYPE = None,
-            raw: bool = False,
-            webpage_context: Union[str, None] = None,
-            search_result: bool = False,
-            locale: str = guess_locale(),
+        self,
+        prompt: str,
+        wss_link: str = None,
+        conversation_style: CONVERSATION_STYLE_TYPE = None,
+        raw: bool = False,
+        webpage_context: Union[str, None] = None,
+        search_result: bool = False,
+        locale: str = guess_locale(),
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
         cookies = {}
@@ -146,17 +145,17 @@ class ChatHub:
                 response = json.loads(obj)
                 # print(response)
                 if response.get("type") == 1 and response["arguments"][0].get(
-                        "messages",
+                    "messages",
                 ):
                     if not draw:
                         if (
-                                response["arguments"][0]["messages"][0].get(
-                                    "messageType",
-                                )
-                                == "GenerateContentQuery"
+                            response["arguments"][0]["messages"][0].get(
+                                "messageType",
+                            )
+                            == "GenerateContentQuery"
                         ):
                             async with ImageGenAsync(
-                                    all_cookies=self.cookies,
+                                all_cookies=self.cookies,
                             ) as image_generator:
                                 images = await image_generator.get_images(
                                     response["arguments"][0]["messages"][0]["text"],
@@ -165,37 +164,35 @@ class ChatHub:
                                 resp_txt = f"{resp_txt}\n![image{i}]({image})"
                             draw = True
                         if (
-                                (
-                                        response["arguments"][0]["messages"][0][
-                                            "contentOrigin"
-                                        ]
-                                        != "Apology"
-                                )
-                                and not draw
-                                and not raw
+                            (
+                                response["arguments"][0]["messages"][0]["contentOrigin"]
+                                != "Apology"
+                            )
+                            and not draw
+                            and not raw
                         ):
                             resp_txt = result_text + response["arguments"][0][
                                 "messages"
                             ][0]["adaptiveCards"][0]["body"][0].get("text", "")
-                            resp_txt_no_link = result_text + response["arguments"][
-                                0
-                            ]["messages"][0].get("text", "")
+                            resp_txt_no_link = result_text + response["arguments"][0][
+                                "messages"
+                            ][0].get("text", "")
                             if response["arguments"][0]["messages"][0].get(
-                                    "messageType",
+                                "messageType",
                             ):
                                 resp_txt = (
-                                        resp_txt
-                                        + response["arguments"][0]["messages"][0][
-                                            "adaptiveCards"
-                                        ][0]["body"][0]["inlines"][0].get("text")
-                                        + "\n"
+                                    resp_txt
+                                    + response["arguments"][0]["messages"][0][
+                                        "adaptiveCards"
+                                    ][0]["body"][0]["inlines"][0].get("text")
+                                    + "\n"
                                 )
                                 result_text = (
-                                        result_text
-                                        + response["arguments"][0]["messages"][0][
-                                            "adaptiveCards"
-                                        ][0]["body"][0]["inlines"][0].get("text")
-                                        + "\n"
+                                    result_text
+                                    + response["arguments"][0]["messages"][0][
+                                        "adaptiveCards"
+                                    ][0]["body"][0]["inlines"][0].get("text")
+                                    + "\n"
                                 )
                         if not raw:
                             yield False, resp_txt
@@ -210,18 +207,17 @@ class ChatHub:
                         cache = response["item"]["messages"][1]["adaptiveCards"][0][
                             "body"
                         ][0]["text"]
-                        response["item"]["messages"][1]["adaptiveCards"][0]["body"][
-                            0
-                        ]["text"] = (cache + resp_txt)
+                        response["item"]["messages"][1]["adaptiveCards"][0]["body"][0][
+                            "text"
+                        ] = (cache + resp_txt)
                     if (
-                            response["item"]["messages"][-1]["contentOrigin"]
-                            == "Apology"
-                            and resp_txt
+                        response["item"]["messages"][-1]["contentOrigin"] == "Apology"
+                        and resp_txt
                     ):
                         response["item"]["messages"][-1]["text"] = resp_txt_no_link
-                        response["item"]["messages"][-1]["adaptiveCards"][0][
-                            "body"
-                        ][0]["text"] = resp_txt
+                        response["item"]["messages"][-1]["adaptiveCards"][0]["body"][0][
+                            "text"
+                        ] = resp_txt
                         print(
                             "Preserved the message from being deleted",
                             file=sys.stderr,
@@ -245,14 +241,14 @@ class ChatHub:
         await wss.send_str(append_identifier({"type": 6}))
 
     async def delete_conversation(
-            self,
-            conversation_id: str = None,
-            conversation_signature: str = None,
-            client_id: str = None,
+        self,
+        conversation_id: str = None,
+        conversation_signature: str = None,
+        client_id: str = None,
     ) -> None:
         conversation_id = conversation_id or self.request.conversation_id
         conversation_signature = (
-                conversation_signature or self.request.conversation_signature
+            conversation_signature or self.request.conversation_signature
         )
         client_id = client_id or self.request.client_id
         url = "https://sydney.bing.com/sydney/DeleteSingleConversation"

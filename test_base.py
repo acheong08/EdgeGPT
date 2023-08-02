@@ -8,6 +8,7 @@ pytest_plugins = ("pytest_asyncio",)
 
 from os import getenv
 
+
 @pytest.mark.asyncio()
 async def test_ask() -> None:
     bot = await Chatbot.create(cookies=getenv("EDGE_COOKIES"))

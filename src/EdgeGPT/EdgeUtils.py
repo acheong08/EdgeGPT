@@ -6,7 +6,8 @@ from pathlib import Path
 
 from log2d import Log
 
-from .EdgeGPT import Chatbot, ConversationStyle
+from .EdgeGPT import Chatbot
+from .EdgeGPT import ConversationStyle
 from .ImageGen import ImageGen
 
 Log("BingChat")
@@ -220,7 +221,7 @@ class Query:
             return self.response["text"]
         except TypeError as te:
             raise TypeError(
-                f"{te}\n(No response received - probably rate throttled...)"
+                f"{te}\n(No response received - probably rate throttled...)",
             ) from te
 
     @property
@@ -350,7 +351,8 @@ def test_cookie_rotation() -> None:
 def test_features() -> Query:
     try:
         q = Query(
-            f"What is {i} in Roman numerals?  Give the answer in JSON", style="precise"
+            f"What is {i} in Roman numerals?  Give the answer in JSON",
+            style="precise",
         )
         log(f"{i}: {Cookie.current_file_path.name}")
         print(f"{Cookie.current_file_index=}")
@@ -365,7 +367,9 @@ def test_features() -> Query:
         print(f"{Cookie.files()=}")
         print(f"{Cookie.ignore_files=}")
         print(f"{Cookie.supplied_files=}")
-        print(f"{Cookie.request_count=}")  # Keeps a tally of requests made in using each cookie file during this session
+        print(
+            f"{Cookie.request_count=}"
+        )  # Keeps a tally of requests made in using each cookie file during this session
         print(f"{q=}")
         print(f"{q.prompt=}")
         print(f"{q.ignore_cookies=}")
@@ -379,7 +383,9 @@ def test_features() -> Query:
         print(f"{q.suggestions=}")
         print(f"{q.code=}")  # All code as a single string
         print(f"{q.code_blocks=}")  # Individual code blocks
-        print(f"{q.code_block_formats=}")  # The language/format of each code block (if given)
+        print(
+            f"{q.code_block_formats=}"
+        )  # The language/format of each code block (if given)
         print(f"{Query.index=}")  # Keeps an index of Query objects created
         print(f"{Query.image_dir_path=}")
     except Exception as E:
