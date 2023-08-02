@@ -13,7 +13,7 @@ if not PATH.exists():
 setup(
     name="EdgeGPT",
     version="0.13.0",
-    license="GNU General Public License v2.0",
+    license="The Unlicense",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
     description="Reverse engineered Edge Chat API",
