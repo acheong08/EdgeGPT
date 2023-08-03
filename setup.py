@@ -12,7 +12,7 @@ if not PATH.exists():
 
 setup(
     name="EdgeGPT",
-    version="0.13.1",
+    version="0.13.2",
     license="The Unlicense",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
